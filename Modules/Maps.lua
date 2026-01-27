@@ -112,13 +112,22 @@ function Maps:SetupMinimapDragging()
     Minimap:RegisterForDrag("LeftButton")
     
     -- Store the starting offset when drag begins
-    local dragStartX, dragStartY
+    local dragStartOffsetX, dragStartOffsetY
+    local dragStartMouseX, dragStartMouseY
     
     Minimap:SetScript("OnDragStart", function(self)
         -- Only allow dragging with CTRL+ALT
         if IsControlKeyDown() and IsAltKeyDown() then
-            dragStartX = Maps.db.profile.offsetX
-            dragStartY = Maps.db.profile.offsetY
+            -- Store the current offset and mouse position
+            dragStartOffsetX = Maps.db.profile.offsetX
+            dragStartOffsetY = Maps.db.profile.offsetY
+            
+            -- Get current mouse position
+            local scale = UIParent:GetEffectiveScale()
+            dragStartMouseX, dragStartMouseY = GetCursorPosition()
+            dragStartMouseX = dragStartMouseX / scale
+            dragStartMouseY = dragStartMouseY / scale
+            
             self:StartMoving()
         end
     end)
@@ -126,22 +135,26 @@ function Maps:SetupMinimapDragging()
     Minimap:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         
-        -- Calculate the new offset based on where the minimap ended up
-        local newX, newY = self:GetCenter()
-        local clusterX, clusterY = MinimapCluster:GetCenter()
+        -- Calculate how far the mouse moved
+        local scale = UIParent:GetEffectiveScale()
+        local mouseX, mouseY = GetCursorPosition()
+        mouseX = mouseX / scale
+        mouseY = mouseY / scale
         
-        if newX and newY and clusterX and clusterY then
-            -- Calculate relative offset
-            local offsetX = newX - clusterX
-            local offsetY = newY - clusterY
-            
-            -- Update database
-            Maps.db.profile.offsetX = math.floor(offsetX + 0.5)
-            Maps.db.profile.offsetY = math.floor(offsetY + 0.5)
-            
-            -- Reapply position to snap it properly
-            Maps:ApplyMinimapOffset()
-        end
+        -- Calculate the delta from drag start
+        local deltaX = mouseX - dragStartMouseX
+        local deltaY = mouseY - dragStartMouseY
+        
+        -- Add the delta to the original offset
+        local newOffsetX = dragStartOffsetX + deltaX
+        local newOffsetY = dragStartOffsetY + deltaY
+        
+        -- Update database with rounded values
+        Maps.db.profile.offsetX = math.floor(newOffsetX + 0.5)
+        Maps.db.profile.offsetY = math.floor(newOffsetY + 0.5)
+        
+        -- Reapply position using the new offset
+        Maps:ApplyMinimapOffset()
     end)
 end
 
