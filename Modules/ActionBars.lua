@@ -1,13 +1,112 @@
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-local AB = MidnightUI:NewModule("ActionBars", "AceEvent-3.0")
+local AB = MidnightUI:NewModule("ActionBars", "AceEvent-3.0", "AceHook-3.0")
+local LSM = LibStub("LibSharedMedia-3.0")
+
+-- ============================================================================
+-- 1. LOCAL VARIABLES & FRAMES
+-- ============================================================================
+
+local bars = {}
+local buttonCache = {}
+local Masque = LibStub("Masque", true)
+local masqueGroup
+
+-- Bar Definitions
+local BAR_CONFIGS = {
+    ["MainMenuBar"] = { name = "Action Bar 1", hasPages = true, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 50 } },
+    ["MultiBarBottomLeft"] = { name = "Action Bar 2", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 88 } },
+    ["MultiBarBottomRight"] = { name = "Action Bar 3", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 126 } },
+    ["MultiBarRight"] = { name = "Action Bar 4", hasPages = false, buttonCount = 12, default = { point = "RIGHT", x = -2, y = 0 } },
+    ["MultiBarLeft"] = { name = "Action Bar 5", hasPages = false, buttonCount = 12, default = { point = "RIGHT", x = -40, y = 0 } },
+    ["MultiBar5"] = { name = "Action Bar 6", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 164 } },
+    ["MultiBar6"] = { name = "Action Bar 7", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 202 } },
+    ["MultiBar7"] = { name = "Action Bar 8", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 240 } },
+    ["PetActionBar"] = { name = "Pet Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = -250, y = 50 } },
+    ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 50 } },
+}
+
+-- ============================================================================
+-- 2. DATABASE DEFAULTS
+-- ============================================================================
+
+local defaults = {
+    profile = {
+        locked = false,
+        skinButtons = true,
+        hideGryphons = true,
+        buttonSize = 36,
+        buttonSpacing = 4,
+        showHotkeys = true,
+        showMacroNames = true,
+        showCooldownNumbers = true,
+        font = "Friz Quadrata TT",
+        fontSize = 12,
+        bars = {}
+    }
+}
+
+-- Initialize bar defaults
+for barKey, config in pairs(BAR_CONFIGS) do
+    defaults.profile.bars[barKey] = {
+        enabled = true,
+        scale = 1.0,
+        alpha = 1.0,
+        fadeAlpha = 0.2,
+        fadeInCombat = false,
+        fadeOutCombat = false,
+        fadeMouseover = false,
+        columns = (barKey == "PetActionBar" or barKey == "StanceBar") and 10 or 12,
+        buttonSize = 36,
+        buttonSpacing = 4,
+        point = config.default.point,
+        x = config.default.x,
+        y = config.default.y,
+        showInPetBattle = barKey == "PetActionBar",
+        showInVehicle = barKey == "MainMenuBar",
+    }
+end
+
+-- ============================================================================
+-- 3. INITIALIZATION
+-- ============================================================================
 
 function AB:OnInitialize()
+    self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
+    
     if not MidnightUI.db.profile.modules.actionbars then return end
+    
+    if Masque then
+        masqueGroup = Masque:Group("Midnight ActionBars")
+    end
+    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
+    self:RegisterEvent("PET_BATTLE_OPENING_START")
+    self:RegisterEvent("PET_BATTLE_CLOSE")
+    self:RegisterEvent("UNIT_ENTERED_VEHICLE")
+    self:RegisterEvent("UNIT_EXITED_VEHICLE")
 end
 
 function AB:PLAYER_ENTERING_WORLD()
-    -- 1. Hide Gryphons / Art
+    self:HideBlizzardElements()
+    self:InitializeAllBars()
+    self:UpdateAllBars()
+    
+    -- Delay button skinning slightly for proper initialization
+    C_Timer.After(0.5, function()
+        self:SkinAllButtons()
+    end)
+end
+
+-- ============================================================================
+-- 4. HIDE BLIZZARD ELEMENTS
+-- ============================================================================
+
+function AB:HideBlizzardElements()
+    if not self.db.profile.hideGryphons then return end
+    
+    -- Hide gryphons and main bar art
     if MainMenuBar then
         if MainMenuBar.ArtFrame then
             MainMenuBar.ArtFrame:SetAlpha(0)
@@ -17,47 +116,730 @@ function AB:PLAYER_ENTERING_WORLD()
         end
     end
     
-    -- 2. Skin the Status Bars (XP / Rep)
+    -- Skin status tracking bars (XP/Rep)
     if StatusTrackingBarManager then
         MidnightUI:SkinFrame(StatusTrackingBarManager)
     end
-
-    -- 3. Skin Buttons
-    self:SkinButtons()
 end
 
-function AB:SkinButtons()
-    -- FIX: Use the Mixin instead of the removed "ActionButton_Update" global
+-- ============================================================================
+-- 5. BAR CREATION & MANAGEMENT
+-- ============================================================================
+
+function AB:InitializeAllBars()
+    for barKey, config in pairs(BAR_CONFIGS) do
+        self:CreateBar(barKey, config)
+    end
+end
+
+function AB:CreateBar(barKey, config)
+    if bars[barKey] then return end
+    
+    -- Create container frame
+    local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
+    container:SetFrameStrata("LOW")
+    container:SetMovable(true)
+    container:EnableMouse(false)
+    container:SetClampedToScreen(true)
+    
+    -- Store references
+    container.barKey = barKey
+    container.config = config
+    container.buttons = {}
+    bars[barKey] = container
+    
+    -- Get the actual Blizzard bar frame
+    local blizzBar = _G[barKey]
+    if blizzBar then
+        container.blizzBar = blizzBar
+        
+        -- Reparent Blizzard bar to our container
+        blizzBar:SetParent(container)
+        blizzBar:ClearAllPoints()
+        blizzBar:SetPoint("CENTER")
+        
+        -- Override Blizzard positioning
+        if blizzBar.SetMovable then blizzBar:SetMovable(true) end
+        if blizzBar.SetUserPlaced then blizzBar:SetUserPlaced(true) end
+        if blizzBar.ignoreFramePositionManager then
+            blizzBar.ignoreFramePositionManager = true
+        end
+        
+        -- Collect buttons
+        self:CollectButtons(container, barKey)
+    end
+    
+    -- Create drag frame for unlocked mode
+    container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
+    container.dragFrame:SetAllPoints()
+    container.dragFrame:EnableMouse(false)
+    container.dragFrame:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 2,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    container.dragFrame:SetBackdropColor(0, 0.5, 0, 0.3)
+    container.dragFrame:SetBackdropBorderColor(0, 1, 0, 1)
+    container.dragFrame:Hide()
+    
+    -- Create label
+    container.label = container.dragFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    container.label:SetPoint("CENTER")
+    container.label:SetText(config.name)
+    container.label:SetTextColor(1, 1, 1, 1)
+    
+    -- Drag handlers
+    container.dragFrame:RegisterForDrag("LeftButton")
+    container.dragFrame:SetScript("OnDragStart", function(self)
+        if not AB.db.profile.locked then
+            container:StartMoving()
+        end
+    end)
+    container.dragFrame:SetScript("OnDragStop", function(self)
+        container:StopMovingOrSizing()
+        AB:SaveBarPosition(barKey)
+    end)
+    container.dragFrame:SetScript("OnMouseUp", function(self, button)
+        if button == "RightButton" then
+            MidnightUI:OpenConfig()
+        end
+    end)
+    
+    return container
+end
+
+function AB:CollectButtons(container, barKey)
+    local buttons = {}
+    
+    if barKey == "MainMenuBar" then
+        for i = 1, 12 do
+            local btn = _G["ActionButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    elseif barKey == "PetActionBar" then
+        for i = 1, 10 do
+            local btn = _G["PetActionButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    elseif barKey == "StanceBar" then
+        for i = 1, 10 do
+            local btn = _G["StanceButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    else
+        -- Standard action bars
+        local barName = barKey
+        for i = 1, 12 do
+            local btn = _G[barName.."Button"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    end
+    
+    container.buttons = buttons
+    
+    -- Cache buttons globally for skinning
+    for _, btn in ipairs(buttons) do
+        buttonCache[btn] = true
+    end
+end
+
+-- ============================================================================
+-- 6. BAR LAYOUT & POSITIONING
+-- ============================================================================
+
+function AB:UpdateAllBars()
+    for barKey, container in pairs(bars) do
+        self:UpdateBar(barKey)
+    end
+end
+
+function AB:UpdateBar(barKey)
+    local container = bars[barKey]
+    if not container then return end
+    
+    local db = self.db.profile.bars[barKey]
+    if not db then return end
+    
+    -- Show/Hide based on settings
+    if db.enabled then
+        container:Show()
+    else
+        container:Hide()
+        return
+    end
+    
+    -- Apply scale and alpha
+    container:SetScale(db.scale)
+    container:SetAlpha(db.alpha)
+    
+    -- Update position
+    container:ClearAllPoints()
+    container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
+    
+    -- Layout buttons
+    self:LayoutButtons(container, barKey)
+    
+    -- Update fading
+    self:UpdateBarFading(barKey)
+    
+    -- Update drag frame visibility
+    if self.db.profile.locked then
+        container.dragFrame:Hide()
+        container.dragFrame:EnableMouse(false)
+    else
+        container.dragFrame:Show()
+        container.dragFrame:EnableMouse(true)
+    end
+end
+
+function AB:LayoutButtons(container, barKey)
+    local db = self.db.profile.bars[barKey]
+    local buttons = container.buttons
+    
+    if #buttons == 0 then return end
+    
+    local buttonSize = db.buttonSize
+    local spacing = db.buttonSpacing
+    local columns = db.columns
+    
+    -- Calculate container size
+    local rows = math.ceil(#buttons / columns)
+    local width = (buttonSize * columns) + (spacing * (columns - 1))
+    local height = (buttonSize * rows) + (spacing * (rows - 1))
+    
+    container:SetSize(width, height)
+    
+    -- Position buttons
+    for i, btn in ipairs(buttons) do
+        btn:ClearAllPoints()
+        btn:SetSize(buttonSize, buttonSize)
+        
+        local col = (i - 1) % columns
+        local row = math.floor((i - 1) / columns)
+        
+        local xOffset = col * (buttonSize + spacing)
+        local yOffset = -row * (buttonSize + spacing)
+        
+        btn:SetPoint("TOPLEFT", container, "TOPLEFT", xOffset, yOffset)
+        
+        -- Update button elements
+        self:UpdateButtonElements(btn)
+    end
+end
+
+function AB:UpdateButtonElements(btn)
+    local db = self.db.profile
+    
+    -- Hotkey text
+    local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
+    if hotkey then
+        if db.showHotkeys then
+            hotkey:Show()
+            hotkey:ClearAllPoints()
+            hotkey:SetPoint("TOPRIGHT", 2, -2)
+        else
+            hotkey:Hide()
+        end
+    end
+    
+    -- Macro name
+    local name = btn.Name or _G[btn:GetName().."Name"]
+    if name then
+        if db.showMacroNames then
+            name:Show()
+            name:ClearAllPoints()
+            name:SetPoint("BOTTOM", 0, 2)
+        else
+            name:Hide()
+        end
+    end
+    
+    -- Cooldown numbers (handled by Cooldowns module, but we can hide the frame)
+    local cooldown = btn.cooldown or btn.Cooldown
+    if cooldown and not db.showCooldownNumbers then
+        if cooldown.SetHideCountdownNumbers then
+            cooldown:SetHideCountdownNumbers(true)
+        end
+    end
+end
+
+function AB:SaveBarPosition(barKey)
+    local container = bars[barKey]
+    if not container then return end
+    
+    local point, _, _, x, y = container:GetPoint()
+    local db = self.db.profile.bars[barKey]
+    
+    db.point = point
+    db.x = math.floor(x + 0.5)
+    db.y = math.floor(y + 0.5)
+end
+
+-- ============================================================================
+-- 7. BUTTON SKINNING
+-- ============================================================================
+
+function AB:SkinAllButtons()
+    if not self.db.profile.skinButtons then return end
+    
+    for btn in pairs(buttonCache) do
+        self:SkinButton(btn)
+    end
+    
+    -- Hook button updates
     if ActionBarActionButtonMixin and ActionBarActionButtonMixin.Update then
-        hooksecurefunc(ActionBarActionButtonMixin, "Update", function(self)
-            AB:ApplyButtonSkin(self)
+        self:SecureHook(ActionBarActionButtonMixin, "Update", function(button)
+            self:SkinButton(button)
         end)
     end
 end
 
-function AB:ApplyButtonSkin(button)
-    if not button or button.muiSkinned then return end
-
-    -- Create a dark backdrop behind the icon
-    if not button.muiBg then
-        button.muiBg = button:CreateTexture(nil, "BACKGROUND")
-        button.muiBg:SetAllPoints(button)
-        button.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
+function AB:SkinButton(btn)
+    if not btn or btn.muiSkinned then return end
+    
+    -- Create dark background
+    if not btn.muiBg then
+        btn.muiBg = btn:CreateTexture(nil, "BACKGROUND")
+        btn.muiBg:SetAllPoints(btn)
+        btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
     end
     
-    -- Trim the icon edges (Square look)
-    -- Modern buttons typically have .icon key directly
-    local icon = button.icon or _G[button:GetName() .. "Icon"]
+    -- Trim icon edges for square look
+    local icon = btn.icon or _G[btn:GetName() and btn:GetName().."Icon"]
     if icon then
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
     end
     
-    -- Hide the default border / textures
-    if button.Border then button.Border:SetAlpha(0) end
-    if button.NormalTexture then button.NormalTexture:SetAlpha(0) end
+    -- Hide default textures
+    if btn.Border then btn.Border:SetAlpha(0) end
+    if btn.NormalTexture then 
+        local nt = btn.NormalTexture
+        if nt.SetAlpha then nt:SetAlpha(0) end
+    end
+    if btn.SlotBackground then btn.SlotBackground:SetAlpha(0) end
     
-    -- Hide modern slot backgrounds if they exist
-    if button.SlotBackground then button.SlotBackground:SetAlpha(0) end
+    -- Apply Masque if available
+    if masqueGroup and not btn.muiMasqueApplied then
+        masqueGroup:AddButton(btn, {
+            Icon = icon,
+            Cooldown = btn.cooldown or btn.Cooldown,
+            HotKey = btn.HotKey,
+            Count = btn.Count,
+            Name = btn.Name,
+        })
+        btn.muiMasqueApplied = true
+    end
+    
+    btn.muiSkinned = true
+end
 
-    button.muiSkinned = true
+-- ============================================================================
+-- 8. FADING SYSTEM
+-- ============================================================================
+
+function AB:UpdateBarFading(barKey)
+    local container = bars[barKey]
+    local db = self.db.profile.bars[barKey]
+    
+    if not container or not db then return end
+    
+    -- Remove existing fading scripts
+    container:SetScript("OnEnter", nil)
+    container:SetScript("OnLeave", nil)
+    container:SetScript("OnUpdate", nil)
+    
+    if db.fadeMouseover then
+        container:EnableMouse(true)
+        container:SetAlpha(db.fadeAlpha)
+        
+        container:SetScript("OnEnter", function()
+            UIFrameFadeIn(container, 0.2, container:GetAlpha(), db.alpha)
+        end)
+        
+        container:SetScript("OnLeave", function()
+            UIFrameFadeOut(container, 0.2, container:GetAlpha(), db.fadeAlpha)
+        end)
+    elseif db.fadeInCombat or db.fadeOutCombat then
+        container:SetScript("OnUpdate", function(self)
+            local inCombat = InCombatLockdown()
+            local targetAlpha = db.alpha
+            
+            if db.fadeInCombat and inCombat then
+                targetAlpha = db.alpha
+            elseif db.fadeOutCombat and not inCombat then
+                targetAlpha = db.fadeAlpha
+            end
+            
+            if self:GetAlpha() ~= targetAlpha then
+                UIFrameFadeIn(self, 0.3, self:GetAlpha(), targetAlpha)
+            end
+        end)
+    else
+        container:EnableMouse(false)
+        container:SetAlpha(db.alpha)
+    end
+end
+
+-- ============================================================================
+-- 9. EVENT HANDLERS
+-- ============================================================================
+
+function AB:PLAYER_REGEN_ENABLED()
+    self:UpdateAllBars()
+end
+
+function AB:PLAYER_REGEN_DISABLED()
+    self:UpdateAllBars()
+end
+
+function AB:PET_BATTLE_OPENING_START()
+    for barKey, container in pairs(bars) do
+        local db = self.db.profile.bars[barKey]
+        if not db.showInPetBattle then
+            container:Hide()
+        end
+    end
+end
+
+function AB:PET_BATTLE_CLOSE()
+    self:UpdateAllBars()
+end
+
+function AB:UNIT_ENTERED_VEHICLE(event, unit)
+    if unit == "player" then
+        for barKey, container in pairs(bars) do
+            local db = self.db.profile.bars[barKey]
+            if not db.showInVehicle then
+                container:Hide()
+            end
+        end
+    end
+end
+
+function AB:UNIT_EXITED_VEHICLE(event, unit)
+    if unit == "player" then
+        self:UpdateAllBars()
+    end
+end
+
+-- ============================================================================
+-- 10. OPTIONS
+-- ============================================================================
+
+function AB:GetOptions()
+    if not self.db then
+        self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
+    end
+    
+    local options = {
+        type = "group",
+        name = "Action Bars",
+        childGroups = "tab",
+        args = {
+            general = {
+                name = "General",
+                type = "group",
+                order = 1,
+                args = {
+                    locked = {
+                        name = "Lock Bars",
+                        desc = "Lock action bars in place",
+                        type = "toggle",
+                        order = 1,
+                        get = function() return self.db.profile.locked end,
+                        set = function(_, v)
+                            self.db.profile.locked = v
+                            self:UpdateAllBars()
+                        end
+                    },
+                    skinButtons = {
+                        name = "Skin Buttons",
+                        desc = "Apply custom button styling",
+                        type = "toggle",
+                        order = 2,
+                        get = function() return self.db.profile.skinButtons end,
+                        set = function(_, v)
+                            self.db.profile.skinButtons = v
+                            if v then
+                                self:SkinAllButtons()
+                            end
+                            self:UpdateAllBars()
+                        end
+                    },
+                    hideGryphons = {
+                        name = "Hide Gryphons",
+                        desc = "Hide main bar gryphons and art",
+                        type = "toggle",
+                        order = 3,
+                        get = function() return self.db.profile.hideGryphons end,
+                        set = function(_, v)
+                            self.db.profile.hideGryphons = v
+                            self:HideBlizzardElements()
+                        end
+                    },
+                    spacer1 = { name = "", type = "description", order = 10 },
+                    buttonSize = {
+                        name = "Global Button Size",
+                        desc = "Default button size for all bars",
+                        type = "range",
+                        order = 11,
+                        min = 20,
+                        max = 64,
+                        step = 1,
+                        get = function() return self.db.profile.buttonSize end,
+                        set = function(_, v)
+                            self.db.profile.buttonSize = v
+                            for barKey in pairs(BAR_CONFIGS) do
+                                self.db.profile.bars[barKey].buttonSize = v
+                            end
+                            self:UpdateAllBars()
+                        end
+                    },
+                    buttonSpacing = {
+                        name = "Global Button Spacing",
+                        desc = "Default spacing between buttons",
+                        type = "range",
+                        order = 12,
+                        min = 0,
+                        max = 20,
+                        step = 1,
+                        get = function() return self.db.profile.buttonSpacing end,
+                        set = function(_, v)
+                            self.db.profile.buttonSpacing = v
+                            for barKey in pairs(BAR_CONFIGS) do
+                                self.db.profile.bars[barKey].buttonSpacing = v
+                            end
+                            self:UpdateAllBars()
+                        end
+                    },
+                    spacer2 = { name = "", type = "description", order = 20 },
+                    showHotkeys = {
+                        name = "Show Hotkeys",
+                        desc = "Display keybind text on buttons",
+                        type = "toggle",
+                        order = 21,
+                        get = function() return self.db.profile.showHotkeys end,
+                        set = function(_, v)
+                            self.db.profile.showHotkeys = v
+                            self:UpdateAllBars()
+                        end
+                    },
+                    showMacroNames = {
+                        name = "Show Macro Names",
+                        desc = "Display macro names on buttons",
+                        type = "toggle",
+                        order = 22,
+                        get = function() return self.db.profile.showMacroNames end,
+                        set = function(_, v)
+                            self.db.profile.showMacroNames = v
+                            self:UpdateAllBars()
+                        end
+                    },
+                    showCooldownNumbers = {
+                        name = "Show Cooldown Numbers",
+                        desc = "Display cooldown countdown numbers",
+                        type = "toggle",
+                        order = 23,
+                        get = function() return self.db.profile.showCooldownNumbers end,
+                        set = function(_, v)
+                            self.db.profile.showCooldownNumbers = v
+                            self:UpdateAllBars()
+                        end
+                    },
+                }
+            },
+            bars = {
+                name = "Bars",
+                type = "group",
+                order = 2,
+                args = {}
+            }
+        }
+    }
+    
+    -- Add individual bar options
+    local barOrder = 1
+    for barKey, config in pairs(BAR_CONFIGS) do
+        options.args.bars.args[barKey] = {
+            name = config.name,
+            type = "group",
+            order = barOrder,
+            args = {
+                enabled = {
+                    name = "Enable",
+                    desc = "Show this action bar",
+                    type = "toggle",
+                    order = 1,
+                    get = function() return self.db.profile.bars[barKey].enabled end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].enabled = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                scale = {
+                    name = "Scale",
+                    desc = "Scale of the entire bar",
+                    type = "range",
+                    order = 2,
+                    min = 0.5,
+                    max = 2.0,
+                    step = 0.05,
+                    get = function() return self.db.profile.bars[barKey].scale end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].scale = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                alpha = {
+                    name = "Opacity",
+                    desc = "Normal opacity of the bar",
+                    type = "range",
+                    order = 3,
+                    min = 0,
+                    max = 1,
+                    step = 0.05,
+                    get = function() return self.db.profile.bars[barKey].alpha end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].alpha = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                columns = {
+                    name = "Columns",
+                    desc = "Number of buttons per row",
+                    type = "range",
+                    order = 4,
+                    min = 1,
+                    max = config.buttonCount,
+                    step = 1,
+                    get = function() return self.db.profile.bars[barKey].columns end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].columns = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                buttonSize = {
+                    name = "Button Size",
+                    desc = "Size of buttons in this bar",
+                    type = "range",
+                    order = 5,
+                    min = 20,
+                    max = 64,
+                    step = 1,
+                    get = function() return self.db.profile.bars[barKey].buttonSize end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].buttonSize = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                buttonSpacing = {
+                    name = "Button Spacing",
+                    desc = "Space between buttons",
+                    type = "range",
+                    order = 6,
+                    min = 0,
+                    max = 20,
+                    step = 1,
+                    get = function() return self.db.profile.bars[barKey].buttonSpacing end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].buttonSpacing = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                spacer1 = { name = "", type = "header", order = 10 },
+                fadeMouseover = {
+                    name = "Fade on Mouseover",
+                    desc = "Fade bar until you mouse over it",
+                    type = "toggle",
+                    order = 11,
+                    get = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].fadeMouseover = v
+                        if v then
+                            self.db.profile.bars[barKey].fadeInCombat = false
+                            self.db.profile.bars[barKey].fadeOutCombat = false
+                        end
+                        self:UpdateBar(barKey)
+                    end
+                },
+                fadeInCombat = {
+                    name = "Fade In Combat",
+                    desc = "Show bar fully in combat",
+                    type = "toggle",
+                    order = 12,
+                    disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                    get = function() return self.db.profile.bars[barKey].fadeInCombat end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].fadeInCombat = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                fadeOutCombat = {
+                    name = "Fade Out of Combat",
+                    desc = "Fade bar when out of combat",
+                    type = "toggle",
+                    order = 13,
+                    disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                    get = function() return self.db.profile.bars[barKey].fadeOutCombat end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].fadeOutCombat = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                fadeAlpha = {
+                    name = "Faded Opacity",
+                    desc = "Opacity when faded",
+                    type = "range",
+                    order = 14,
+                    min = 0,
+                    max = 1,
+                    step = 0.05,
+                    get = function() return self.db.profile.bars[barKey].fadeAlpha end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].fadeAlpha = v
+                        self:UpdateBar(barKey)
+                    end
+                },
+                spacer2 = { name = "", type = "header", order = 20 },
+                showInPetBattle = {
+                    name = "Show in Pet Battles",
+                    desc = "Keep bar visible during pet battles",
+                    type = "toggle",
+                    order = 21,
+                    get = function() return self.db.profile.bars[barKey].showInPetBattle end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].showInPetBattle = v
+                    end
+                },
+                showInVehicle = {
+                    name = "Show in Vehicles",
+                    desc = "Keep bar visible when in a vehicle",
+                    type = "toggle",
+                    order = 22,
+                    get = function() return self.db.profile.bars[barKey].showInVehicle end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].showInVehicle = v
+                    end
+                },
+                spacer3 = { name = "", type = "header", order = 30 },
+                resetPosition = {
+                    name = "Reset Position",
+                    desc = "Reset bar to default position",
+                    type = "execute",
+                    order = 31,
+                    func = function()
+                        local db = self.db.profile.bars[barKey]
+                        db.point = config.default.point
+                        db.x = config.default.x
+                        db.y = config.default.y
+                        self:UpdateBar(barKey)
+                    end
+                }
+            }
+        }
+        barOrder = barOrder + 1
+    end
+    
+    return options
 end
