@@ -846,13 +846,18 @@ function Bar:InitializeBrokers()
 
     -- TOKEN
     tokenObj = LDB:NewDataObject("MidnightToken", {
-        type = "data source", text = "Loading...", icon = "Interface\\Icons\\WoW_Token01", OnClick = function() C_WowTokenPublic.UpdateMarketPrice() end,
+        type = "data source", text = "Loading...", icon = "Interface\\Icons\\WoW_Token01", 
+        OnClick = function() 
+            C_WowTokenPublic.UpdateMarketPrice() -- Manual refresh on click
+        end,
         OnTooltipShow = function(tip)
             local r, g, b = GetColor()
             tip:AddLine("WoW Token", r, g, b)
             local c = C_WowTokenPublic.GetCurrentMarketPrice()
             if c then 
                 tip:AddDoubleLine("Current:", FormatTokenPrice(c), 1,1,1) 
+            else
+                tip:AddLine("Price not available", 0.8, 0.8, 0.8)
             end
             tip:AddLine(" ")
             tip:AddLine("History (Session)", 1, 0.82, 0)
@@ -860,6 +865,8 @@ function Bar:InitializeBrokers()
             for _, e in ipairs(h) do 
                 tip:AddDoubleLine(date("%H:%M", e.time), FormatTokenPrice(e.price), 1,1,1) 
             end
+            tip:AddLine(" ")
+            tip:AddLine("|cffaaaaaa(Click to refresh price)|r", 0.7, 0.7, 0.7)
             ApplyTooltipStyle(tip)
         end
     })
@@ -1368,6 +1375,12 @@ function Bar:OnInitialize()
     self:RegisterEvent("ZONE_CHANGED", "UpdateAllModules")
     
     self:UpdateGoldData()
+    
+    -- Request initial WoW Token price
+    C_Timer.After(2, function()
+        C_WowTokenPublic.UpdateMarketPrice()
+    end)
+    
     C_Timer.NewTicker(1.0, function() self:UpdateAllModules() end)
     
     C_Timer.After(1.0, function() 
@@ -1400,6 +1413,9 @@ function Bar:UpdateTokenHistory()
     if #h > 5 then 
         table.remove(h) 
     end
+    -- Update the display immediately
+    tokenObj.text = FormatTokenPrice(price)
+    self:UpdateBarLayout("MainBar")
 end
 
 function Bar:GUILD_ROSTER_UPDATE() 
