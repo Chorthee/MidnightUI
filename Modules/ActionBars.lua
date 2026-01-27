@@ -865,229 +865,227 @@ function AB:GetOptions()
     -- Add individual bar options in the specified order
     for barOrder, barKey in ipairs(barDisplayOrder) do
         local config = BAR_CONFIGS[barKey]
-        if not config then goto continue end
-
-        local barOptions = {
-            name = config.name,
-            type = "group",
-            order = barOrder,
-            args = {
-                enabled = {
-                    name = "Enable",
-                    desc = "Show this action bar",
-                    type = "toggle",
-                    order = 1,
-                    get = function() return self.db.profile.bars[barKey].enabled end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].enabled = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                scale = {
-                    name = "Scale",
-                    desc = "Scale of the entire bar",
-                    type = "range",
-                    order = 2,
-                    min = 0.5,
-                    max = 2.0,
-                    step = 0.05,
-                    get = function() return self.db.profile.bars[barKey].scale end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].scale = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                alpha = {
-                    name = "Opacity",
-                    desc = "Normal opacity of the bar",
-                    type = "range",
-                    order = 3,
-                    min = 0,
-                    max = 1,
-                    step = 0.05,
-                    get = function() return self.db.profile.bars[barKey].alpha end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].alpha = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                columns = {
-                    name = "Columns",
-                    desc = "Number of buttons per row",
-                    type = "range",
-                    order = 4,
-                    min = 1,
-                    max = config.buttonCount,
-                    step = 1,
-                    get = function() return self.db.profile.bars[barKey].columns end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].columns = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                buttonSize = {
-                    name = "Button Size",
-                    desc = "Size of buttons in this bar",
-                    type = "range",
-                    order = 5,
-                    min = 20,
-                    max = 64,
-                    step = 1,
-                    get = function() return self.db.profile.bars[barKey].buttonSize end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].buttonSize = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                buttonSpacing = {
-                    name = "Button Spacing",
-                    desc = "Space between buttons",
-                    type = "range",
-                    order = 6,
-                    min = 0,
-                    max = 20,
-                    step = 1,
-                    get = function() return self.db.profile.bars[barKey].buttonSpacing end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].buttonSpacing = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                spacer1 = { name = "", type = "header", order = 10 },
-                fadeMouseover = {
-                    name = "Fade on Mouseover",
-                    desc = "Fade bar until you mouse over it",
-                    type = "toggle",
-                    order = 11,
-                    get = function() return self.db.profile.bars[barKey].fadeMouseover end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].fadeMouseover = v
-                        if v then
-                            self.db.profile.bars[barKey].fadeInCombat = false
-                            self.db.profile.bars[barKey].fadeOutCombat = false
+        if config then
+            local barOptions = {
+                name = config.name,
+                type = "group",
+                order = barOrder,
+                args = {
+                    enabled = {
+                        name = "Enable",
+                        desc = "Show this action bar",
+                        type = "toggle",
+                        order = 1,
+                        get = function() return self.db.profile.bars[barKey].enabled end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].enabled = v
+                            self:UpdateBar(barKey)
                         end
-                        self:UpdateBar(barKey)
-                    end
-                },
-                fadeInCombat = {
-                    name = "Fade In Combat",
-                    desc = "Show bar fully in combat",
-                    type = "toggle",
-                    order = 12,
-                    disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
-                    get = function() return self.db.profile.bars[barKey].fadeInCombat end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].fadeInCombat = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                fadeOutCombat = {
-                    name = "Fade Out of Combat",
-                    desc = "Fade bar when out of combat",
-                    type = "toggle",
-                    order = 13,
-                    disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
-                    get = function() return self.db.profile.bars[barKey].fadeOutCombat end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].fadeOutCombat = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                fadeAlpha = {
-                    name = "Faded Opacity",
-                    desc = "Opacity when faded",
-                    type = "range",
-                    order = 14,
-                    min = 0,
-                    max = 1,
-                    step = 0.05,
-                    get = function() return self.db.profile.bars[barKey].fadeAlpha end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].fadeAlpha = v
-                        self:UpdateBar(barKey)
-                    end
-                },
-                spacer2 = { name = "", type = "header", order = 20 },
-                showInPetBattle = {
-                    name = "Show in Pet Battles",
-                    desc = "Keep bar visible during pet battles",
-                    type = "toggle",
-                    order = 21,
-                    get = function() return self.db.profile.bars[barKey].showInPetBattle end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].showInPetBattle = v
-                    end
-                },
-                showInVehicle = {
-                    name = "Show in Vehicles",
-                    desc = "Keep bar visible when in a vehicle",
-                    type = "toggle",
-                    order = 22,
-                    get = function() return self.db.profile.bars[barKey].showInVehicle end,
-                    set = function(_, v)
-                        self.db.profile.bars[barKey].showInVehicle = v
-                    end
-                },
-                spacer3 = { name = "", type = "header", order = 30 },
-                resetPosition = {
-                    name = "Reset Position",
-                    desc = "Reset bar to default position",
-                    type = "execute",
-                    order = 31,
-                    func = function()
-                        local db = self.db.profile.bars[barKey]
-                        db.point = config.default.point
-                        db.x = config.default.x
-                        db.y = config.default.y
-                        self:UpdateBar(barKey)
-                    end
+                    },
+                    scale = {
+                        name = "Scale",
+                        desc = "Scale of the entire bar",
+                        type = "range",
+                        order = 2,
+                        min = 0.5,
+                        max = 2.0,
+                        step = 0.05,
+                        get = function() return self.db.profile.bars[barKey].scale end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].scale = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    alpha = {
+                        name = "Opacity",
+                        desc = "Normal opacity of the bar",
+                        type = "range",
+                        order = 3,
+                        min = 0,
+                        max = 1,
+                        step = 0.05,
+                        get = function() return self.db.profile.bars[barKey].alpha end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].alpha = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    columns = {
+                        name = "Columns",
+                        desc = "Number of buttons per row",
+                        type = "range",
+                        order = 4,
+                        min = 1,
+                        max = config.buttonCount,
+                        step = 1,
+                        get = function() return self.db.profile.bars[barKey].columns end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].columns = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    buttonSize = {
+                        name = "Button Size",
+                        desc = "Size of buttons in this bar",
+                        type = "range",
+                        order = 5,
+                        min = 20,
+                        max = 64,
+                        step = 1,
+                        get = function() return self.db.profile.bars[barKey].buttonSize end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].buttonSize = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    buttonSpacing = {
+                        name = "Button Spacing",
+                        desc = "Space between buttons",
+                        type = "range",
+                        order = 6,
+                        min = 0,
+                        max = 20,
+                        step = 1,
+                        get = function() return self.db.profile.bars[barKey].buttonSpacing end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].buttonSpacing = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    spacer1 = { name = "", type = "header", order = 10 },
+                    fadeMouseover = {
+                        name = "Fade on Mouseover",
+                        desc = "Fade bar until you mouse over it",
+                        type = "toggle",
+                        order = 11,
+                        get = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].fadeMouseover = v
+                            if v then
+                                self.db.profile.bars[barKey].fadeInCombat = false
+                                self.db.profile.bars[barKey].fadeOutCombat = false
+                            end
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    fadeInCombat = {
+                        name = "Fade In Combat",
+                        desc = "Show bar fully in combat",
+                        type = "toggle",
+                        order = 12,
+                        disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                        get = function() return self.db.profile.bars[barKey].fadeInCombat end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].fadeInCombat = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    fadeOutCombat = {
+                        name = "Fade Out of Combat",
+                        desc = "Fade bar when out of combat",
+                        type = "toggle",
+                        order = 13,
+                        disabled = function() return self.db.profile.bars[barKey].fadeMouseover end,
+                        get = function() return self.db.profile.bars[barKey].fadeOutCombat end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].fadeOutCombat = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    fadeAlpha = {
+                        name = "Faded Opacity",
+                        desc = "Opacity when faded",
+                        type = "range",
+                        order = 14,
+                        min = 0,
+                        max = 1,
+                        step = 0.05,
+                        get = function() return self.db.profile.bars[barKey].fadeAlpha end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].fadeAlpha = v
+                            self:UpdateBar(barKey)
+                        end
+                    },
+                    spacer2 = { name = "", type = "header", order = 20 },
+                    showInPetBattle = {
+                        name = "Show in Pet Battles",
+                        desc = "Keep bar visible during pet battles",
+                        type = "toggle",
+                        order = 21,
+                        get = function() return self.db.profile.bars[barKey].showInPetBattle end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].showInPetBattle = v
+                        end
+                    },
+                    showInVehicle = {
+                        name = "Show in Vehicles",
+                        desc = "Keep bar visible when in a vehicle",
+                        type = "toggle",
+                        order = 22,
+                        get = function() return self.db.profile.bars[barKey].showInVehicle end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].showInVehicle = v
+                        end
+                    },
+                    spacer3 = { name = "", type = "header", order = 30 },
+                    resetPosition = {
+                        name = "Reset Position",
+                        desc = "Reset bar to default position",
+                        type = "execute",
+                        order = 31,
+                        func = function()
+                            local db = self.db.profile.bars[barKey]
+                            db.point = config.default.point
+                            db.x = config.default.x
+                            db.y = config.default.y
+                            self:UpdateBar(barKey)
+                        end
+                    }
                 }
             }
-        }
-        
-        -- Add paging options for Action Bar 1
-        if barKey == "MainMenuBar" and config.hasPages then
-            barOptions.args.spacer4 = { name = "", type = "header", order = 40 }
-            barOptions.args.pagingHeader = {
-                name = "Bar Paging",
-                type = "description",
-                order = 41,
-                fontSize = "medium",
-            }
-            barOptions.args.pagingCondition = {
-                name = "Paging Condition",
-                desc = "Macro condition that controls which bar page is shown. Advanced users only.",
-                type = "input",
-                width = "full",
-                multiline = 3,
-                order = 42,
-                get = function() return self.db.profile.bars[barKey].pagingCondition or DEFAULT_PAGING end,
-                set = function(_, v)
-                    self.db.profile.bars[barKey].pagingCondition = v
-                    self:UpdateBarPaging(barKey)
-                end
-            }
-            barOptions.args.resetPaging = {
-                name = "Reset to Default",
-                desc = "Reset paging condition to default",
-                type = "execute",
-                order = 43,
-                func = function()
-                    self.db.profile.bars[barKey].pagingCondition = DEFAULT_PAGING
-                    self:UpdateBarPaging(barKey)
-                end
-            }
-            barOptions.args.pagingHelp = {
-                name = "Default condition handles: Possess bar, Override bar, Shapeshift forms, Vehicles, and manual bar switching (via keybinds).",
-                type = "description",
-                order = 44,
-                fontSize = "small",
-            }
+            
+            -- Add paging options for Action Bar 1
+            if barKey == "MainMenuBar" and config.hasPages then
+                barOptions.args.spacer4 = { name = "", type = "header", order = 40 }
+                barOptions.args.pagingHeader = {
+                    name = "Bar Paging",
+                    type = "description",
+                    order = 41,
+                    fontSize = "medium",
+                }
+                barOptions.args.pagingCondition = {
+                    name = "Paging Condition",
+                    desc = "Macro condition that controls which bar page is shown. Advanced users only.",
+                    type = "input",
+                    width = "full",
+                    multiline = 3,
+                    order = 42,
+                    get = function() return self.db.profile.bars[barKey].pagingCondition or DEFAULT_PAGING end,
+                    set = function(_, v)
+                        self.db.profile.bars[barKey].pagingCondition = v
+                        self:UpdateBarPaging(barKey)
+                    end
+                }
+                barOptions.args.resetPaging = {
+                    name = "Reset to Default",
+                    desc = "Reset paging condition to default",
+                    type = "execute",
+                    order = 43,
+                    func = function()
+                        self.db.profile.bars[barKey].pagingCondition = DEFAULT_PAGING
+                        self:UpdateBarPaging(barKey)
+                    end
+                }
+                barOptions.args.pagingHelp = {
+                    name = "Default condition handles: Possess bar, Override bar, Shapeshift forms, Vehicles, and manual bar switching (via keybinds).",
+                    type = "description",
+                    order = 44,
+                    fontSize = "small",
+                }
+            end
+            
+            options.args.bars.args[barKey] = barOptions
         end
-        
-        options.args.bars.args[barKey] = barOptions
-        
-        ::continue::
     end
     
     return options
