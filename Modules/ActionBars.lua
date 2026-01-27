@@ -112,11 +112,6 @@ function AB:HideBlizzardElements()
     
     -- Hide gryphons and main bar art
     if MainMenuBar then
-        -- Completely disable Edit Mode for MainMenuBar
-        if EditModeManagerFrame then
-            EditModeManagerFrame:UnregisterFrame(MainMenuBar)
-        end
-        
         if MainMenuBar.ArtFrame then
             MainMenuBar.ArtFrame:SetAlpha(0)
             if MainMenuBar.ArtFrame.LeftEndCap then MainMenuBar.ArtFrame.LeftEndCap:Hide() end

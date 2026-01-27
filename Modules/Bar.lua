@@ -566,7 +566,8 @@ function Bar:UpdateFriendList()
         end
         if isWoW then
             local cToken = classTokenLookup[data.class] or data.class
-            local color = C_ClassColor.GetClassColor(cToken) or {r=1,g=1,b=1}
+            -- Use RAID_CLASS_COLORS instead of C_ClassColor
+            local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[cToken] or {r=1,g=1,b=1}
             AddText(data.bnet, colW.btag, colX.btag, {r=0.51,g=0.77,b=1}); AddText(data.name, colW.char, colX.char, color)
             AddText(data.level, colW.lvl, colX.lvl, {r=1,g=1,b=1}); AddText(data.zone, colW.zone, colX.zone, {r=1,g=0.82,b=0})
             AddText(data.realm, colW.realm, colX.realm, {r=1,g=1,b=1})
@@ -732,7 +733,8 @@ function Bar:UpdateGuildList()
             fs:SetText(sT); fs:SetWidth(w); fs:SetJustifyH("LEFT"); fs:SetPoint("LEFT", x, 0)
             if c then fs:SetTextColor(c.r, c.g, c.b) end
         end
-        local color = C_ClassColor.GetClassColor(m.class) or {r=1,g=1,b=1}
+        -- Use RAID_CLASS_COLORS instead of C_ClassColor
+        local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[m.class] or {r=1,g=1,b=1}
         AddTxt(m.name:gsub("%-.+", ""), gW.name, gX.name, color, 12); AddTxt(m.level, gW.lvl, gX.lvl, {r=1,g=1,b=1})
         AddTxt(m.zone, gW.zone, gX.zone, {r=1,g=0.82,b=0}); AddTxt(m.rank, gW.rank, gX.rank, {r=1,g=1,b=1})
         AddTxt(m.note, gW.note, gX.note, {r=0.8,g=0.8,b=0.8})

@@ -122,25 +122,9 @@ function Maps:SetupMinimap()
     Minimap:SetUserPlaced(true)
     Minimap.ignoreFramePositionManager = true
     
-    -- Prevent Edit Mode from controlling the minimap
-    if EditModeManagerFrame then
-        -- Only hook if the method exists
-        if EditModeManagerFrame.UpdateSystemSettingForSystemFrame and not self:IsHooked(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame") then
-            self:SecureHook(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame", function(_, systemFrame)
-                if systemFrame == MinimapCluster then
-                    -- Immediately restore our positioning
-                    isPositioningMinimap = true
-                    Minimap:ClearAllPoints()
-                    Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
-                    isPositioningMinimap = false
-                end
-            end)
-        end
-        
-        -- Block EditMode from managing MinimapCluster
-        if MinimapCluster then
-            MinimapCluster.ignoreFramePositionManager = true
-        end
+    -- Block EditMode from managing MinimapCluster
+    if MinimapCluster then
+        MinimapCluster.ignoreFramePositionManager = true
     end
     
     -- Hook SetPoint to keep minimap centered in our container
