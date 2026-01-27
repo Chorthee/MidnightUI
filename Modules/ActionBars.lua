@@ -749,6 +749,25 @@ function AB:GetOptions()
                             self:HideBlizzardElements()
                         end
                     },
+                    spacer0 = { name = "", type = "header", order = 5 },
+                    resetAllPositions = {
+                        name = "Reset All Bar Positions",
+                        desc = "Reset all action bars to their default positions",
+                        type = "execute",
+                        order = 6,
+                        confirm = true,
+                        confirmText = "Are you sure you want to reset all bar positions to default?",
+                        func = function()
+                            for barKey, config in pairs(BAR_CONFIGS) do
+                                local db = self.db.profile.bars[barKey]
+                                db.point = config.default.point
+                                db.x = config.default.x
+                                db.y = config.default.y
+                                self:UpdateBar(barKey)
+                            end
+                            print("|cff00ff00MidnightUI:|r All action bar positions have been reset to default.")
+                        end
+                    },
                     spacer1 = { name = "", type = "description", order = 10 },
                     buttonSize = {
                         name = "Global Button Size",
@@ -828,7 +847,7 @@ function AB:GetOptions()
             }
         }
     }
-    
+
     -- Add individual bar options
     local barOrder = 1
     for barKey, config in pairs(BAR_CONFIGS) do
