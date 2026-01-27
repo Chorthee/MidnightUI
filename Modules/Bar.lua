@@ -968,14 +968,17 @@ function Bar:InitializeBrokers()
             else 
                 local current = tonumber(GetCVar("Sound_MasterVolume")) or 0
                 if current > 0 then
-                    -- Muting: Save current value to DB
-                    Bar.db.profile.lastVolume = current
+                    -- Muting: Save current PERCENTAGE value (whole number) to DB
+                    local currentPercent = math.floor(current * 100)
+                    Bar.db.profile.lastVolume = currentPercent
                     SetCVar("Sound_MasterVolume", "0")
                 else
-                    -- Unmuting: Restore from DB (default to 1 if missing or 0)
-                    local restore = Bar.db.profile.lastVolume or 1
-                    if restore == 0 then restore = 1 end
-                    SetCVar("Sound_MasterVolume", tostring(restore))
+                    -- Unmuting: Restore from DB as decimal
+                    local restorePercent = Bar.db.profile.lastVolume or 100
+                    if restorePercent == 0 then restorePercent = 100 end
+                    -- Convert percentage back to decimal (0.0 - 1.0)
+                    local restoreDecimal = restorePercent / 100
+                    SetCVar("Sound_MasterVolume", tostring(restoreDecimal))
                 end
                 Bar:UpdateAllModules()
             end
