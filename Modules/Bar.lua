@@ -490,12 +490,12 @@ function Bar:CreateFriendsFrame()
         fs:SetText(text); fs:SetWidth(width); fs:SetJustifyH("LEFT"); fs:SetPoint("LEFT", xPos, 0)
         table.insert(headerRefs, fs) 
     end
-    -- Columns
-    local colW = { btag=135, char=100, lvl=30, zone=135, realm=85, fac=30 }
-    local colX = { btag=5, char=145, lvl=250, zone=285, realm=425, fac=515 }
+    -- Columns (Adjusted faction column width)
+    local colW = { btag=135, char=100, lvl=30, zone=120, realm=80, fac=50 }
+    local colX = { btag=5, char=145, lvl=250, zone=285, realm=410, fac=495 }
     CreateHeader("BattleTag", colW.btag, colX.btag); CreateHeader("Character", colW.char, colX.char)
     CreateHeader("Lvl", colW.lvl, colX.lvl); CreateHeader("Zone", colW.zone, colX.zone)
-    CreateHeader("Realm", colW.realm, colX.realm); CreateHeader("Fac", colW.fac, colX.fac)
+    CreateHeader("Realm", colW.realm, colX.realm); CreateHeader("Faction", colW.fac, colX.fac)
 
     -- Add OnShow script to update fonts/colors dynamically
     friendsFrame:SetScript("OnShow", function()
@@ -550,8 +550,8 @@ function Bar:UpdateFriendList()
     end
 
     local yOffset, db, fontPath = 0, Bar.db.profile, LSM:Fetch("font", Bar.db.profile.font)
-    local colW = { btag=135, char=100, lvl=30, zone=135, realm=85, fac=30 }
-    local colX = { btag=5, char=145, lvl=250, zone=285, realm=425, fac=515 }
+    local colW = { btag=135, char=100, lvl=30, zone=120, realm=80, fac=50 }
+    local colX = { btag=5, char=145, lvl=250, zone=285, realm=410, fac=495 }
 
     local function CreateRow(data, isWoW)
         local btn = CreateFrame("Button", nil, scrollChild); btn:SetSize(560, 20); btn:SetPoint("TOPLEFT", 0, yOffset)
@@ -571,12 +571,12 @@ function Bar:UpdateFriendList()
             AddText(data.level, colW.lvl, colX.lvl, {r=1,g=1,b=1}); AddText(data.zone, colW.zone, colX.zone, {r=1,g=0.82,b=0})
             AddText(data.realm, colW.realm, colX.realm, {r=1,g=1,b=1})
             
-            -- Fixed faction icon logic
+            -- Fixed faction icon logic with proper texture path
             local facIcon = ""
             if data.faction == "Horde" then
-                facIcon = "|TInterface\\FriendsFrame\\PlusManz-Horde:14:14:0:0|t"
+                facIcon = "|TInterface\\TargetingFrame\\UI-PVP-Horde:16:16:0:0:64:64:0:40:0:40|t"
             elseif data.faction == "Alliance" then
-                facIcon = "|TInterface\\FriendsFrame\\PlusManz-Alliance:14:14:0:0|t"
+                facIcon = "|TInterface\\TargetingFrame\\UI-PVP-Alliance:16:16:0:0:64:64:0:40:0:40|t"
             end
             AddText(facIcon, colW.fac, colX.fac)
             
