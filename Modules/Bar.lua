@@ -260,7 +260,7 @@ local function FormatMoney(amount)
     if silver > 0 or gold > 0 then 
         str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t ", silver) 
     end
-    str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t", copper)
+    str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t ", copper)
     return str
 end
 
