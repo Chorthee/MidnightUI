@@ -7,14 +7,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -- -----------------------------------------------------------------------------
 local defaults = {
     profile = {
-        -- Position (Saved)
-        position = { point = "TOPRIGHT", x = -25, y = -50 },
-
         -- Appearance
         shape = "SQUARE", -- SQUARE or ROUND
-        borderSize = 1,
-        borderColor = {0, 0, 0, 1},
-        locked = false,
         autoZoom = true,
         
         -- Text Elements
@@ -56,60 +50,10 @@ function Maps:OnInitialize()
 end
 
 function Maps:PLAYER_ENTERING_WORLD()
-    self:SetupMinimap()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:HookScripts()
-    
-    -- Force Layout Update
     self:UpdateLayout()
-end
-
--- -----------------------------------------------------------------------------
--- CORE MINIMAP SETUP
--- -----------------------------------------------------------------------------
-function Maps:SetupMinimap()
-    -- Move the entire MinimapCluster
-    MinimapCluster:SetMovable(true)
-    MinimapCluster:EnableMouse(true)
-    MinimapCluster:RegisterForDrag("LeftButton")
-    MinimapCluster:SetUserPlaced(true)
-    MinimapCluster.ignoreFramePositionManager = true
-    
-    -- Position it
-    MinimapCluster:ClearAllPoints()
-    if self.db.profile.position then
-        MinimapCluster:SetPoint(
-            self.db.profile.position.point,
-            UIParent,
-            self.db.profile.position.point,
-            self.db.profile.position.x,
-            self.db.profile.position.y
-        )
-    else
-        MinimapCluster:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
-    end
-    
-    -- Drag scripts
-    MinimapCluster:SetScript("OnDragStart", function(self)
-        if not Maps.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
-            self:StartMoving()
-        end
-    end)
-    
-    MinimapCluster:SetScript("OnDragStop", function(self)
-        self:StopMovingOrSizing()
-        Maps:SaveMinimapPosition()
-    end)
-end
-
-function Maps:SaveMinimapPosition()
-    local point, _, _, x, y = MinimapCluster:GetPoint()
-    self.db.profile.position = {
-        point = point or "TOPRIGHT",
-        x = math.floor(x + 0.5),
-        y = math.floor(y + 0.5)
-    }
 end
 
 -- -----------------------------------------------------------------------------
@@ -227,14 +171,6 @@ end
 -- -----------------------------------------------------------------------------
 function Maps:UpdateLayout()
     local db = self.db.profile
-    
-    -- DO NOT call SetScale or SetSize - just reposition
-    MinimapCluster:ClearAllPoints()
-    if db.position then
-        MinimapCluster:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
-    else
-        MinimapCluster:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
-    end
 
     -- SHAPE
     if db.shape == "SQUARE" then
@@ -315,16 +251,11 @@ function Maps:GetOptions()
                 type = "toggle",
                 order = 4,
             },
-            locked = {
-                name = "Lock Position (Disable CTRL+ALT Drag)",
-                type = "toggle",
-                order = 5,
-            },
             sizeNote = {
-                name = "|cffaaaaaa(Minimap size is controlled by Blizzard's UI Scale setting)|r",
+                name = "|cffaaaaaa(Minimap position and size controlled by Blizzard Edit Mode)\nPress ESC > Edit Mode to move the minimap|r",
                 type = "description",
                 order = 6,
-                fontSize = "small",
+                fontSize = "medium",
             },
             
             headerText = { type = "header", name = "Text Overlay", order = 10 },
