@@ -112,7 +112,7 @@ function Maps:SetupMinimap()
         end)
     end
     
-    -- Parent minimap to our container WITHOUT HOOKS
+    -- Parent minimap to our container WITHOUT ANY HOOKS
     Minimap:SetParent(minimapContainer)
     Minimap:ClearAllPoints()
     Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
@@ -126,24 +126,6 @@ function Maps:SetupMinimap()
     if MinimapCluster then
         MinimapCluster.ignoreFramePositionManager = true
         MinimapCluster:SetParent(minimapContainer)
-    end
-    
-    -- Use a gentler hook that doesn't prevent Layout from being called
-    if not self:IsHooked(Minimap, "SetPoint") then
-        self:SecureHook(Minimap, "SetPoint", function(frame, point, relativeTo, relativePoint, x, y)
-            -- Only intercept if Blizzard is trying to move it away from our container
-            if not isPositioningMinimap and relativeTo ~= minimapContainer then
-                C_Timer.After(0, function()
-                    if Minimap:GetParent() ~= minimapContainer then
-                        isPositioningMinimap = true
-                        Minimap:SetParent(minimapContainer)
-                        Minimap:ClearAllPoints()
-                        Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
-                        isPositioningMinimap = false
-                    end
-                end)
-            end
-        end)
     end
     
     -- Create backdrop for container
