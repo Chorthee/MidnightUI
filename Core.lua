@@ -5,9 +5,6 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 MidnightUI.version = "1.0.0"
 
--- Create callback registry for MidnightUI
-MidnightUI.callbacks = MidnightUI.callbacks or CallbackHandler:New(MidnightUI)
-
 -- ============================================================================
 -- 1. DATABASE DEFAULTS
 -- ============================================================================

@@ -49,9 +49,20 @@ local defaults = {
 -- INITIALIZATION
 -- -----------------------------------------------------------------------------
 function Cooldowns:OnInitialize()
+    -- Just register for DB ready message, don't check MidnightUI.db here
+    self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
+end
+
+function Cooldowns:OnDBReady()
+    -- NOW it's safe to check MidnightUI.db
+    if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules.cooldowns then
+        self:Disable()
+        return
+    end
+    
     self.db = MidnightUI.db:RegisterNamespace("Cooldowns", defaults)
     
-    -- Register event to check module enable state later when MidnightUI.db is ready
+    -- Register event
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     
     -- Register for Move Mode changes using AceEvent's message system
@@ -59,12 +70,6 @@ function Cooldowns:OnInitialize()
 end
 
 function Cooldowns:PLAYER_ENTERING_WORLD()
-    -- NOW check if module is enabled (MidnightUI.db is ready at this point)
-    if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules.cooldowns then
-        self:Disable()
-        return
-    end
-    
     C_Timer.After(1, function()
         self:SetupCooldownFrame()
     end)
