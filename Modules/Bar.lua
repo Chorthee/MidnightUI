@@ -608,6 +608,13 @@ function Bar:CreateGuildFrame()
     local gHeader = CreateFrame("Frame", nil, guildFrame)
     gHeader:SetPoint("TOPLEFT", 10, -65); gHeader:SetSize(560, 20)
     
+    -- Create horizontal line after headers
+    local headerLine = guildFrame:CreateTexture(nil, "ARTWORK")
+    headerLine:SetHeight(1)
+    headerLine:SetColorTexture(0.5, 0.5, 0.5, 0.8)
+    headerLine:SetPoint("TOPLEFT", 10, -85)
+    headerLine:SetPoint("TOPRIGHT", -25, -85)
+    
     local function CreateGHeader(t, w, x)
         local fs = gHeader:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         fs:SetText(t); fs:SetWidth(w); fs:SetJustifyH("LEFT"); fs:SetPoint("LEFT", x, 0)
@@ -618,6 +625,29 @@ function Bar:CreateGuildFrame()
     local gX = { name=5, lvl=110, zone=145, rank=270, note=375 }
     CreateGHeader("Name", gW.name, gX.name); CreateGHeader("Lvl", gW.lvl, gX.lvl)
     CreateGHeader("Zone", gW.zone, gX.zone); CreateGHeader("Rank", gW.rank, gX.rank); CreateGHeader("Note", gW.note, gX.note)
+
+    -- Add OnShow script to update fonts/colors dynamically
+    guildFrame:SetScript("OnShow", function()
+        local db = Bar.db.profile
+        local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+        local r, g, b = GetColor()
+        
+        -- Update title
+        guildTitle:SetFont(fontPath, db.fontSize + 2, "OUTLINE")
+        guildTitle:SetTextColor(r, g, b)
+        
+        -- Update MotD with larger font
+        guildMotD:SetFont(fontPath, db.fontSize + 1, "OUTLINE")
+        
+        -- Update footer
+        guildFooter:SetFont(fontPath, db.fontSize, "OUTLINE")
+        
+        -- Update headers
+        for _, fs in ipairs(guildHeaderRefs) do
+            fs:SetFont(fontPath, db.fontSize, "OUTLINE")
+            fs:SetTextColor(r, g, b)
+        end
+    end)
 
     guildFrame:SetScript("OnUpdate", function(self, elapsed)
         if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then 
@@ -674,7 +704,14 @@ function Bar:UpdateGuildList()
         local hl = btn:CreateTexture(nil, "HIGHLIGHT"); hl:SetAllPoints(); hl:SetColorTexture(1,1,1,0.1)
         yOffset = yOffset - 20
     end
-    gScrollChild:SetHeight(math.abs(yOffset) + 10)
+    
+    -- Adjust scroll child height to fit content
+    local contentHeight = math.abs(yOffset) + 10
+    gScrollChild:SetHeight(contentHeight)
+    
+    -- Adjust guild frame height dynamically (min 200, max 600)
+    local frameHeight = math.min(600, math.max(200, contentHeight + 140))
+    guildFrame:SetHeight(frameHeight)
 end
 
 -- ============================================================================
