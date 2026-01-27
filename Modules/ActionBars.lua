@@ -848,9 +848,25 @@ function AB:GetOptions()
         }
     }
 
-    -- Add individual bar options
-    local barOrder = 1
-    for barKey, config in pairs(BAR_CONFIGS) do
+    -- Define the desired order for bars
+    local barDisplayOrder = {
+        "MainMenuBar",
+        "MultiBarBottomLeft",
+        "MultiBarBottomRight",
+        "MultiBarRight",
+        "MultiBarLeft",
+        "MultiBar5",
+        "MultiBar6",
+        "MultiBar7",
+        "PetActionBar",
+        "StanceBar"
+    }
+
+    -- Add individual bar options in the specified order
+    for barOrder, barKey in ipairs(barDisplayOrder) do
+        local config = BAR_CONFIGS[barKey]
+        if not config then goto continue end
+
         local barOptions = {
             name = config.name,
             type = "group",
@@ -1070,7 +1086,8 @@ function AB:GetOptions()
         end
         
         options.args.bars.args[barKey] = barOptions
-        barOrder = barOrder + 1
+        
+        ::continue::
     end
     
     return options
