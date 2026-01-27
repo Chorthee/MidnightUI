@@ -478,6 +478,13 @@ function Bar:CreateFriendsFrame()
     local fHeader = CreateFrame("Frame", nil, friendsFrame)
     fHeader:SetPoint("TOPLEFT", 10, -30); fHeader:SetSize(560, 20)
     
+    -- Create horizontal line after headers
+    local headerLine = friendsFrame:CreateTexture(nil, "ARTWORK")
+    headerLine:SetHeight(1)
+    headerLine:SetColorTexture(0.5, 0.5, 0.5, 0.8)
+    headerLine:SetPoint("TOPLEFT", 10, -50)
+    headerLine:SetPoint("TOPRIGHT", -25, -50)
+    
     local function CreateHeader(text, width, xPos)
         local fs = fHeader:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         fs:SetText(text); fs:SetWidth(width); fs:SetJustifyH("LEFT"); fs:SetPoint("LEFT", xPos, 0)
@@ -489,6 +496,26 @@ function Bar:CreateFriendsFrame()
     CreateHeader("BattleTag", colW.btag, colX.btag); CreateHeader("Character", colW.char, colX.char)
     CreateHeader("Lvl", colW.lvl, colX.lvl); CreateHeader("Zone", colW.zone, colX.zone)
     CreateHeader("Realm", colW.realm, colX.realm); CreateHeader("Fac", colW.fac, colX.fac)
+
+    -- Add OnShow script to update fonts/colors dynamically
+    friendsFrame:SetScript("OnShow", function()
+        local db = Bar.db.profile
+        local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+        local r, g, b = GetColor()
+        
+        -- Update title
+        friendTitle:SetFont(fontPath, db.fontSize + 2, "OUTLINE")
+        friendTitle:SetTextColor(r, g, b)
+        
+        -- Update footer
+        friendFooter:SetFont(fontPath, db.fontSize, "OUTLINE")
+        
+        -- Update headers
+        for _, fs in ipairs(headerRefs) do
+            fs:SetFont(fontPath, db.fontSize, "OUTLINE")
+            fs:SetTextColor(r, g, b)
+        end
+    end)
 
     friendsFrame:SetScript("OnUpdate", function(self, elapsed)
         if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then 
@@ -1085,10 +1112,21 @@ function Bar:UpdateAllModules()
         guildObj.text = tostring(online or 0) 
     end
     
-    local fCount = BNGetNumFriends() or 0
-    if fCount ~= lastState.friends then 
-        lastState.friends = fCount
-        friendObj.text = tostring(fCount) 
+    -- FIXED FRIENDS COUNT: Count only online WoW Retail friends
+    local wowOnline = 0
+    local numBNet = BNGetNumFriends() or 0
+    for i = 1, numBNet do
+        local info = C_BattleNet.GetFriendAccountInfo(i)
+        if info and info.gameAccountInfo and info.gameAccountInfo.isOnline then
+            local g = info.gameAccountInfo
+            if (g.clientProgram == BNET_CLIENT_WOW) and (g.wowProjectID == 1) then
+                wowOnline = wowOnline + 1
+            end
+        end
+    end
+    if wowOnline ~= lastState.friends then 
+        lastState.friends = wowOnline
+        friendObj.text = tostring(wowOnline) 
     end
     
     -- DURABILITY
