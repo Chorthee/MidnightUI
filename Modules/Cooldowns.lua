@@ -51,11 +51,7 @@ local defaults = {
 function Cooldowns:OnInitialize()
     self.db = MidnightUI.db:RegisterNamespace("Cooldowns", defaults)
     
-    if not MidnightUI.db.profile.modules.cooldowns then 
-        self:Disable()
-        return 
-    end
-    
+    -- Register event to check module enable state later when MidnightUI.db is ready
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     
     -- Register for Move Mode changes
@@ -63,6 +59,12 @@ function Cooldowns:OnInitialize()
 end
 
 function Cooldowns:PLAYER_ENTERING_WORLD()
+    -- NOW check if module is enabled (MidnightUI.db is ready at this point)
+    if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules.cooldowns then
+        self:Disable()
+        return
+    end
+    
     C_Timer.After(1, function()
         self:SetupCooldownFrame()
     end)
