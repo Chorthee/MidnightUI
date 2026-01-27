@@ -25,6 +25,9 @@ local BAR_CONFIGS = {
     ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 50 } },
 }
 
+-- Bar Paging Conditions (for Action Bar 1)
+local DEFAULT_PAGING = "[possessbar] 16; [overridebar] 18; [shapeshift] 13; [vehicleui] 16; [bar:2] 2; [bar:3] 3; [bar:4] 4; [bar:5] 5; [bar:6] 6; 1"
+
 -- ============================================================================
 -- 2. DATABASE DEFAULTS
 -- ============================================================================
@@ -63,6 +66,7 @@ for barKey, config in pairs(BAR_CONFIGS) do
         y = config.default.y,
         showInPetBattle = barKey == "PetActionBar",
         showInVehicle = barKey == "MainMenuBar",
+        pagingCondition = (barKey == "MainMenuBar") and DEFAULT_PAGING or nil,
     }
 end
 
@@ -135,7 +139,7 @@ end
 function AB:CreateBar(barKey, config)
     if bars[barKey] then return end
     
-    -- Create container frame
+    -- Create container frame (SecureHandlerStateTemplate for paging support)
     local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
     container:SetFrameStrata("LOW")
     container:SetMovable(true)
@@ -165,6 +169,11 @@ function AB:CreateBar(barKey, config)
             blizzBar.ignoreFramePositionManager = true
         end
         
+        -- Setup bar paging for Action Bar 1
+        if barKey == "MainMenuBar" and config.hasPages then
+            self:SetupBarPaging(container)
+        end
+        
         -- Collect buttons
         self:CollectButtons(container, barKey)
     end
@@ -189,10 +198,10 @@ function AB:CreateBar(barKey, config)
     container.label:SetText(config.name)
     container.label:SetTextColor(1, 1, 1, 1)
     
-    -- Drag handlers
+    -- Drag handlers (allow CTRL+ALT override when locked)
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
-        if not AB.db.profile.locked then
+        if not AB.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
             container:StartMoving()
         end
     end)
@@ -209,39 +218,56 @@ function AB:CreateBar(barKey, config)
     return container
 end
 
-function AB:CollectButtons(container, barKey)
-    local buttons = {}
+-- ============================================================================
+-- 5.5 BAR PAGING SYSTEM
+-- ============================================================================
+
+function AB:SetupBarPaging(container)
+    local db = self.db.profile.bars["MainMenuBar"]
+    local pagingCondition = db.pagingCondition or DEFAULT_PAGING
     
-    if barKey == "MainMenuBar" then
-        for i = 1, 12 do
-            local btn = _G["ActionButton"..i]
-            if btn then table.insert(buttons, btn) end
+    -- Register state driver for bar paging
+    RegisterStateDriver(container, "actionpage", pagingCondition)
+    
+    -- Handle state changes
+    container:SetAttribute("_onstate-actionpage", [[
+        self:SetAttribute("actionpage", newstate)
+        control:ChildUpdate("actionpage", newstate)
+    ]])
+    
+    -- Update buttons when page changes
+    container:HookScript("OnAttributeChanged", function(self, name, value)
+        if name == "actionpage" and value then
+            AB:UpdateMainBarButtons(tonumber(value))
         end
-    elseif barKey == "PetActionBar" then
-        for i = 1, 10 do
-            local btn = _G["PetActionButton"..i]
-            if btn then table.insert(buttons, btn) end
-        end
-    elseif barKey == "StanceBar" then
-        for i = 1, 10 do
-            local btn = _G["StanceButton"..i]
-            if btn then table.insert(buttons, btn) end
-        end
-    else
-        -- Standard action bars
-        local barName = barKey
-        for i = 1, 12 do
-            local btn = _G[barName.."Button"..i]
-            if btn then table.insert(buttons, btn) end
+    end)
+end
+
+function AB:UpdateMainBarButtons(page)
+    if not page then return end
+    
+    local container = bars["MainMenuBar"]
+    if not container then return end
+    
+    -- Update button actions based on current page
+    for i, btn in ipairs(container.buttons) do
+        if btn and btn.UpdateAction then
+            btn:UpdateAction()
         end
     end
+end
+
+function AB:UpdateBarPaging(barKey)
+    if barKey ~= "MainMenuBar" then return end
     
-    container.buttons = buttons
+    local container = bars[barKey]
+    if not container then return end
     
-    -- Cache buttons globally for skinning
-    for _, btn in ipairs(buttons) do
-        buttonCache[btn] = true
-    end
+    local db = self.db.profile.bars[barKey]
+    local pagingCondition = db.pagingCondition or DEFAULT_PAGING
+    
+    -- Update the state driver
+    RegisterStateDriver(container, "actionpage", pagingCondition)
 end
 
 -- ============================================================================
@@ -676,7 +702,7 @@ function AB:GetOptions()
     -- Add individual bar options
     local barOrder = 1
     for barKey, config in pairs(BAR_CONFIGS) do
-        options.args.bars.args[barKey] = {
+        local barOptions = {
             name = config.name,
             type = "group",
             order = barOrder,
@@ -853,6 +879,48 @@ function AB:GetOptions()
                 }
             }
         }
+        
+        -- Add paging options for Action Bar 1
+        if barKey == "MainMenuBar" and config.hasPages then
+            barOptions.args.spacer4 = { name = "", type = "header", order = 40 }
+            barOptions.args.pagingHeader = {
+                name = "Bar Paging",
+                type = "description",
+                order = 41,
+                fontSize = "medium",
+            }
+            barOptions.args.pagingCondition = {
+                name = "Paging Condition",
+                desc = "Macro condition that controls which bar page is shown. Advanced users only.",
+                type = "input",
+                width = "full",
+                multiline = 3,
+                order = 42,
+                get = function() return self.db.profile.bars[barKey].pagingCondition or DEFAULT_PAGING end,
+                set = function(_, v)
+                    self.db.profile.bars[barKey].pagingCondition = v
+                    self:UpdateBarPaging(barKey)
+                end
+            }
+            barOptions.args.resetPaging = {
+                name = "Reset to Default",
+                desc = "Reset paging condition to default",
+                type = "execute",
+                order = 43,
+                func = function()
+                    self.db.profile.bars[barKey].pagingCondition = DEFAULT_PAGING
+                    self:UpdateBarPaging(barKey)
+                end
+            }
+            barOptions.args.pagingHelp = {
+                name = "Default condition handles: Possess bar, Override bar, Shapeshift forms, Vehicles, and manual bar switching (via keybinds).",
+                type = "description",
+                order = 44,
+                fontSize = "small",
+            }
+        end
+        
+        options.args.bars.args[barKey] = barOptions
         barOrder = barOrder + 1
     end
     
