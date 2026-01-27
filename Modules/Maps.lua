@@ -60,6 +60,7 @@ function Maps:PLAYER_ENTERING_WORLD()
     end
     
     self:SetupMinimapPosition()
+    self:SetupMinimapDragging()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
@@ -97,11 +98,51 @@ function Maps:ApplyMinimapOffset()
     -- Clear and reapply position with offsets
     Minimap:ClearAllPoints()
     
-    -- Get MinimapCluster's position
-    local point, relativeTo, relativePoint, x, y = MinimapCluster:GetPoint()
-    
     -- Apply offset to Minimap relative to MinimapCluster
     self.origSetPoint(Minimap, "CENTER", MinimapCluster, "CENTER", db.offsetX, db.offsetY)
+end
+
+-- -----------------------------------------------------------------------------
+-- MINIMAP DRAGGING (CTRL+ALT ONLY)
+-- -----------------------------------------------------------------------------
+function Maps:SetupMinimapDragging()
+    -- Make Minimap movable
+    Minimap:SetMovable(true)
+    Minimap:EnableMouse(true)
+    Minimap:RegisterForDrag("LeftButton")
+    
+    -- Store the starting offset when drag begins
+    local dragStartX, dragStartY
+    
+    Minimap:SetScript("OnDragStart", function(self)
+        -- Only allow dragging with CTRL+ALT
+        if IsControlKeyDown() and IsAltKeyDown() then
+            dragStartX = Maps.db.profile.offsetX
+            dragStartY = Maps.db.profile.offsetY
+            self:StartMoving()
+        end
+    end)
+    
+    Minimap:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        
+        -- Calculate the new offset based on where the minimap ended up
+        local newX, newY = self:GetCenter()
+        local clusterX, clusterY = MinimapCluster:GetCenter()
+        
+        if newX and newY and clusterX and clusterY then
+            -- Calculate relative offset
+            local offsetX = newX - clusterX
+            local offsetY = newY - clusterY
+            
+            -- Update database
+            Maps.db.profile.offsetX = math.floor(offsetX + 0.5)
+            Maps.db.profile.offsetY = math.floor(offsetY + 0.5)
+            
+            -- Reapply position to snap it properly
+            Maps:ApplyMinimapOffset()
+        end
+    end)
 end
 
 -- -----------------------------------------------------------------------------
@@ -300,7 +341,7 @@ function Maps:GetOptions()
                 order = 4,
             },
             positionNote = {
-                name = "|cffaaaaaa(Use Blizzard Edit Mode to move MinimapCluster, then adjust offsets below to fine-tune actual map position)|r",
+                name = "|cffaaaaaa(Use Blizzard Edit Mode to move MinimapCluster, then hold CTRL+ALT and drag the minimap to fine-tune position)|r",
                 type = "description",
                 order = 5,
                 fontSize = "medium",
@@ -309,7 +350,7 @@ function Maps:GetOptions()
             headerPosition = { type = "header", name = "Position Fine-Tuning", order = 6 },
             offsetX = {
                 name = "Horizontal Offset",
-                desc = "Move the actual minimap left/right within the cluster",
+                desc = "Manual horizontal offset (or drag minimap with CTRL+ALT)",
                 type = "range",
                 order = 7,
                 min = -200,
@@ -318,7 +359,7 @@ function Maps:GetOptions()
             },
             offsetY = {
                 name = "Vertical Offset",
-                desc = "Move the actual minimap up/down within the cluster",
+                desc = "Manual vertical offset (or drag minimap with CTRL+ALT)",
                 type = "range",
                 order = 8,
                 min = -200,
