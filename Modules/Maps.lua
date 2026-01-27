@@ -113,7 +113,6 @@ function Maps:SetupMinimapDragging()
     
     -- Store the starting offset when drag begins
     local dragStartOffsetX, dragStartOffsetY
-    local dragStartMouseX, dragStartMouseY
     local isDragging = false
     
     Minimap:SetScript("OnDragStart", function(self)
@@ -121,15 +120,9 @@ function Maps:SetupMinimapDragging()
         if IsControlKeyDown() and IsAltKeyDown() then
             isDragging = true
             
-            -- Store the current offset and mouse position
+            -- Store the current offset when drag starts
             dragStartOffsetX = Maps.db.profile.offsetX
             dragStartOffsetY = Maps.db.profile.offsetY
-            
-            -- Get current mouse position
-            local scale = UIParent:GetEffectiveScale()
-            dragStartMouseX, dragStartMouseY = GetCursorPosition()
-            dragStartMouseX = dragStartMouseX / scale
-            dragStartMouseY = dragStartMouseY / scale
             
             self:StartMoving()
         end
@@ -141,26 +134,22 @@ function Maps:SetupMinimapDragging()
         self:StopMovingOrSizing()
         isDragging = false
         
-        -- Calculate how far the mouse moved
-        local scale = UIParent:GetEffectiveScale()
-        local mouseX, mouseY = GetCursorPosition()
-        mouseX = mouseX / scale
-        mouseY = mouseY / scale
+        -- Calculate the NEW offset based on final positions (not mouse delta)
+        local minimapCenterX, minimapCenterY = self:GetCenter()
+        local clusterCenterX, clusterCenterY = MinimapCluster:GetCenter()
         
-        -- Calculate the delta from drag start
-        local deltaX = mouseX - dragStartMouseX
-        local deltaY = mouseY - dragStartMouseY
-        
-        -- Add the delta to the original offset
-        local newOffsetX = dragStartOffsetX + deltaX
-        local newOffsetY = dragStartOffsetY + deltaY
-        
-        -- Update database with rounded values
-        Maps.db.profile.offsetX = math.floor(newOffsetX + 0.5)
-        Maps.db.profile.offsetY = math.floor(newOffsetY + 0.5)
-        
-        -- Reapply position using the new offset
-        Maps:ApplyMinimapOffset()
+        if minimapCenterX and minimapCenterY and clusterCenterX and clusterCenterY then
+            -- The new offset is simply the distance from cluster center to minimap center
+            local newOffsetX = minimapCenterX - clusterCenterX
+            local newOffsetY = minimapCenterY - clusterCenterY
+            
+            -- Update database with rounded values
+            Maps.db.profile.offsetX = math.floor(newOffsetX + 0.5)
+            Maps.db.profile.offsetY = math.floor(newOffsetY + 0.5)
+            
+            -- Reapply position using the new offset
+            Maps:ApplyMinimapOffset()
+        end
     end)
 end
 
