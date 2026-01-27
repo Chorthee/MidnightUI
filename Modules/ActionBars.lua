@@ -509,11 +509,14 @@ function AB:SkinAllButtons()
         self:SkinButton(btn)
     end
     
-    -- Hook button updates
+    -- Hook button updates (only hook once)
     if ActionBarActionButtonMixin and ActionBarActionButtonMixin.Update then
-        self:SecureHook(ActionBarActionButtonMixin, "Update", function(button)
-            self:SkinButton(button)
-        end)
+        if not self.isHooked then
+            self:SecureHook(ActionBarActionButtonMixin, "Update", function(button)
+                self:SkinButton(button)
+            end)
+            self.isHooked = true
+        end
     end
 end
 
