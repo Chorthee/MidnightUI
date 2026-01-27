@@ -222,6 +222,41 @@ end
 -- 5.5 BAR PAGING SYSTEM
 -- ============================================================================
 
+function AB:CollectButtons(container, barKey)
+    local buttons = {}
+    
+    if barKey == "MainMenuBar" then
+        for i = 1, 12 do
+            local btn = _G["ActionButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    elseif barKey == "PetActionBar" then
+        for i = 1, 10 do
+            local btn = _G["PetActionButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    elseif barKey == "StanceBar" then
+        for i = 1, 10 do
+            local btn = _G["StanceButton"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    else
+        -- Standard action bars
+        local barName = barKey
+        for i = 1, 12 do
+            local btn = _G[barName.."Button"..i]
+            if btn then table.insert(buttons, btn) end
+        end
+    end
+    
+    container.buttons = buttons
+    
+    -- Cache buttons globally for skinning
+    for _, btn in ipairs(buttons) do
+        buttonCache[btn] = true
+    end
+end
+
 function AB:SetupBarPaging(container)
     local db = self.db.profile.bars["MainMenuBar"]
     local pagingCondition = db.pagingCondition or DEFAULT_PAGING
