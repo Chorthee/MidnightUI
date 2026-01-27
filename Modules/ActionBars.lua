@@ -118,6 +118,16 @@ function AB:HideBlizzardElements()
             if MainMenuBar.ArtFrame.RightEndCap then MainMenuBar.ArtFrame.RightEndCap:Hide() end
             if MainMenuBar.ArtFrame.Background then MainMenuBar.ArtFrame.Background:Hide() end
         end
+        
+        -- Hide the background textures
+        if MainMenuBar.Background then
+            MainMenuBar.Background:SetAlpha(0)
+        end
+        
+        -- Hide any page number display
+        if MainMenuBarPageNumber then
+            MainMenuBarPageNumber:Hide()
+        end
     end
     
     -- Skin status tracking bars (XP/Rep)
@@ -157,16 +167,45 @@ function AB:CreateBar(barKey, config)
     if blizzBar then
         container.blizzBar = blizzBar
         
-        -- Reparent Blizzard bar to our container
-        blizzBar:SetParent(container)
-        blizzBar:ClearAllPoints()
-        blizzBar:SetPoint("CENTER")
-        
-        -- Override Blizzard positioning
-        if blizzBar.SetMovable then blizzBar:SetMovable(true) end
-        if blizzBar.SetUserPlaced then blizzBar:SetUserPlaced(true) end
-        if blizzBar.ignoreFramePositionManager then
+        -- Special handling for MainMenuBar
+        if barKey == "MainMenuBar" then
+            -- Disable Blizzard's position management
+            blizzBar:SetMovable(true)
+            blizzBar:SetUserPlaced(true)
             blizzBar.ignoreFramePositionManager = true
+            
+            -- Override Blizzard's position locking
+            if EditModeManagerFrame then
+                EditModeManagerFrame:UnregisterFrame(blizzBar)
+            end
+            
+            -- Prevent Blizzard from repositioning
+            blizzBar:ClearAllPoints()
+            blizzBar:SetParent(container)
+            blizzBar:SetPoint("CENTER", container, "CENTER", 0, 0)
+            
+            -- Hook to prevent Blizzard from moving it
+            hooksecurefunc(blizzBar, "SetPoint", function(self)
+                if self:GetParent() ~= container then
+                    self:SetParent(container)
+                end
+                local point, relativeTo, relativePoint = self:GetPoint(1)
+                if relativeTo ~= container or point ~= "CENTER" or relativePoint ~= "CENTER" then
+                    self:ClearAllPoints()
+                    self:SetPoint("CENTER", container, "CENTER", 0, 0)
+                end
+            end)
+        else
+            -- Normal handling for other bars
+            blizzBar:SetParent(container)
+            blizzBar:ClearAllPoints()
+            blizzBar:SetPoint("CENTER")
+            
+            if blizzBar.SetMovable then blizzBar:SetMovable(true) end
+            if blizzBar.SetUserPlaced then blizzBar:SetUserPlaced(true) end
+            if blizzBar.ignoreFramePositionManager then
+                blizzBar.ignoreFramePositionManager = true
+            end
         end
         
         -- Setup bar paging for Action Bar 1
@@ -182,6 +221,7 @@ function AB:CreateBar(barKey, config)
     container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
     container.dragFrame:SetAllPoints()
     container.dragFrame:EnableMouse(false)
+    container.dragFrame:SetFrameStrata("HIGH")
     container.dragFrame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -344,7 +384,7 @@ function AB:UpdateBar(barKey)
     -- Update fading
     self:UpdateBarFading(barKey)
     
-    -- Update drag frame visibility
+    -- Update drag frame visibility and button alpha
     if self.db.profile.locked then
         container.dragFrame:Hide()
         container.dragFrame:EnableMouse(false)
@@ -355,6 +395,12 @@ function AB:UpdateBar(barKey)
         container.dragFrame:EnableMouse(true)
         -- Make buttons translucent when unlocked
         self:SetButtonsAlpha(container, 0.2)
+    end
+    
+    -- Force MainMenuBar to stay in our container
+    if barKey == "MainMenuBar" and container.blizzBar then
+        container.blizzBar:ClearAllPoints()
+        container.blizzBar:SetPoint("CENTER", container, "CENTER", 0, 0)
     end
 end
 
