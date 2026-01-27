@@ -186,45 +186,38 @@ function AB:CreateBar(barKey, config)
         
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
-            -- Nuclear option: Completely override Blizzard's control
-            self.isPositioningMainBar = true
-            
-            -- Disable ALL Blizzard management
+            -- Take full control
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
             blizzBar.ignoreFramePositionManager = true
             blizzBar:EnableMouse(false)
-            blizzBar:SetClampedToScreen(false)
-            
-            -- Override all layout functions
-            blizzBar.SetPoint = function() end
-            blizzBar.ClearAllPoints = function() end
             
             -- Unregister from Edit Mode
             if EditModeManagerFrame then
                 EditModeManagerFrame:UnregisterFrame(blizzBar)
             end
             
-            -- Stop any Blizzard scripts
-            blizzBar:SetScript("OnShow", nil)
-            blizzBar:SetScript("OnHide", nil)
-            blizzBar:SetScript("OnUpdate", nil)
-            blizzBar:SetScript("OnEvent", nil)
-            
-            -- Force reparent using raw SetParent
+            -- Parent to our container
             blizzBar:SetParent(container)
             
-            -- Use raw frame positioning
-            blizzBar:SetAllPoints(container)
-            
-            self.isPositioningMainBar = false
-            
-            -- Aggressively enforce positioning every frame
+            -- Use hooksecurefunc to constantly enforce position
             blizzBar:HookScript("OnUpdate", function(self)
                 if self:GetParent() ~= container then
                     self:SetParent(container)
                 end
+                -- Ensure it fills the container
+                local left, bottom, width, height = self:GetRect()
+                local cLeft, cBottom, cWidth, cHeight = container:GetRect()
+                if not left or not cLeft then return end
+                if math.abs(left - cLeft) > 1 or math.abs(bottom - cBottom) > 1 or 
+                   math.abs(width - cWidth) > 1 or math.abs(height - cHeight) > 1 then
+                    self:ClearAllPoints()
+                    self:SetAllPoints(container)
+                end
             end)
+            
+            blizzBar:ClearAllPoints()
+            blizzBar:SetAllPoints(container)
         else
             -- Normal handling for other bars
             blizzBar:SetParent(container)
