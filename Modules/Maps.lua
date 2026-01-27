@@ -117,7 +117,7 @@ function Maps:SetupMinimap()
     Minimap:ClearAllPoints()
     Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
     
-    -- Disable Blizzard's position management
+    -- Disable Blizzard's position management (less aggressive approach)
     Minimap:SetMovable(true)
     Minimap:SetUserPlaced(true)
     Minimap.ignoreFramePositionManager = true
@@ -127,18 +127,19 @@ function Maps:SetupMinimap()
         MinimapCluster.ignoreFramePositionManager = true
     end
     
-    -- Hook SetPoint to keep minimap centered in our container
+    -- Use a gentler hook that doesn't prevent Layout from being called
     if not self:IsHooked(Minimap, "SetPoint") then
-        self:SecureHook(Minimap, "SetPoint", function(self, ...)
-            if not isPositioningMinimap then
-                isPositioningMinimap = true
+        self:SecureHook(Minimap, "SetPoint", function(frame, point, relativeTo, relativePoint, x, y)
+            -- Only intercept if Blizzard is trying to move it away from our container
+            if not isPositioningMinimap and relativeTo ~= minimapContainer then
                 C_Timer.After(0, function()
                     if Minimap:GetParent() ~= minimapContainer then
+                        isPositioningMinimap = true
                         Minimap:SetParent(minimapContainer)
+                        Minimap:ClearAllPoints()
+                        Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
+                        isPositioningMinimap = false
                     end
-                    Minimap:ClearAllPoints()
-                    Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
-                    isPositioningMinimap = false
                 end)
             end
         end)
