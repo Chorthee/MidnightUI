@@ -115,18 +115,6 @@ function AB:HideBlizzardElements()
         -- Completely disable Edit Mode for MainMenuBar
         if EditModeManagerFrame then
             EditModeManagerFrame:UnregisterFrame(MainMenuBar)
-            
-            -- Block any future registration attempts
-            hooksecurefunc(EditModeManagerFrame, "RegisterFrame", function(self, frame)
-                if frame == MainMenuBar then
-                    EditModeManagerFrame:UnregisterFrame(MainMenuBar)
-                end
-            end)
-        end
-        
-        -- Disable UIParent management
-        if UIParent.RegisterForUIParentManagement then
-            MainMenuBar.IsUIParentManaged = function() return false end
         end
         
         if MainMenuBar.ArtFrame then
@@ -184,40 +172,43 @@ function AB:CreateBar(barKey, config)
     if blizzBar then
         container.blizzBar = blizzBar
         
-        -- Special handling for MainMenuBar
+        -- Special handling for MainMenuBar - NUCLEAR OPTION
         if barKey == "MainMenuBar" then
-            -- Take full control
+            -- Completely detach from Blizzard's management
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
             blizzBar.ignoreFramePositionManager = true
             blizzBar:EnableMouse(false)
             
-            -- Unregister from Edit Mode
+            -- Unregister from all Blizzard systems
             if EditModeManagerFrame then
                 EditModeManagerFrame:UnregisterFrame(blizzBar)
             end
             
-            -- Parent to our container
+            -- Stop ALL scripts that could interfere
+            blizzBar:SetScript("OnUpdate", nil)
+            blizzBar:SetScript("OnShow", nil)
+            blizzBar:SetScript("OnHide", nil)
+            blizzBar:SetScript("OnEvent", nil)
+            
+            -- Parent to container FIRST
             blizzBar:SetParent(container)
             
-            -- Use hooksecurefunc to constantly enforce position
-            blizzBar:HookScript("OnUpdate", function(self)
-                if self:GetParent() ~= container then
-                    self:SetParent(container)
-                end
-                -- Ensure it fills the container
-                local left, bottom, width, height = self:GetRect()
-                local cLeft, cBottom, cWidth, cHeight = container:GetRect()
-                if not left or not cLeft then return end
-                if math.abs(left - cLeft) > 1 or math.abs(bottom - cBottom) > 1 or 
-                   math.abs(width - cWidth) > 1 or math.abs(height - cHeight) > 1 then
-                    self:ClearAllPoints()
-                    self:SetAllPoints(container)
-                end
-            end)
+            -- Kill Blizzard's positioning by making the functions do nothing
+            local origSetPoint = blizzBar.SetPoint
+            blizzBar.SetPoint = function() end
+            blizzBar.ClearAllPoints = function() end
             
-            blizzBar:ClearAllPoints()
-            blizzBar:SetAllPoints(container)
+            -- Now use the original function to position it once
+            origSetPoint(blizzBar, "CENTER", container, "CENTER", 0, 0)
+            
+            -- Make buttons parent to container instead of MainMenuBar
+            for i = 1, 12 do
+                local btn = _G["ActionButton"..i]
+                if btn then
+                    btn:SetParent(container)
+                end
+            end
         else
             -- Normal handling for other bars
             blizzBar:SetParent(container)
@@ -447,6 +438,7 @@ function AB:LayoutButtons(container, barKey)
     -- Position buttons
     for i, btn in ipairs(buttons) do
         btn:ClearAllPoints()
+        btn:SetParent(container)
         btn:SetSize(buttonSize, buttonSize)
         
         local col = (i - 1) % columns
