@@ -112,12 +112,12 @@ function Maps:SetupMinimap()
         end)
     end
     
-    -- Parent minimap to our container
+    -- Parent minimap to our container WITHOUT HOOKS
     Minimap:SetParent(minimapContainer)
     Minimap:ClearAllPoints()
     Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
     
-    -- Disable Blizzard's position management (less aggressive approach)
+    -- Disable Blizzard's position management
     Minimap:SetMovable(true)
     Minimap:SetUserPlaced(true)
     Minimap.ignoreFramePositionManager = true
@@ -125,6 +125,7 @@ function Maps:SetupMinimap()
     -- Block EditMode from managing MinimapCluster
     if MinimapCluster then
         MinimapCluster.ignoreFramePositionManager = true
+        MinimapCluster:SetParent(minimapContainer)
     end
     
     -- Use a gentler hook that doesn't prevent Layout from being called
