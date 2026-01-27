@@ -255,10 +255,10 @@ local function FormatMoney(amount)
     local copper = amount % 100
     local str = ""
     if gold > 0 then 
-        str = str .. string.format("%s|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t", FormatWithCommas(gold)) 
+        str = str .. string.format("%s|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t ", FormatWithCommas(gold)) 
     end
     if silver > 0 or gold > 0 then 
-        str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t", silver) 
+        str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t ", silver) 
     end
     str = str .. string.format("%d|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t", copper)
     return str
