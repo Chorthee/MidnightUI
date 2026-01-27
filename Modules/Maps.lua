@@ -122,9 +122,25 @@ function Maps:SetupMinimap()
     Minimap:SetUserPlaced(true)
     Minimap.ignoreFramePositionManager = true
     
-    -- Unregister from Edit Mode
+    -- Prevent Edit Mode from controlling the minimap
     if EditModeManagerFrame then
-        EditModeManagerFrame:UnregisterFrame(Minimap)
+        -- Hook the function that tries to update the minimap
+        if not self:IsHooked(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame") then
+            self:SecureHook(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame", function(_, systemFrame)
+                if systemFrame == MinimapCluster then
+                    -- Immediately restore our positioning
+                    isPositioningMinimap = true
+                    Minimap:ClearAllPoints()
+                    Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
+                    isPositioningMinimap = false
+                end
+            end)
+        end
+        
+        -- Block EditMode from managing MinimapCluster
+        if MinimapCluster then
+            MinimapCluster.ignoreFramePositionManager = true
+        end
     end
     
     -- Hook SetPoint to keep minimap centered in our container
@@ -133,6 +149,9 @@ function Maps:SetupMinimap()
             if not isPositioningMinimap then
                 isPositioningMinimap = true
                 C_Timer.After(0, function()
+                    if Minimap:GetParent() ~= minimapContainer then
+                        Minimap:SetParent(minimapContainer)
+                    end
                     Minimap:ClearAllPoints()
                     Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
                     isPositioningMinimap = false
