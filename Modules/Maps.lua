@@ -27,7 +27,7 @@ local defaults = {
         showCalendar = true,
         showTracking = true,
         showMail = true,
-        showMissions = true, -- Landing Page
+        showMissions = true,
         showQueue = true,
         
         -- Text Styling
@@ -70,7 +70,7 @@ end
 -- CORE MINIMAP SETUP
 -- -----------------------------------------------------------------------------
 function Maps:SetupMinimap()
-    -- Move the entire MinimapCluster instead of individual frames
+    -- Move the entire MinimapCluster
     MinimapCluster:SetMovable(true)
     MinimapCluster:EnableMouse(true)
     MinimapCluster:RegisterForDrag("LeftButton")
@@ -229,10 +229,8 @@ end
 function Maps:UpdateLayout()
     local db = self.db.profile
     
-    -- Update minimap size
-    Minimap:SetSize(db.size, db.size)
-    
-    -- Update MinimapCluster position
+    -- DO NOT call Minimap:SetSize() - this triggers the Layout error
+    -- Instead, only update MinimapCluster position
     MinimapCluster:ClearAllPoints()
     if db.position then
         MinimapCluster:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
@@ -321,6 +319,7 @@ function Maps:GetOptions()
             },
             size = {
                 name = "Map Size",
+                desc = "Note: Changing size requires a /reload to take effect",
                 type = "range",
                 min = 100, max = 400, step = 1,
                 order = 3,
