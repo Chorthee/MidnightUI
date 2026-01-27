@@ -43,17 +43,17 @@ local defaults = {
 -- INITIALIZATION
 -- -----------------------------------------------------------------------------
 function Maps:OnInitialize()
-    self.db = MidnightUI.db:RegisterNamespace("Maps", defaults)
-    
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+end
+
+function Maps:PLAYER_ENTERING_WORLD()
     if not MidnightUI.db.profile.modules.maps then 
         self:Disable()
         return 
     end
     
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
-end
-
-function Maps:PLAYER_ENTERING_WORLD()
+    self.db = MidnightUI.db:RegisterNamespace("Maps", defaults)
+    
     -- CRITICAL FIX: Stub out Layout function to prevent errors
     if not Minimap.Layout or Minimap.Layout == nil then
         Minimap.Layout = function() end

@@ -4,6 +4,12 @@ local UIButtons = MidnightUI:NewModule("UIButtons", "AceEvent-3.0")
 local buttons = {}
 
 function UIButtons:OnInitialize()
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+end
+
+function UIButtons:PLAYER_ENTERING_WORLD()
+    if not MidnightUI.db.profile.modules.buttons then return end
+    
     self.db = MidnightUI.db:RegisterNamespace("UIButtons", {
         profile = {
             enabled = true,
@@ -19,10 +25,10 @@ function UIButtons:OnInitialize()
         }
     })
     
-    if not MidnightUI.db.profile.modules.buttons then return end
-    
     self:CreateButtons()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD", "UpdateLayout")
+    
+    -- Register for Move Mode changes
+    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 function UIButtons:CreateButtons()

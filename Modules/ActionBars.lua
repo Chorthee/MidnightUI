@@ -75,24 +75,25 @@ end
 -- ============================================================================
 
 function AB:OnInitialize()
-    self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
-    
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+end
+
+function AB:PLAYER_ENTERING_WORLD()
     if not MidnightUI.db.profile.modules.actionbars then return end
+    
+    self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
     
     if Masque then
         masqueGroup = Masque:Group("Midnight ActionBars")
     end
     
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PET_BATTLE_OPENING_START")
     self:RegisterEvent("PET_BATTLE_CLOSE")
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
-end
-
-function AB:PLAYER_ENTERING_WORLD()
+    
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()

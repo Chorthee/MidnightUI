@@ -2,13 +2,13 @@ local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UF = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0")
 
 function UF:OnInitialize()
-    if not MidnightUI.db.profile.modules.unitframes then return end
-    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
 
 function UF:PLAYER_ENTERING_WORLD()
+    if not MidnightUI.db.profile.modules.unitframes then return end
+    
     self:SkinFrame(PlayerFrame)
     self:SkinFrame(PetFrame)
     self:SkinFrame(TargetFrame)

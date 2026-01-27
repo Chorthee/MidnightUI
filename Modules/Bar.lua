@@ -1451,9 +1451,13 @@ end
 -- ============================================================================
 
 function Bar:OnInitialize()
-    self.db = MidnightUI.db:RegisterNamespace("Bar", defaults)
-    
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+end
+
+function Bar:PLAYER_ENTERING_WORLD()
     if not MidnightUI.db.profile.modules.bar then return end
+    
+    self.db = MidnightUI.db:RegisterNamespace("Bar", defaults)
     
     if Masque then 
         masqueGroup = Masque:Group("Midnight Bar") 

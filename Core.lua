@@ -32,7 +32,7 @@ local defaults = {
 -- 2. INITIALIZATION
 -- ============================================================================
 function MidnightUI:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("MidnightUIDB", self:GetDefaults(), true)
+    self.db = LibStub("AceDB-3.0"):New("MidnightUIDB", defaults, true)
     
     -- Register slash commands
     self:RegisterChatCommand("mui", "SlashCommand")

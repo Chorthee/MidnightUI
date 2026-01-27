@@ -9,12 +9,13 @@ local defaults = {
 }
 
 function Tweaks:OnInitialize()
-    if not MidnightUI.db.profile.modules.tweaks then return end
-    self.db = MidnightUI.db:RegisterNamespace("Tweaks", defaults)
     self:RegisterEvent("PLAYER_LOGIN")
 end
 
 function Tweaks:PLAYER_LOGIN()
+    if not MidnightUI.db.profile.modules.tweaks then return end
+    self.db = MidnightUI.db:RegisterNamespace("Tweaks", defaults)
+    
     if self.db.profile.fastLoot then
         -- Set Auto Loot CVars
         SetCVar("autoLootDefault", "1")
