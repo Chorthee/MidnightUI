@@ -21,8 +21,8 @@ local BAR_CONFIGS = {
     ["MultiBar5"] = { name = "Action Bar 6", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 240 } },
     ["MultiBar6"] = { name = "Action Bar 7", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 278 } },
     ["MultiBar7"] = { name = "Action Bar 8", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 316 } },
-    ["PetActionBar"] = { name = "Pet Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = -250, y = 50 } },
-    ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 50 } },
+    ["PetActionBar"] = { name = "Pet Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = -250, y = 354 } },
+    ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 354 } },
 }
 
 -- Bar Paging Conditions (for Action Bar 1)
