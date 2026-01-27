@@ -70,66 +70,20 @@ end
 -- CORE MINIMAP SETUP
 -- -----------------------------------------------------------------------------
 function Maps:SetupMinimap()
-    local db = self.db.profile
-    
-    -- CRASH FIX 1: Blizzard's Mail/Crafting buttons expect their parent to have a Layout() method.
-    if not Minimap.Layout then
-        Minimap.Layout = function() end
-    end
-
-    -- CRASH FIX 2: Expansion Landing Page Button title can be nil during login.
-    if ExpansionLandingPageMinimapButton then
-        hooksecurefunc(ExpansionLandingPageMinimapButton, "OnEnter", function(self)
-            if not self.title then 
-                self.title = "Expansion Landing Page" 
-            end
-        end)
-    end
-    
-    -- 1. Enable Movement (ALT + Drag)
     Minimap:SetMovable(true)
+    Minimap:EnableMouse(true)
     Minimap:RegisterForDrag("LeftButton")
     
     Minimap:SetScript("OnDragStart", function(self)
-        if IsAltKeyDown() and not Maps.db.profile.lock then
+        -- Allow moving if unlocked OR if holding CTRL+ALT
+        if not Maps.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
             self:StartMoving()
         end
     end)
     
     Minimap:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        
-        -- Save Position
-        local point, _, _, x, y = self:GetPoint()
-        Maps.db.profile.position = { point = point, x = x, y = y }
-    end)
-
-    -- 2. Shape & Mask
-    Minimap:SetMaskTexture("Interface\\BUTTONS\\WHITE8X8") -- Default to Square
-    Minimap:SetArchBlobRingScalar(0)
-    Minimap:SetQuestBlobRingScalar(0)
-    
-    -- 3. Border / Backdrop
-    if not self.backdrop then
-        self.backdrop = CreateFrame("Frame", "MidnightUI_MinimapBackdrop", Minimap, "BackdropTemplate")
-        self.backdrop:SetFrameStrata("BACKGROUND")
-        self.backdrop:SetFrameLevel(1)
-        self.backdrop:SetPoint("CENTER", Minimap, "CENTER")
-        
-        self.backdrop:SetBackdrop({
-            bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-            edgeFile = "Interface\\Buttons\\WHITE8X8",
-            tile = false, tileSize = 0, edgeSize = db.borderSize,
-            insets = { left = 0, right = 0, top = 0, bottom = 0 }
-        })
-        self.backdrop:SetBackdropColor(0.1, 0.1, 0.1, 1)
-        self.backdrop:SetBackdropBorderColor(unpack(db.borderColor))
-    end
-    
-    -- 4. Mousewheel Zoom
-    Minimap:EnableMouseWheel(true)
-    Minimap:SetScript("OnMouseWheel", function(_, d)
-        if d > 0 then Minimap.ZoomIn:Click() elseif d < 0 then Minimap.ZoomOut:Click() end
+        Maps:SaveMinimapPosition()
     end)
 end
 

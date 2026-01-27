@@ -1351,7 +1351,8 @@ function Bar:CreateBarFrame(id)
     f.bg:SetAllPoints()
     
     f:SetScript("OnDragStart", function(s) 
-        if not self.db.profile.locked then 
+        -- Allow moving if unlocked OR if holding CTRL+ALT
+        if not self.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then 
             s:StartMoving() 
         end 
     end)
