@@ -38,9 +38,19 @@ function MidnightUI:OnInitialize()
     self:RegisterChatCommand("mui", "SlashCommand")
     self:RegisterChatCommand("midnightui", "SlashCommand")
     self:RegisterChatCommand("muimove", "ToggleMoveMode")
+end
+
+function MidnightUI:OnEnable()
+    -- NOW send the message after all modules have registered
+    C_Timer.After(0.1, function()
+        self:SendMessage("MIDNIGHTUI_DB_READY")
+    end)
     
-    -- Notify modules that database is ready
-    self:SendMessage("MIDNIGHTUI_DB_READY")
+    -- Register options after modules load
+    C_Timer.After(0.2, function()
+        AceConfig:RegisterOptionsTable("MidnightUI", function() return self:GetOptions() end)
+        AceConfigDialog:AddToBlizOptions("MidnightUI", "Midnight UI")
+    end)
 end
 
 function MidnightUI:SlashCommand(input)
