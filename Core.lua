@@ -41,6 +41,9 @@ function MidnightUI:OnInitialize()
     self:RegisterChatCommand("mui", "SlashCommand")
     self:RegisterChatCommand("midnightui", "SlashCommand")
     self:RegisterChatCommand("muimove", "ToggleMoveMode")
+    
+    -- Notify modules that database is ready
+    self:SendMessage("MIDNIGHTUI_DB_READY")
 end
 
 function MidnightUI:SlashCommand(input)

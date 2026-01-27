@@ -43,10 +43,10 @@ local defaults = {
 -- INITIALIZATION
 -- -----------------------------------------------------------------------------
 function Maps:OnInitialize()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
 end
 
-function Maps:PLAYER_ENTERING_WORLD()
+function Maps:OnDBReady()
     if not MidnightUI.db.profile.modules.maps then 
         self:Disable()
         return 
@@ -54,6 +54,13 @@ function Maps:PLAYER_ENTERING_WORLD()
     
     self.db = MidnightUI.db:RegisterNamespace("Maps", defaults)
     
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    
+    -- Register for Move Mode changes using AceEvent's message system
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+end
+
+function Maps:PLAYER_ENTERING_WORLD()
     -- CRITICAL FIX: Stub out Layout function to prevent errors
     if not Minimap.Layout or Minimap.Layout == nil then
         Minimap.Layout = function() end
@@ -65,9 +72,6 @@ function Maps:PLAYER_ENTERING_WORLD()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
-    
-    -- Register for Move Mode changes using AceEvent's message system
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 -- -----------------------------------------------------------------------------

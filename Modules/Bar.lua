@@ -1451,10 +1451,10 @@ end
 -- ============================================================================
 
 function Bar:OnInitialize()
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
 end
 
-function Bar:PLAYER_ENTERING_WORLD()
+function Bar:OnDBReady()
     if not MidnightUI.db.profile.modules.bar then return end
     
     self.db = MidnightUI.db:RegisterNamespace("Bar", defaults)
@@ -1497,19 +1497,14 @@ function Bar:PLAYER_ENTERING_WORLD()
     
     C_Timer.After(1.0, function() 
         for id in pairs(bars) do 
-            self:ApplyBarSettings(id) 
+            Bar:ApplyBarSettings(id) 
         end 
     end)
 end
 
-function Bar:PLAYER_LOGIN()
-    for id in pairs(self.db.profile.bars) do 
-        self:CreateBarFrame(id) 
-    end
+function Bar:PLAYER_ENTERING_WORLD()
+    -- Just update modules, initialization already done
     self:UpdateAllModules()
-    for id in pairs(bars) do 
-        self:ApplyBarSettings(id) 
-    end
 end
 
 function Bar:UpdateGoldData()
