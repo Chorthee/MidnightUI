@@ -112,13 +112,21 @@ function AB:HideBlizzardElements()
     
     -- Hide gryphons and main bar art
     if MainMenuBar then
-        -- Prevent Edit Mode from managing this bar
+        -- Completely disable Edit Mode for MainMenuBar
         if EditModeManagerFrame then
-            hooksecurefunc(EditModeManagerFrame, "UpdateSystemSettingForBar", function(self, systemFrame)
-                if systemFrame == MainMenuBar then
-                    return
+            EditModeManagerFrame:UnregisterFrame(MainMenuBar)
+            
+            -- Block any future registration attempts
+            hooksecurefunc(EditModeManagerFrame, "RegisterFrame", function(self, frame)
+                if frame == MainMenuBar then
+                    EditModeManagerFrame:UnregisterFrame(MainMenuBar)
                 end
             end)
+        end
+        
+        -- Disable UIParent management
+        if UIParent.RegisterForUIParentManagement then
+            MainMenuBar.IsUIParentManaged = function() return false end
         end
         
         if MainMenuBar.ArtFrame then
@@ -136,23 +144,6 @@ function AB:HideBlizzardElements()
         -- Hide any page number display
         if MainMenuBarPageNumber then
             MainMenuBarPageNumber:Hide()
-        end
-        
-        -- Disable Blizzard's positioning hooks
-        if MainMenuBar.SetPoint then
-            hooksecurefunc(MainMenuBar, "SetPoint", function(self, ...)
-                if not AB.isPositioningMainBar then
-                    local parent = self:GetParent()
-                    local container = bars["MainMenuBar"]
-                    if parent ~= container and container then
-                        AB.isPositioningMainBar = true
-                        self:ClearAllPoints()
-                        self:SetParent(container)
-                        self:SetPoint("CENTER", container, "CENTER", 0, 0)
-                        AB.isPositioningMainBar = false
-                    end
-                end
-            end)
         end
     end
     
@@ -195,40 +186,43 @@ function AB:CreateBar(barKey, config)
         
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
-            -- Completely take over from Blizzard
+            -- Nuclear option: Completely override Blizzard's control
             self.isPositioningMainBar = true
             
-            -- Disable all Blizzard management
+            -- Disable ALL Blizzard management
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
             blizzBar.ignoreFramePositionManager = true
             blizzBar:EnableMouse(false)
+            blizzBar:SetClampedToScreen(false)
+            
+            -- Override all layout functions
+            blizzBar.SetPoint = function() end
+            blizzBar.ClearAllPoints = function() end
             
             -- Unregister from Edit Mode
             if EditModeManagerFrame then
                 EditModeManagerFrame:UnregisterFrame(blizzBar)
             end
             
-            -- Stop any Blizzard scripts that might reposition it
+            -- Stop any Blizzard scripts
             blizzBar:SetScript("OnShow", nil)
             blizzBar:SetScript("OnHide", nil)
             blizzBar:SetScript("OnUpdate", nil)
+            blizzBar:SetScript("OnEvent", nil)
             
-            -- Force reparent and position
-            blizzBar:ClearAllPoints()
+            -- Force reparent using raw SetParent
             blizzBar:SetParent(container)
+            
+            -- Use raw frame positioning
             blizzBar:SetAllPoints(container)
             
             self.isPositioningMainBar = false
             
-            -- Continuously enforce our positioning
-            C_Timer.NewTicker(0.1, function()
-                if not self.isPositioningMainBar and blizzBar:GetParent() ~= container then
-                    self.isPositioningMainBar = true
-                    blizzBar:ClearAllPoints()
-                    blizzBar:SetParent(container)
-                    blizzBar:SetAllPoints(container)
-                    self.isPositioningMainBar = false
+            -- Aggressively enforce positioning every frame
+            blizzBar:HookScript("OnUpdate", function(self)
+                if self:GetParent() ~= container then
+                    self:SetParent(container)
                 end
             end)
         else
@@ -433,12 +427,10 @@ function AB:UpdateBar(barKey)
         self:SetButtonsAlpha(container, 0.2)
     end
     
-    -- Special handling for MainMenuBar - force it to stay in place
+    -- Special handling for MainMenuBar - ensure it stays contained
     if barKey == "MainMenuBar" and container.blizzBar then
-        self.isPositioningMainBar = true
-        container.blizzBar:ClearAllPoints()
-        container.blizzBar:SetAllPoints(container)
-        self.isPositioningMainBar = false
+        -- Don't try to reposition - our hooks handle it
+        container.blizzBar:Show()
     end
 end
 
