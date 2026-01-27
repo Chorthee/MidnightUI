@@ -215,28 +215,42 @@ function Cooldowns:UpdateCooldownDisplay()
     local db = self.db.profile
     local activeCooldowns = {}
     
-    -- Get all player spell cooldowns
-    for i = 1, 200 do -- Check spell book slots
-        local spellName, _, spellID = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-        if not spellName then break end
+    -- Get all player spell cooldowns using the new API
+    -- Use C_SpellBook to iterate through known spells
+    local slotType = Enum.SpellBookSpellBank.Player
+    local numSpells = C_SpellBook.GetNumSpellBookSkillLines()
+    
+    for i = 1, 200 do -- Still iterate through spell slots
+        -- Try to get spell info using the new API
+        local spellInfo = C_SpellBook.GetSpellBookItemInfo(i, slotType)
         
-        if spellID then
-            local start, duration, enabled = C_Spell.GetSpellCooldown(spellID)
+        if not spellInfo then break end
+        
+        -- Check if it's a spell (not a flyout or pet action)
+        if spellInfo.itemType == Enum.SpellBookItemType.Spell or spellInfo.itemType == 1 then
+            local spellID = spellInfo.actionID or spellInfo.spellID
+            local spellName = spellInfo.name
             
-            if start and duration and duration > 1.5 then -- Ignore GCD
-                local remaining = start + duration - GetTime()
+            if spellID then
+                local cooldownInfo = C_Spell.GetSpellCooldown(spellID)
                 
-                if remaining > 0 then
-                    local texture = C_Spell.GetSpellTexture(spellID)
+                if cooldownInfo and cooldownInfo.startTime and cooldownInfo.duration and cooldownInfo.duration > 1.5 then
+                    local start = cooldownInfo.startTime
+                    local duration = cooldownInfo.duration
+                    local remaining = start + duration - GetTime()
                     
-                    table.insert(activeCooldowns, {
-                        spellID = spellID,
-                        name = spellName,
-                        texture = texture,
-                        start = start,
-                        duration = duration,
-                        remaining = remaining,
-                    })
+                    if remaining > 0 then
+                        local texture = C_Spell.GetSpellTexture(spellID)
+                        
+                        table.insert(activeCooldowns, {
+                            spellID = spellID,
+                            name = spellName,
+                            texture = texture,
+                            start = start,
+                            duration = duration,
+                            remaining = remaining,
+                        })
+                    end
                 end
             end
         end
