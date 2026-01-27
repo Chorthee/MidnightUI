@@ -114,10 +114,13 @@ function Maps:SetupMinimapDragging()
     -- Store the starting offset when drag begins
     local dragStartOffsetX, dragStartOffsetY
     local dragStartMouseX, dragStartMouseY
+    local isDragging = false
     
     Minimap:SetScript("OnDragStart", function(self)
         -- Only allow dragging with CTRL+ALT
         if IsControlKeyDown() and IsAltKeyDown() then
+            isDragging = true
+            
             -- Store the current offset and mouse position
             dragStartOffsetX = Maps.db.profile.offsetX
             dragStartOffsetY = Maps.db.profile.offsetY
@@ -133,7 +136,10 @@ function Maps:SetupMinimapDragging()
     end)
     
     Minimap:SetScript("OnDragStop", function(self)
+        if not isDragging then return end
+        
         self:StopMovingOrSizing()
+        isDragging = false
         
         -- Calculate how far the mouse moved
         local scale = UIParent:GetEffectiveScale()
