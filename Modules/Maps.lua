@@ -50,9 +50,13 @@ function Maps:OnInitialize()
 end
 
 function Maps:PLAYER_ENTERING_WORLD()
+    -- CRITICAL FIX: Stub out Layout function to prevent errors
+    if not Minimap.Layout or Minimap.Layout == nil then
+        Minimap.Layout = function() end
+    end
+    
     self:SetupElements()
     self:SkinBlizzardButtons()
-    self:HookScripts()
     self:UpdateLayout()
 end
 
@@ -172,11 +176,14 @@ end
 function Maps:UpdateLayout()
     local db = self.db.profile
 
-    -- SHAPE
-    if db.shape == "SQUARE" then
-        Minimap:SetMaskTexture("Interface\\BUTTONS\\WHITE8X8")
-    else
-        Minimap:SetMaskTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
+    -- ONLY SET SHAPE ONCE - Never call SetMaskTexture again after this
+    if not self.shapeInitialized then
+        if db.shape == "SQUARE" then
+            Minimap:SetMaskTexture("Interface\\BUTTONS\\WHITE8X8")
+        else
+            Minimap:SetMaskTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
+        end
+        self.shapeInitialized = true
     end
 
     -- TEXT ELEMENTS
@@ -217,31 +224,25 @@ function Maps:PlaceButton(btn, point, x, y, isShown)
     end
 end
 
--- -----------------------------------------------------------------------------
--- SCRIPTS & HOOKS
--- -----------------------------------------------------------------------------
-function Maps:HookScripts()
-    if self:IsHooked(Minimap, "OnMouseUp") then return end
-
-    local zoomOutFunc = function()
-        if self.db.profile.autoZoom then
-            C_Timer.After(10, function() Minimap:SetZoom(0) end)
-        end
-    end
-    self:HookScript(Minimap, "OnMouseUp", zoomOutFunc)
-end
-
 function Maps:GetOptions()
     return {
         type = "group",
         name = "Maps",
         order = 10,
         get = function(info) return self.db.profile[info[#info]] end,
-        set = function(info, value) self.db.profile[info[#info]] = value; self:UpdateLayout() end,
+        set = function(info, value) 
+            self.db.profile[info[#info]] = value
+            if info[#info] == "shape" then
+                -- Changing shape requires a reload
+                ReloadUI()
+            else
+                self:UpdateLayout()
+            end
+        end,
         args = {
             headerShape = { type = "header", name = "Appearance", order = 1 },
             shape = {
-                name = "Map Shape",
+                name = "Map Shape (Requires /reload)",
                 type = "select",
                 order = 2,
                 values = {SQUARE = "Square", ROUND = "Round"},
