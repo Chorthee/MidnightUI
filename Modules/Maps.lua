@@ -124,8 +124,8 @@ function Maps:SetupMinimap()
     
     -- Prevent Edit Mode from controlling the minimap
     if EditModeManagerFrame then
-        -- Hook the function that tries to update the minimap
-        if not self:IsHooked(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame") then
+        -- Only hook if the method exists
+        if EditModeManagerFrame.UpdateSystemSettingForSystemFrame and not self:IsHooked(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame") then
             self:SecureHook(EditModeManagerFrame, "UpdateSystemSettingForSystemFrame", function(_, systemFrame)
                 if systemFrame == MinimapCluster then
                     -- Immediately restore our positioning
