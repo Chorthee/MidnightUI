@@ -860,10 +860,14 @@ function Bar:InitializeBrokers()
                 tip:AddLine("Price not available", 0.8, 0.8, 0.8)
             end
             tip:AddLine(" ")
-            tip:AddLine("History (Session)", 1, 0.82, 0)
+            tip:AddLine("Price History", 1, 0.82, 0)
             local h = Bar.db.profile.tokenHistory or {}
-            for _, e in ipairs(h) do 
-                tip:AddDoubleLine(date("%H:%M", e.time), FormatTokenPrice(e.price), 1,1,1) 
+            if #h > 0 then
+                for _, e in ipairs(h) do 
+                    tip:AddDoubleLine(date("%m/%d %I:%M %p", e.time), FormatTokenPrice(e.price), 1,1,1) 
+                end
+            else
+                tip:AddLine("No history available", 0.6, 0.6, 0.6)
             end
             tip:AddLine(" ")
             tip:AddLine("|cffaaaaaa(Click to refresh price)|r", 0.7, 0.7, 0.7)
@@ -1408,11 +1412,22 @@ end
 function Bar:UpdateTokenHistory()
     local price = C_WowTokenPublic.GetCurrentMarketPrice()
     if not price then return end
+    
     local h = self.db.profile.tokenHistory
+    
+    -- Check if this price is different from the most recent entry
+    if #h > 0 and h[1].price == price then
+        return -- Don't add duplicate prices
+    end
+    
+    -- Add new entry at the beginning
     table.insert(h, 1, { price = price, time = time() })
-    if #h > 5 then 
+    
+    -- Keep only the 5 most recent entries
+    while #h > 5 do 
         table.remove(h) 
     end
+    
     -- Update the display immediately
     tokenObj.text = FormatTokenPrice(price)
     self:UpdateBarLayout("MainBar")
@@ -1732,7 +1747,7 @@ function Bar:GetOptions()
                     min = 50, 
                     max = screenWidth, 
                     step = 1, 
-                    disabled = function() return self.db.profile.bars[id].fullWidth end, 
+                    disabled = function() return self.db.profile.brokers[id].fullWidth end, 
                     get = function() return self.db.profile.bars[id].width end, 
                     set = function(_, v) self.db.profile.bars[id].width = v; self:ApplyBarSettings(id) end 
                 },
