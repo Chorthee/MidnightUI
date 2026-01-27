@@ -571,15 +571,15 @@ function Bar:UpdateFriendList()
             AddText(data.level, colW.lvl, colX.lvl, {r=1,g=1,b=1}); AddText(data.zone, colW.zone, colX.zone, {r=1,g=0.82,b=0})
             AddText(data.realm, colW.realm, colX.realm, {r=1,g=1,b=1})
             
-            -- Fixed faction icon logic with proper texture path
+            -- Fixed faction icon logic with proper texture markup
             local facIcon = ""
             if data.faction == "Horde" then
-                facIcon = "Interface\\Icons\\bnet_faction_horde"
+                facIcon = "|TInterface\\Icons\\INV_BannerPVP_01:16:16:0:0|t"
             elseif data.faction == "Alliance" then
-                facIcon = "Interface\\Icons\\bnet_faction_alliance"
+                facIcon = "|TInterface\\Icons\\INV_BannerPVP_02:16:16:0:0|t"
             end
             AddText(facIcon, colW.fac, colX.fac)
-            
+
             btn:SetScript("OnClick", function() 
                 local t = data.name
                 if data.realm then 
