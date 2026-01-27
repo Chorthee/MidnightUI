@@ -43,12 +43,6 @@ local defaults = {
 }
 
 -- -----------------------------------------------------------------------------
--- LOCAL VARIABLES
--- -----------------------------------------------------------------------------
-local isPositioningMinimap = false
-local minimapContainer = nil
-
--- -----------------------------------------------------------------------------
 -- INITIALIZATION
 -- -----------------------------------------------------------------------------
 function Maps:OnInitialize()
@@ -76,70 +70,42 @@ end
 -- CORE MINIMAP SETUP
 -- -----------------------------------------------------------------------------
 function Maps:SetupMinimap()
-    -- Create a container frame to hold the minimap
-    if not minimapContainer then
-        minimapContainer = CreateFrame("Frame", "MidnightMinimapContainer", UIParent)
-        minimapContainer:SetSize(self.db.profile.size, self.db.profile.size)
-        minimapContainer:SetMovable(true)
-        minimapContainer:EnableMouse(true)
-        minimapContainer:RegisterForDrag("LeftButton")
-        minimapContainer:SetClampedToScreen(true)
-        
-        -- Position the container
-        minimapContainer:ClearAllPoints()
-        if self.db.profile.position then
-            minimapContainer:SetPoint(
-                self.db.profile.position.point, 
-                UIParent, 
-                self.db.profile.position.point, 
-                self.db.profile.position.x, 
-                self.db.profile.position.y
-            )
-        else
-            minimapContainer:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
+    -- Move the entire MinimapCluster instead of individual frames
+    MinimapCluster:SetMovable(true)
+    MinimapCluster:EnableMouse(true)
+    MinimapCluster:RegisterForDrag("LeftButton")
+    MinimapCluster:SetUserPlaced(true)
+    MinimapCluster.ignoreFramePositionManager = true
+    
+    -- Position it
+    MinimapCluster:ClearAllPoints()
+    if self.db.profile.position then
+        MinimapCluster:SetPoint(
+            self.db.profile.position.point,
+            UIParent,
+            self.db.profile.position.point,
+            self.db.profile.position.x,
+            self.db.profile.position.y
+        )
+    else
+        MinimapCluster:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
+    end
+    
+    -- Drag scripts
+    MinimapCluster:SetScript("OnDragStart", function(self)
+        if not Maps.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
+            self:StartMoving()
         end
-        
-        -- Drag scripts for container
-        minimapContainer:SetScript("OnDragStart", function(self)
-            if not Maps.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
-                self:StartMoving()
-            end
-        end)
-        
-        minimapContainer:SetScript("OnDragStop", function(self)
-            self:StopMovingOrSizing()
-            Maps:SaveMinimapPosition()
-        end)
-    end
+    end)
     
-    -- Parent minimap to our container WITHOUT ANY HOOKS
-    Minimap:SetParent(minimapContainer)
-    Minimap:ClearAllPoints()
-    Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
-    
-    -- Disable Blizzard's position management
-    Minimap:SetMovable(true)
-    Minimap:SetUserPlaced(true)
-    Minimap.ignoreFramePositionManager = true
-    
-    -- Block EditMode from managing MinimapCluster
-    if MinimapCluster then
-        MinimapCluster.ignoreFramePositionManager = true
-        MinimapCluster:SetParent(minimapContainer)
-    end
-    
-    -- Create backdrop for container
-    if not minimapContainer.backdrop then
-        minimapContainer.backdrop = CreateFrame("Frame", nil, minimapContainer, "BackdropTemplate")
-        minimapContainer.backdrop:SetAllPoints()
-        minimapContainer.backdrop:SetFrameLevel(Minimap:GetFrameLevel() - 1)
-    end
+    MinimapCluster:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        Maps:SaveMinimapPosition()
+    end)
 end
 
 function Maps:SaveMinimapPosition()
-    if not minimapContainer then return end
-    
-    local point, _, _, x, y = minimapContainer:GetPoint()
+    local point, _, _, x, y = MinimapCluster:GetPoint()
     self.db.profile.position = {
         point = point or "TOPRIGHT",
         x = math.floor(x + 0.5),
@@ -263,46 +229,22 @@ end
 function Maps:UpdateLayout()
     local db = self.db.profile
     
-    -- Update container size
-    if minimapContainer then
-        minimapContainer:SetSize(db.size, db.size)
-        
-        -- Update position
-        minimapContainer:ClearAllPoints()
-        if db.position then
-            minimapContainer:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
-        else
-            minimapContainer:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
-        end
-    end
-    
     -- Update minimap size
-    isPositioningMinimap = true
     Minimap:SetSize(db.size, db.size)
-    Minimap:ClearAllPoints()
-    Minimap:SetPoint("CENTER", minimapContainer, "CENTER", 0, 0)
-    isPositioningMinimap = false
+    
+    -- Update MinimapCluster position
+    MinimapCluster:ClearAllPoints()
+    if db.position then
+        MinimapCluster:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
+    else
+        MinimapCluster:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -25, -50)
+    end
 
-    -- 2. SHAPE
+    -- SHAPE
     if db.shape == "SQUARE" then
         Minimap:SetMaskTexture("Interface\\BUTTONS\\WHITE8X8")
-        
-        if minimapContainer.backdrop then
-            minimapContainer.backdrop:SetBackdrop({
-                edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = db.borderSize,
-                bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-                tile = false, tileSize = 0,
-                insets = { left = 0, right = 0, top = 0, bottom = 0 }
-            })
-            minimapContainer.backdrop:SetBackdropColor(0.1, 0.1, 0.1, 1)
-            minimapContainer.backdrop:SetBackdropBorderColor(unpack(db.borderColor))
-            minimapContainer.backdrop:Show()
-        end
     else
         Minimap:SetMaskTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
-        if minimapContainer.backdrop then
-            minimapContainer.backdrop:Hide()
-        end
     end
     
     -- Update zone text width
@@ -310,7 +252,7 @@ function Maps:UpdateLayout()
         self.zone:SetWidth(db.size) 
     end
 
-    -- 4. TEXT ELEMENTS
+    -- TEXT ELEMENTS
     if self.clock then
         self.clock:ClearAllPoints()
         self.clock:SetPoint(db.clock.point, Minimap, db.clock.point, db.clock.x, db.clock.y)
@@ -331,7 +273,7 @@ function Maps:UpdateLayout()
         self.zone:SetShown(db.showZone)
     end
     
-    -- 5. BUTTONS
+    -- BUTTONS
     self:PlaceButton(GameTimeFrame, "TOPRIGHT", -5, -5, db.showCalendar) 
     self:PlaceButton(MinimapCluster.Tracking.Button, "TOPLEFT", 5, -5, db.showTracking)
     self:PlaceButton(MinimapCluster.IndicatorFrame.MailFrame, "TOPRIGHT", -25, -25, db.showMail)
@@ -352,7 +294,6 @@ end
 -- SCRIPTS & HOOKS
 -- -----------------------------------------------------------------------------
 function Maps:HookScripts()
-    -- FIX: Check if already hooked to prevent AceHook error on subsequent PLAYER_ENTERING_WORLD events
     if self:IsHooked(Minimap, "OnMouseUp") then return end
 
     local zoomOutFunc = function()
