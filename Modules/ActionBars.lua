@@ -244,34 +244,6 @@ function AB:CollectButtons(container, barKey)
     end
 end
 
-function Bar:CreateBarFrame(id)
-    if bars[id] then return end
-    local f = CreateFrame("Frame", "MidnightBar_"..id, UIParent, "BackdropTemplate")
-    f:SetMovable(true)
-    f:EnableMouse(true)
-    f:RegisterForDrag("LeftButton")
-    f:SetClampedToScreen(true)
-    f.bg = f:CreateTexture(nil, "BACKGROUND")
-    f.bg:SetAllPoints()
-    
-    f:SetScript("OnDragStart", function(s) 
-        -- Allow moving if unlocked OR if holding CTRL+ALT
-        if not self.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then 
-            s:StartMoving() 
-        end 
-    end)
-    f:SetScript("OnDragStop", function(s) 
-        s:StopMovingOrSizing()
-        self:ApplyBarSettings(id) 
-    end)
-    f:SetScript("OnMouseUp", function(self, button) 
-        if button == "RightButton" then 
-            MidnightUI:OpenConfig() 
-        end 
-    end)
-    bars[id] = f
-end
-
 -- ============================================================================
 -- 6. BAR LAYOUT & POSITIONING
 -- ============================================================================
