@@ -287,9 +287,13 @@ function AB:UpdateBar(barKey)
     if self.db.profile.locked then
         container.dragFrame:Hide()
         container.dragFrame:EnableMouse(false)
+        -- Restore button visibility when locked
+        self:SetButtonsAlpha(container, 1.0)
     else
         container.dragFrame:Show()
         container.dragFrame:EnableMouse(true)
+        -- Make buttons translucent when unlocked
+        self:SetButtonsAlpha(container, 0.2)
     end
 end
 
@@ -379,6 +383,17 @@ end
 -- ============================================================================
 -- 7. BUTTON SKINNING
 -- ============================================================================
+
+function AB:SetButtonsAlpha(container, alpha)
+    if not container or not container.buttons then return end
+    
+    for _, btn in ipairs(container.buttons) do
+        if btn then
+            -- Set alpha for the button and all its visible elements
+            btn:SetAlpha(alpha)
+        end
+    end
+end
 
 function AB:SkinAllButtons()
     if not self.db.profile.skinButtons then return end
@@ -544,7 +559,7 @@ function AB:GetOptions()
                 args = {
                     locked = {
                         name = "Lock Bars",
-                        desc = "Lock action bars in place",
+                        desc = "Lock action bars in place (Hold CTRL+ALT to move when locked)",
                         type = "toggle",
                         order = 1,
                         get = function() return self.db.profile.locked end,
