@@ -27,8 +27,8 @@ function UIButtons:PLAYER_ENTERING_WORLD()
     
     self:CreateButtons()
     
-    -- Register for Move Mode changes
-    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    -- Register for Move Mode changes using AceEvent's message system
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 function UIButtons:CreateButtons()
@@ -131,7 +131,7 @@ function UIButtons:CreateButtons()
     end
     
     -- Register for Move Mode changes to update the Move button color
-    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 function UIButtons:OnMoveModeChanged(event, enabled)

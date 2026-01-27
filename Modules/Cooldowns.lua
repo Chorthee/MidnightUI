@@ -54,8 +54,8 @@ function Cooldowns:OnInitialize()
     -- Register event to check module enable state later when MidnightUI.db is ready
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     
-    -- Register for Move Mode changes
-    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    -- Register for Move Mode changes using AceEvent's message system
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 function Cooldowns:PLAYER_ENTERING_WORLD()

@@ -5,6 +5,9 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 MidnightUI.version = "1.0.0"
 
+-- Create callback registry for MidnightUI
+MidnightUI.callbacks = MidnightUI.callbacks or CallbackHandler:New(MidnightUI)
+
 -- ============================================================================
 -- 1. DATABASE DEFAULTS
 -- ============================================================================
@@ -167,6 +170,6 @@ function MidnightUI:ToggleMoveMode()
         print("|cff00ff00MidnightUI:|r Move Mode |cffff0000DISABLED|r")
     end
     
-    -- Notify all modules about move mode change
+    -- Use AceEvent's SendMessage (already loaded)
     self:SendMessage("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
 end

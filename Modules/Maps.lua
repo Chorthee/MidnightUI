@@ -66,8 +66,8 @@ function Maps:PLAYER_ENTERING_WORLD()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
     
-    -- Register for Move Mode changes
-    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    -- Register for Move Mode changes using AceEvent's message system
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 -- -----------------------------------------------------------------------------
