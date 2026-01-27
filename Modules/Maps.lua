@@ -61,9 +61,13 @@ function Maps:PLAYER_ENTERING_WORLD()
     
     self:SetupMinimapPosition()
     self:SetupMinimapDragging()
+    self:SetupNudgeControls()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
+    
+    -- Register for Move Mode changes
+    MidnightUI.RegisterCallback(self, "MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 -- -----------------------------------------------------------------------------
@@ -103,7 +107,7 @@ function Maps:ApplyMinimapOffset()
 end
 
 -- -----------------------------------------------------------------------------
--- MINIMAP DRAGGING (CTRL+ALT ONLY)
+-- MINIMAP DRAGGING (CTRL+ALT OR MOVE MODE)
 -- -----------------------------------------------------------------------------
 function Maps:SetupMinimapDragging()
     -- Make Minimap movable
@@ -117,8 +121,8 @@ function Maps:SetupMinimapDragging()
     local isDragging = false
     
     Minimap:SetScript("OnDragStart", function(self)
-        -- Only allow dragging with CTRL+ALT
-        if IsControlKeyDown() and IsAltKeyDown() then
+        -- Allow dragging with CTRL+ALT OR when Move Mode is active
+        if (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
             isDragging = true
             
             -- Store the current offset
@@ -156,8 +160,188 @@ function Maps:SetupMinimapDragging()
             
             -- Reapply position using the new offset
             Maps:ApplyMinimapOffset()
+            Maps:UpdateNudgeDisplay()
         end
     end)
+    
+    -- Show visual feedback when hovering in Move Mode
+    Minimap:HookScript("OnEnter", function(self)
+        if MidnightUI.moveMode and Maps.nudgeFrame then
+            Maps.nudgeFrame:Show()
+        end
+    end)
+end
+
+-- -----------------------------------------------------------------------------
+-- NUDGE CONTROLS (Pixel-Perfect Adjustment)
+-- -----------------------------------------------------------------------------
+function Maps:SetupNudgeControls()
+    if self.nudgeFrame then return end
+    
+    -- Create nudge control frame
+    local nudge = CreateFrame("Frame", "MidnightMinimapNudge", Minimap, "BackdropTemplate")
+    nudge:SetSize(100, 100)
+    nudge:SetPoint("CENTER", Minimap, "CENTER", 0, 0)
+    nudge:SetFrameStrata("DIALOG")
+    nudge:SetFrameLevel(100)
+    nudge:EnableMouse(false)
+    nudge:Hide()
+    
+    -- Backdrop for visibility
+    nudge:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 2,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    nudge:SetBackdropColor(0, 0, 0, 0.5)
+    nudge:SetBackdropBorderColor(0, 1, 0, 1)
+    
+    -- Title
+    local title = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOP", 0, -5)
+    title:SetText("Move Minimap")
+    title:SetTextColor(0, 1, 0)
+    
+    -- Current offset display
+    local offsetText = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    offsetText:SetPoint("CENTER", 0, 0)
+    offsetText:SetTextColor(1, 1, 1)
+    nudge.offsetText = offsetText
+    
+    -- Create arrow buttons
+    local function CreateArrow(direction, point, x, y)
+        local btn = CreateFrame("Button", nil, nudge, "BackdropTemplate")
+        btn:SetSize(24, 24)
+        btn:SetPoint(point, nudge, point, x, y)
+        
+        btn:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 0, right = 0, top = 0, bottom = 0 }
+        })
+        btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        btn:SetBackdropBorderColor(0, 1, 0, 1)
+        
+        -- Arrow texture
+        local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        arrow:SetPoint("CENTER")
+        
+        if direction == "UP" then arrow:SetText("▲")
+        elseif direction == "DOWN" then arrow:SetText("▼")
+        elseif direction == "LEFT" then arrow:SetText("◄")
+        elseif direction == "RIGHT" then arrow:SetText("►")
+        end
+        
+        -- Button behavior
+        btn:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+        end)
+        
+        btn:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        end)
+        
+        btn:SetScript("OnClick", function()
+            local step = IsShiftKeyDown() and 10 or 1
+            
+            if direction == "UP" then
+                Maps.db.profile.offsetY = Maps.db.profile.offsetY + step
+            elseif direction == "DOWN" then
+                Maps.db.profile.offsetY = Maps.db.profile.offsetY - step
+            elseif direction == "LEFT" then
+                Maps.db.profile.offsetX = Maps.db.profile.offsetX - step
+            elseif direction == "RIGHT" then
+                Maps.db.profile.offsetX = Maps.db.profile.offsetX + step
+            end
+            
+            Maps:ApplyMinimapOffset()
+            Maps:UpdateNudgeDisplay()
+        end)
+        
+        -- Tooltip
+        btn:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine("Nudge Minimap "..direction)
+            GameTooltip:AddLine("|cffaaaaaa(Hold Shift for 10px)|r", 1, 1, 1)
+            GameTooltip:Show()
+        end)
+        
+        btn:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+            GameTooltip:Hide()
+        end)
+    end
+    
+    -- Create 4 arrow buttons
+    CreateArrow("UP", "TOP", 0, 10)
+    CreateArrow("DOWN", "BOTTOM", 0, -10)
+    CreateArrow("LEFT", "LEFT", -10, 0)
+    CreateArrow("RIGHT", "RIGHT", 10, 0)
+    
+    -- Reset button
+    local reset = CreateFrame("Button", nil, nudge, "BackdropTemplate")
+    reset:SetSize(50, 20)
+    reset:SetPoint("BOTTOM", 0, 5)
+    reset:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    reset:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+    reset:SetBackdropBorderColor(1, 0, 0, 1)
+    
+    local resetText = reset:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    resetText:SetPoint("CENTER")
+    resetText:SetText("Reset")
+    resetText:SetTextColor(1, 0, 0)
+    
+    reset:SetScript("OnClick", function()
+        Maps.db.profile.offsetX = 0
+        Maps.db.profile.offsetY = 0
+        Maps:ApplyMinimapOffset()
+        Maps:UpdateNudgeDisplay()
+    end)
+    
+    reset:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.3, 0.2, 0.2, 1)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Reset to Center")
+        GameTooltip:Show()
+    end)
+    
+    reset:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        GameTooltip:Hide()
+    end)
+    
+    self.nudgeFrame = nudge
+    self:UpdateNudgeDisplay()
+end
+
+function Maps:UpdateNudgeDisplay()
+    if self.nudgeFrame and self.nudgeFrame.offsetText then
+        local x = self.db.profile.offsetX
+        local y = self.db.profile.offsetY
+        self.nudgeFrame.offsetText:SetText(string.format("X: %d  Y: %d", x, y))
+    end
+end
+
+function Maps:OnMoveModeChanged(event, enabled)
+    if not self.nudgeFrame then return end
+    
+    if enabled then
+        -- Show nudge controls when Move Mode is active
+        self.nudgeFrame:Show()
+        self.nudgeFrame:EnableMouse(true)
+    else
+        -- Hide when Move Mode is off
+        self.nudgeFrame:Hide()
+        self.nudgeFrame:EnableMouse(false)
+    end
 end
 
 -- -----------------------------------------------------------------------------
@@ -356,30 +540,55 @@ function Maps:GetOptions()
                 order = 4,
             },
             positionNote = {
-                name = "|cffaaaaaa(Use Blizzard Edit Mode to move MinimapCluster, then hold CTRL+ALT and drag the minimap to fine-tune position)|r",
+                name = "|cffaaaaaa(Use Blizzard Edit Mode to move MinimapCluster)\nThen hold CTRL+ALT and drag OR use /muimove to enable Move Mode\nUse nudge arrows for pixel-perfect positioning|r",
                 type = "description",
                 order = 5,
                 fontSize = "medium",
             },
             
             headerPosition = { type = "header", name = "Position Fine-Tuning", order = 6 },
+            showNudgeControls = {
+                name = "Show Nudge Controls",
+                desc = "Manually show/hide pixel adjustment arrows",
+                type = "execute",
+                order = 6.5,
+                func = function()
+                    if self.nudgeFrame then
+                        if self.nudgeFrame:IsShown() then
+                            self.nudgeFrame:Hide()
+                        else
+                            self.nudgeFrame:Show()
+                        end
+                    end
+                end
+            },
             offsetX = {
                 name = "Horizontal Offset",
-                desc = "Manual horizontal offset (or drag minimap with CTRL+ALT)",
+                desc = "Manual horizontal offset (or drag minimap with CTRL+ALT / Move Mode)",
                 type = "range",
                 order = 7,
                 min = -200,
                 max = 200,
                 step = 1,
+                set = function(info, value)
+                    self.db.profile.offsetX = value
+                    self:UpdateLayout()
+                    self:UpdateNudgeDisplay()
+                end
             },
             offsetY = {
                 name = "Vertical Offset",
-                desc = "Manual vertical offset (or drag minimap with CTRL+ALT)",
+                desc = "Manual vertical offset (or drag minimap with CTRL+ALT / Move Mode)",
                 type = "range",
                 order = 8,
                 min = -200,
                 max = 200,
                 step = 1,
+                set = function(info, value)
+                    self.db.profile.offsetY = value
+                    self:UpdateLayout()
+                    self:UpdateNudgeDisplay()
+                end
             },
             resetOffsets = {
                 name = "Reset Offsets",
@@ -390,6 +599,7 @@ function Maps:GetOptions()
                     self.db.profile.offsetX = 0
                     self.db.profile.offsetY = 0
                     self:UpdateLayout()
+                    self:UpdateNudgeDisplay()
                 end
             },
             

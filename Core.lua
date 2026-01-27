@@ -1,5 +1,9 @@
 local MidnightUI = LibStub("AceAddon-3.0"):NewAddon("MidnightUI", "AceConsole-3.0", "AceEvent-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+
+MidnightUI.version = "1.0.0"
 
 -- ============================================================================
 -- 1. DATABASE DEFAULTS
@@ -28,14 +32,22 @@ local defaults = {
 -- 2. INITIALIZATION
 -- ============================================================================
 function MidnightUI:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("MidnightUIDB", defaults, true)
+    self.db = LibStub("AceDB-3.0"):New("MidnightUIDB", self:GetDefaults(), true)
     
-    LibStub("AceConfig-3.0"):RegisterOptionsTable("MidnightUI", function() 
-        return self:GetOptions() 
-    end)
-    
-    self.optionsFrame = LibStub("AceConfigDialog-3.0"):AddToBlizOptions("MidnightUI", "Midnight UI")
-    self:RegisterChatCommand("mui", function() self:OpenConfig() end)
+    -- Register slash commands
+    self:RegisterChatCommand("mui", "SlashCommand")
+    self:RegisterChatCommand("midnightui", "SlashCommand")
+    self:RegisterChatCommand("muimove", "ToggleMoveMode")
+end
+
+function MidnightUI:SlashCommand(input)
+    if not input or input:trim() == "" then
+        self:OpenConfig()
+    elseif input:lower() == "move" then
+        self:ToggleMoveMode()
+    else
+        self:OpenConfig()
+    end
 end
 
 -- ============================================================================
@@ -140,4 +152,21 @@ function MidnightUI:GetOptions()
         end
     end
     return options
+end
+
+-- Add Move Mode property
+MidnightUI.moveMode = false
+
+-- Add Move Mode toggle function
+function MidnightUI:ToggleMoveMode()
+    self.moveMode = not self.moveMode
+    
+    if self.moveMode then
+        print("|cff00ff00MidnightUI:|r Move Mode |cff00ff00ENABLED|r - Hover over elements to move them")
+    else
+        print("|cff00ff00MidnightUI:|r Move Mode |cffff0000DISABLED|r")
+    end
+    
+    -- Notify all modules about move mode change
+    self:SendMessage("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
 end
