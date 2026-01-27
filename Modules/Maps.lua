@@ -111,8 +111,9 @@ function Maps:SetupMinimapDragging()
     Minimap:EnableMouse(true)
     Minimap:RegisterForDrag("LeftButton")
     
-    -- Store the starting offset when drag begins
+    -- Store the starting positions
     local dragStartOffsetX, dragStartOffsetY
+    local dragStartMinimapX, dragStartMinimapY
     local isDragging = false
     
     Minimap:SetScript("OnDragStart", function(self)
@@ -120,9 +121,12 @@ function Maps:SetupMinimapDragging()
         if IsControlKeyDown() and IsAltKeyDown() then
             isDragging = true
             
-            -- Store the current offset when drag starts
+            -- Store the current offset
             dragStartOffsetX = Maps.db.profile.offsetX
             dragStartOffsetY = Maps.db.profile.offsetY
+            
+            -- Store the minimap's starting center position
+            dragStartMinimapX, dragStartMinimapY = self:GetCenter()
             
             self:StartMoving()
         end
@@ -134,14 +138,17 @@ function Maps:SetupMinimapDragging()
         self:StopMovingOrSizing()
         isDragging = false
         
-        -- Calculate the NEW offset based on final positions (not mouse delta)
-        local minimapCenterX, minimapCenterY = self:GetCenter()
-        local clusterCenterX, clusterCenterY = MinimapCluster:GetCenter()
+        -- Get the new position after dragging
+        local newMinimapX, newMinimapY = self:GetCenter()
         
-        if minimapCenterX and minimapCenterY and clusterCenterX and clusterCenterY then
-            -- The new offset is simply the distance from cluster center to minimap center
-            local newOffsetX = minimapCenterX - clusterCenterX
-            local newOffsetY = minimapCenterY - clusterCenterY
+        if dragStartMinimapX and dragStartMinimapY and newMinimapX and newMinimapY then
+            -- Calculate how far the minimap moved
+            local deltaX = newMinimapX - dragStartMinimapX
+            local deltaY = newMinimapY - dragStartMinimapY
+            
+            -- Add the movement delta to the original offset
+            local newOffsetX = dragStartOffsetX + deltaX
+            local newOffsetY = dragStartOffsetY + deltaY
             
             -- Update database with rounded values
             Maps.db.profile.offsetX = math.floor(newOffsetX + 0.5)
