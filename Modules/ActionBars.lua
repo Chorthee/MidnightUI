@@ -112,6 +112,15 @@ function AB:HideBlizzardElements()
     
     -- Hide gryphons and main bar art
     if MainMenuBar then
+        -- Prevent Edit Mode from managing this bar
+        if EditModeManagerFrame then
+            hooksecurefunc(EditModeManagerFrame, "UpdateSystemSettingForBar", function(self, systemFrame)
+                if systemFrame == MainMenuBar then
+                    return
+                end
+            end)
+        end
+        
         if MainMenuBar.ArtFrame then
             MainMenuBar.ArtFrame:SetAlpha(0)
             if MainMenuBar.ArtFrame.LeftEndCap then MainMenuBar.ArtFrame.LeftEndCap:Hide() end
@@ -127,6 +136,23 @@ function AB:HideBlizzardElements()
         -- Hide any page number display
         if MainMenuBarPageNumber then
             MainMenuBarPageNumber:Hide()
+        end
+        
+        -- Disable Blizzard's positioning hooks
+        if MainMenuBar.SetPoint then
+            hooksecurefunc(MainMenuBar, "SetPoint", function(self, ...)
+                if not AB.isPositioningMainBar then
+                    local parent = self:GetParent()
+                    local container = bars["MainMenuBar"]
+                    if parent ~= container and container then
+                        AB.isPositioningMainBar = true
+                        self:ClearAllPoints()
+                        self:SetParent(container)
+                        self:SetPoint("CENTER", container, "CENTER", 0, 0)
+                        AB.isPositioningMainBar = false
+                    end
+                end
+            end)
         end
     end
     
@@ -169,37 +195,47 @@ function AB:CreateBar(barKey, config)
         
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
-            -- Disable Blizzard's position management
+            -- Completely take over from Blizzard
+            self.isPositioningMainBar = true
+            
+            -- Disable all Blizzard management
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
             blizzBar.ignoreFramePositionManager = true
+            blizzBar:EnableMouse(false)
             
-            -- Override Blizzard's position locking
+            -- Unregister from Edit Mode
             if EditModeManagerFrame then
                 EditModeManagerFrame:UnregisterFrame(blizzBar)
             end
             
-            -- Prevent Blizzard from repositioning
+            -- Stop any Blizzard scripts that might reposition it
+            blizzBar:SetScript("OnShow", nil)
+            blizzBar:SetScript("OnHide", nil)
+            blizzBar:SetScript("OnUpdate", nil)
+            
+            -- Force reparent and position
             blizzBar:ClearAllPoints()
             blizzBar:SetParent(container)
-            blizzBar:SetPoint("CENTER", container, "CENTER", 0, 0)
+            blizzBar:SetAllPoints(container)
             
-            -- Hook to prevent Blizzard from moving it
-            hooksecurefunc(blizzBar, "SetPoint", function(self)
-                if self:GetParent() ~= container then
-                    self:SetParent(container)
-                end
-                local point, relativeTo, relativePoint = self:GetPoint(1)
-                if relativeTo ~= container or point ~= "CENTER" or relativePoint ~= "CENTER" then
-                    self:ClearAllPoints()
-                    self:SetPoint("CENTER", container, "CENTER", 0, 0)
+            self.isPositioningMainBar = false
+            
+            -- Continuously enforce our positioning
+            C_Timer.NewTicker(0.1, function()
+                if not self.isPositioningMainBar and blizzBar:GetParent() ~= container then
+                    self.isPositioningMainBar = true
+                    blizzBar:ClearAllPoints()
+                    blizzBar:SetParent(container)
+                    blizzBar:SetAllPoints(container)
+                    self.isPositioningMainBar = false
                 end
             end)
         else
             -- Normal handling for other bars
             blizzBar:SetParent(container)
             blizzBar:ClearAllPoints()
-            blizzBar:SetPoint("CENTER")
+            blizzBar:SetAllPoints(container)
             
             if blizzBar.SetMovable then blizzBar:SetMovable(true) end
             if blizzBar.SetUserPlaced then blizzBar:SetUserPlaced(true) end
@@ -221,7 +257,7 @@ function AB:CreateBar(barKey, config)
     container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
     container.dragFrame:SetAllPoints()
     container.dragFrame:EnableMouse(false)
-    container.dragFrame:SetFrameStrata("HIGH")
+    container.dragFrame:SetFrameStrata("DIALOG")
     container.dragFrame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -397,10 +433,12 @@ function AB:UpdateBar(barKey)
         self:SetButtonsAlpha(container, 0.2)
     end
     
-    -- Force MainMenuBar to stay in our container
+    -- Special handling for MainMenuBar - force it to stay in place
     if barKey == "MainMenuBar" and container.blizzBar then
+        self.isPositioningMainBar = true
         container.blizzBar:ClearAllPoints()
-        container.blizzBar:SetPoint("CENTER", container, "CENTER", 0, 0)
+        container.blizzBar:SetAllPoints(container)
+        self.isPositioningMainBar = false
     end
 end
 
@@ -543,6 +581,14 @@ function AB:SkinButton(btn)
         if nt.SetAlpha then nt:SetAlpha(0) end
     end
     if btn.SlotBackground then btn.SlotBackground:SetAlpha(0) end
+    
+    -- Special handling for MainMenuBar buttons
+    local btnName = btn:GetName()
+    if btnName and btnName:match("^ActionButton%d+$") then
+        -- Remove Blizzard's special positioning
+        btn:SetParent(bars["MainMenuBar"])
+        btn.ignoreFramePositionManager = true
+    end
     
     -- Apply Masque if available
     if masqueGroup and not btn.muiMasqueApplied then
