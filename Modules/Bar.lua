@@ -570,8 +570,16 @@ function Bar:UpdateFriendList()
             AddText(data.bnet, colW.btag, colX.btag, {r=0.51,g=0.77,b=1}); AddText(data.name, colW.char, colX.char, color)
             AddText(data.level, colW.lvl, colX.lvl, {r=1,g=1,b=1}); AddText(data.zone, colW.zone, colX.zone, {r=1,g=0.82,b=0})
             AddText(data.realm, colW.realm, colX.realm, {r=1,g=1,b=1})
-            local facIcon = (data.faction == "Horde") and "|TInterface\\FriendsFrame\\PlusManz-Horde:18:18|t" or "|TInterface\\FriendsFrame\\PlusManz-Alliance:18:18|t"
+            
+            -- Fixed faction icon logic
+            local facIcon = ""
+            if data.faction == "Horde" then
+                facIcon = "|TInterface\\FriendsFrame\\PlusManz-Horde:14:14:0:0|t"
+            elseif data.faction == "Alliance" then
+                facIcon = "|TInterface\\FriendsFrame\\PlusManz-Alliance:14:14:0:0|t"
+            end
             AddText(facIcon, colW.fac, colX.fac)
+            
             btn:SetScript("OnClick", function() 
                 local t = data.name
                 if data.realm then 
@@ -609,7 +617,14 @@ function Bar:UpdateFriendList()
     for _, f in ipairs(bnetFriends) do 
         CreateRow(f, false) 
     end
-    scrollChild:SetHeight(math.abs(yOffset) + 10)
+    
+    -- Adjust scroll child height to fit content
+    local contentHeight = math.abs(yOffset) + 10
+    scrollChild:SetHeight(contentHeight)
+    
+    -- Adjust friends frame height dynamically (min 200, max 600)
+    local frameHeight = math.min(600, math.max(200, contentHeight + 90))
+    friendsFrame:SetHeight(frameHeight)
 end
 
 -- GUILD LIST
