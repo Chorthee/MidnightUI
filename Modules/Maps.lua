@@ -12,7 +12,7 @@ local defaults = {
 
         -- Appearance
         shape = "SQUARE", -- SQUARE or ROUND
-        size = 190,
+        scale = 1.0, -- Changed from size to scale
         borderSize = 1,
         borderColor = {0, 0, 0, 1},
         locked = false,
@@ -164,7 +164,7 @@ function Maps:SetupElements()
     if not self.zone then
         self.zone = Minimap:CreateFontString(nil, "OVERLAY")
         self.zone:SetFont(font, size, flag)
-        self.zone:SetWidth(self.db.profile.size)
+        self.zone:SetWidth(200) -- Fixed width instead of using db.size
         self.zone:SetWordWrap(false)
         
         self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdateZoneText")
@@ -229,8 +229,10 @@ end
 function Maps:UpdateLayout()
     local db = self.db.profile
     
-    -- DO NOT call Minimap:SetSize() - this triggers the Layout error
-    -- Instead, only update MinimapCluster position
+    -- Use scale instead of size - this won't trigger Layout() error
+    MinimapCluster:SetScale(db.scale or 1.0)
+    
+    -- Update MinimapCluster position
     MinimapCluster:ClearAllPoints()
     if db.position then
         MinimapCluster:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
@@ -243,11 +245,6 @@ function Maps:UpdateLayout()
         Minimap:SetMaskTexture("Interface\\BUTTONS\\WHITE8X8")
     else
         Minimap:SetMaskTexture("Interface\\CHARACTERFRAME\\TempPortraitAlphaMask")
-    end
-    
-    -- Update zone text width
-    if self.zone then 
-        self.zone:SetWidth(db.size) 
     end
 
     -- TEXT ELEMENTS
@@ -317,11 +314,11 @@ function Maps:GetOptions()
                 order = 2,
                 values = {SQUARE = "Square", ROUND = "Round"},
             },
-            size = {
-                name = "Map Size",
-                desc = "Note: Changing size requires a /reload to take effect",
+            scale = {
+                name = "Map Scale",
+                desc = "Scale the minimap and all its elements",
                 type = "range",
-                min = 100, max = 400, step = 1,
+                min = 0.5, max = 2.0, step = 0.05,
                 order = 3,
             },
             autoZoom = {
