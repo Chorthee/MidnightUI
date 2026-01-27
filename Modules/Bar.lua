@@ -1478,7 +1478,7 @@ function Bar:OnDBReady()
         self:CreateWidget(name, obj) 
     end
     
-    self:RegisterEvent("PLAYER_LOGIN")
+    -- REMOVED: self:RegisterEvent("PLAYER_LOGIN") - Not needed, no handler exists
     self:RegisterEvent("PLAYER_MONEY", "UpdateGoldData")
     self:RegisterEvent("TOKEN_MARKET_PRICE_UPDATED", "UpdateTokenHistory")
     self:RegisterEvent("GUILD_ROSTER_UPDATE")
