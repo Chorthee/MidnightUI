@@ -12,7 +12,6 @@ local defaults = {
 
         -- Appearance
         shape = "SQUARE", -- SQUARE or ROUND
-        scale = 1.0, -- Changed from size to scale
         borderSize = 1,
         borderColor = {0, 0, 0, 1},
         locked = false,
@@ -164,7 +163,7 @@ function Maps:SetupElements()
     if not self.zone then
         self.zone = Minimap:CreateFontString(nil, "OVERLAY")
         self.zone:SetFont(font, size, flag)
-        self.zone:SetWidth(200) -- Fixed width instead of using db.size
+        self.zone:SetWidth(200)
         self.zone:SetWordWrap(false)
         
         self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdateZoneText")
@@ -229,10 +228,7 @@ end
 function Maps:UpdateLayout()
     local db = self.db.profile
     
-    -- Use scale instead of size - this won't trigger Layout() error
-    MinimapCluster:SetScale(db.scale or 1.0)
-    
-    -- Update MinimapCluster position
+    -- DO NOT call SetScale or SetSize - just reposition
     MinimapCluster:ClearAllPoints()
     if db.position then
         MinimapCluster:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
@@ -314,13 +310,6 @@ function Maps:GetOptions()
                 order = 2,
                 values = {SQUARE = "Square", ROUND = "Round"},
             },
-            scale = {
-                name = "Map Scale",
-                desc = "Scale the minimap and all its elements",
-                type = "range",
-                min = 0.5, max = 2.0, step = 0.05,
-                order = 3,
-            },
             autoZoom = {
                 name = "Auto Zoom Out",
                 type = "toggle",
@@ -330,6 +319,12 @@ function Maps:GetOptions()
                 name = "Lock Position (Disable CTRL+ALT Drag)",
                 type = "toggle",
                 order = 5,
+            },
+            sizeNote = {
+                name = "|cffaaaaaa(Minimap size is controlled by Blizzard's UI Scale setting)|r",
+                type = "description",
+                order = 6,
+                fontSize = "small",
             },
             
             headerText = { type = "header", name = "Text Overlay", order = 10 },
