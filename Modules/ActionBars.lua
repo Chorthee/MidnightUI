@@ -167,7 +167,7 @@ function AB:CreateBar(barKey, config)
     if blizzBar then
         container.blizzBar = blizzBar
         
-        -- Special handling for MainMenuBar - NUCLEAR OPTION
+        -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
             -- Completely detach from Blizzard's management
             blizzBar:SetMovable(true)
@@ -175,10 +175,8 @@ function AB:CreateBar(barKey, config)
             blizzBar.ignoreFramePositionManager = true
             blizzBar:EnableMouse(false)
             
-            -- Unregister from all Blizzard systems
-            if EditModeManagerFrame then
-                EditModeManagerFrame:UnregisterFrame(blizzBar)
-            end
+            -- REMOVED: Don't unregister from EditMode - this was causing the Minimap error
+            -- The EditModeManagerFrame affects both MainMenuBar AND Minimap
             
             -- Stop ALL scripts that could interfere
             blizzBar:SetScript("OnUpdate", nil)
