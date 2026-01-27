@@ -574,9 +574,9 @@ function Bar:UpdateFriendList()
             -- Fixed faction icon logic with proper texture path
             local facIcon = ""
             if data.faction == "Horde" then
-                facIcon = "|TInterface\\Common\\icon-Horde:16:16:0:0|t"
+                facIcon = "Interface\\Icons\\bnet_faction_horde"
             elseif data.faction == "Alliance" then
-                facIcon = "|TInterface\\Common\\icon-Alliance:16:16:0:0|t"
+                facIcon = "Interface\\Icons\\bnet_faction_alliance"
             end
             AddText(facIcon, colW.fac, colX.fac)
             
