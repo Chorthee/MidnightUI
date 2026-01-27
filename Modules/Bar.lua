@@ -1085,6 +1085,14 @@ function Bar:UpdateAllModules()
         diffObj.text = diff
     end
     
+    -- ITEM LEVEL
+    local avgIlvl, equippedIlvl = GetAverageItemLevel()
+    equippedIlvl = math.floor(equippedIlvl or 0)
+    if equippedIlvl ~= lastState.ilvl then
+        lastState.ilvl = equippedIlvl
+        ilvlObj.text = tostring(equippedIlvl)
+    end
+    
     -- VOLUME - FIXED: Always Whole Number Formatting
     local v = math.floor((tonumber(GetCVar("Sound_MasterVolume")) or 0) * 100)
     if v ~= lastState.vol then 
