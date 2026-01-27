@@ -11,6 +11,10 @@ local defaults = {
         shape = "SQUARE", -- SQUARE or ROUND
         autoZoom = true,
         
+        -- Manual positioning offset (relative to MinimapCluster)
+        offsetX = 0,
+        offsetY = 0,
+        
         -- Text Elements
         showClock = true,
         showZone = true,
@@ -55,9 +59,49 @@ function Maps:PLAYER_ENTERING_WORLD()
         Minimap.Layout = function() end
     end
     
+    self:SetupMinimapPosition()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
+end
+
+-- -----------------------------------------------------------------------------
+-- MINIMAP POSITIONING
+-- -----------------------------------------------------------------------------
+function Maps:SetupMinimapPosition()
+    -- Store original SetPoint function
+    if not self.origSetPoint then
+        self.origSetPoint = Minimap.SetPoint
+    end
+    
+    -- Override SetPoint to add our offsets
+    Minimap.SetPoint = function(frame, ...)
+        local point, relativeTo, relativePoint, x, y = ...
+        
+        -- If called by Blizzard with default positioning, add our offsets
+        if x and y then
+            local db = Maps.db.profile
+            Maps.origSetPoint(frame, point, relativeTo, relativePoint, x + db.offsetX, y + db.offsetY)
+        else
+            Maps.origSetPoint(frame, ...)
+        end
+    end
+    
+    -- Apply offsets immediately
+    self:ApplyMinimapOffset()
+end
+
+function Maps:ApplyMinimapOffset()
+    local db = self.db.profile
+    
+    -- Clear and reapply position with offsets
+    Minimap:ClearAllPoints()
+    
+    -- Get MinimapCluster's position
+    local point, relativeTo, relativePoint, x, y = MinimapCluster:GetPoint()
+    
+    -- Apply offset to Minimap relative to MinimapCluster
+    self.origSetPoint(Minimap, "CENTER", MinimapCluster, "CENTER", db.offsetX, db.offsetY)
 end
 
 -- -----------------------------------------------------------------------------
@@ -185,6 +229,9 @@ function Maps:UpdateLayout()
         end
         self.shapeInitialized = true
     end
+    
+    -- Apply position offset
+    self:ApplyMinimapOffset()
 
     -- TEXT ELEMENTS
     if self.clock then
@@ -252,11 +299,42 @@ function Maps:GetOptions()
                 type = "toggle",
                 order = 4,
             },
-            sizeNote = {
-                name = "|cffaaaaaa(Minimap position and size controlled by Blizzard Edit Mode)\nPress ESC > Edit Mode to move the minimap|r",
+            positionNote = {
+                name = "|cffaaaaaa(Use Blizzard Edit Mode to move MinimapCluster, then adjust offsets below to fine-tune actual map position)|r",
                 type = "description",
-                order = 6,
+                order = 5,
                 fontSize = "medium",
+            },
+            
+            headerPosition = { type = "header", name = "Position Fine-Tuning", order = 6 },
+            offsetX = {
+                name = "Horizontal Offset",
+                desc = "Move the actual minimap left/right within the cluster",
+                type = "range",
+                order = 7,
+                min = -200,
+                max = 200,
+                step = 1,
+            },
+            offsetY = {
+                name = "Vertical Offset",
+                desc = "Move the actual minimap up/down within the cluster",
+                type = "range",
+                order = 8,
+                min = -200,
+                max = 200,
+                step = 1,
+            },
+            resetOffsets = {
+                name = "Reset Offsets",
+                desc = "Reset position offsets to 0",
+                type = "execute",
+                order = 9,
+                func = function()
+                    self.db.profile.offsetX = 0
+                    self.db.profile.offsetY = 0
+                    self:UpdateLayout()
+                end
             },
             
             headerText = { type = "header", name = "Text Overlay", order = 10 },
