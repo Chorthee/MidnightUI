@@ -48,6 +48,7 @@ end
 
 function Maps:OnDBReady()
     if not MidnightUI.db.profile.modules.maps then 
+        print("|cff00ff00MidnightUI:|r Maps module is disabled")
         self:Disable()
         return 
     end
@@ -58,9 +59,13 @@ function Maps:OnDBReady()
     
     -- Register for Move Mode changes using AceEvent's message system
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    
+    print("|cff00ff00MidnightUI:|r Maps module loaded")
 end
 
 function Maps:PLAYER_ENTERING_WORLD()
+    print("|cff00ff00MidnightUI:|r Maps PLAYER_ENTERING_WORLD fired")
+    
     -- CRITICAL FIX: Stub out Layout function to prevent errors
     if not Minimap.Layout or Minimap.Layout == nil then
         Minimap.Layout = function() end
@@ -72,6 +77,8 @@ function Maps:PLAYER_ENTERING_WORLD()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
+    
+    print("|cff00ff00MidnightUI:|r Maps setup complete")
 end
 
 -- -----------------------------------------------------------------------------

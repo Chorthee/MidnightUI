@@ -8,7 +8,11 @@ function UIButtons:OnInitialize()
 end
 
 function UIButtons:OnDBReady()
-    if not MidnightUI.db.profile.modules.buttons then return end
+    -- Check if module is enabled - use correct key "buttons" not "UIButtons"
+    if not MidnightUI.db.profile.modules.buttons then 
+        print("|cff00ff00MidnightUI:|r UIButtons module is disabled")
+        return 
+    end
     
     self.db = MidnightUI.db:RegisterNamespace("UIButtons", {
         profile = {
@@ -29,11 +33,14 @@ function UIButtons:OnDBReady()
     
     -- Register for Move Mode changes using AceEvent's message system
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    
+    print("|cff00ff00MidnightUI:|r UIButtons module loaded")
 end
 
 function UIButtons:PLAYER_ENTERING_WORLD()
     self:CreateButtons()
     self:UpdateLayout()
+    print("|cff00ff00MidnightUI:|r UIButtons created and positioned")
 end
 
 function UIButtons:CreateButtons()
