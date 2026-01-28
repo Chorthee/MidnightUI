@@ -95,6 +95,8 @@ function AB:OnDBReady()
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
     self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
     self:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
+    self:RegisterEvent("UPDATE_SHAPESHIFT_FORMS")
+    self:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
     
     -- ADDED: Register for Move Mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
@@ -516,8 +518,16 @@ function AB:CollectButtons(container, barKey)
             if btn then 
                 btn:Show()
                 btn:SetAlpha(1)
+                -- Ensure the button updates its icon/state
+                if btn.Update then
+                    btn:Update()
+                end
                 table.insert(buttons, btn) 
             end
+        end
+        -- Force update the stance bar
+        if StanceBar and StanceBar.Update then
+            StanceBar:Update()
         end
     else
         -- Standard action bars
@@ -1115,6 +1125,23 @@ end
 function AB:UPDATE_BONUS_ACTIONBAR()
     -- Update when bonus action bar changes (stance/form changes)
     self:UpdateAllEmptyButtons()
+end
+
+function AB:UPDATE_SHAPESHIFT_FORMS()
+    -- Update when shapeshift forms are learned or changed
+    local container = bars["StanceBar"]
+    if container then
+        self:UpdateBar("StanceBar")
+        self:UpdateEmptyButtons("StanceBar")
+    end
+end
+
+function AB:UPDATE_SHAPESHIFT_FORM()
+    -- Update when player changes form
+    local container = bars["StanceBar"]
+    if container then
+        self:UpdateEmptyButtons("StanceBar")
+    end
 end
 
 -- ============================================================================
