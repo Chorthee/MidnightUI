@@ -127,7 +127,7 @@ end
 function Skin:SetupDynamicSkinning()
     if self.dynamicHooksSetup then return end
     
-    -- Hook into frame creation to skin new frames
+    -- Hook into frame show events to skin frames as they appear
     local function SkinFrameOnShow(frame)
         if not frame.muiSkinned and Skin.db and Skin.db.profile.skinBlizzardFrames then
             Skin:ApplyFrameSkin(frame)
@@ -135,10 +135,11 @@ function Skin:SetupDynamicSkinning()
         end
     end
     
-    -- List of frame names to watch for
+    -- List of frame names to watch for - these frames are created on-demand
     local framesToWatch = {
         "CharacterFrame",
-        "SpellBookFrame", 
+        "SpellBookFrame",
+        "PlayerSpellsFrame",
         "ProfessionsFrame",
         "CollectionsJournal",
         "EncounterJournal",
@@ -152,14 +153,25 @@ function Skin:SetupDynamicSkinning()
         "MerchantFrame",
         "MailFrame",
         "GameMenuFrame",
+        "TradeFrame",
+        "AuctionHouseFrame",
     }
     
+    -- Hook existing frames
     for _, frameName in ipairs(framesToWatch) do
         local frame = _G[frameName]
         if frame and frame.HookScript then
             frame:HookScript("OnShow", SkinFrameOnShow)
         end
     end
+    
+    -- Use hooksecurefunc to catch frames as they're created
+    hooksecurefunc("ShowUIPanel", function(frame)
+        if frame and not frame.muiSkinned and Skin.db and Skin.db.profile.skinBlizzardFrames then
+            Skin:ApplyFrameSkin(frame)
+            frame.muiSkinned = true
+        end
+    end)
     
     self.dynamicHooksSetup = true
 end
@@ -173,13 +185,13 @@ end
     @param frame - The frame to skin
     @param skinName - Optional specific skin name (defaults to globalSkin)
 ]]
+--[[
+    Applies modern dark skin to a frame - strips Blizzard art and replaces with clean backdrop
+    @param frame - The frame to skin
+    @param skinName - Optional specific skin name (defaults to globalSkin)
+]]
 function Skin:ApplyFrameSkin(frame, skinName)
-    if not frame then 
-        print("|cffff0000[Skins Debug]|r ApplyFrameSkin called with nil frame")
-        return 
-    end
-    
-    print("|cffff9900[Skins Debug]|r ApplyFrameSkin called for:", frame:GetName() or "unnamed frame")
+    if not frame then return end
     
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile then
@@ -189,31 +201,28 @@ function Skin:ApplyFrameSkin(frame, skinName)
     end
     
     local skin = SKINS[skinName] or SKINS["Midnight"]
-    print("|cffff9900[Skins Debug]|r Using skin:", skinName)
+    
+    -- Strip all Blizzard decorative textures
+    self:StripBlizzardTextures(frame)
     
     -- Ensure frame has BackdropTemplate mixin
     if not frame.SetBackdrop then
-        print("|cffff9900[Skins Debug]|r Frame missing SetBackdrop, attempting to add mixin")
         if BackdropTemplateMixin then
             Mixin(frame, BackdropTemplateMixin)
             if frame.OnBackdropLoaded then
                 frame:OnBackdropLoaded()
             end
-            print("|cff00ff00[Skins Debug]|r Successfully added BackdropTemplate mixin")
         else
-            print("|cffff0000[Skins Debug]|r BackdropTemplateMixin not available!")
             return
         end
     end
     
     -- Verify SetBackdrop is now available
     if not frame.SetBackdrop then
-        print("|cffff0000[Skins Debug]|r SetBackdrop still not available after mixin attempt")
         return
     end
     
-    -- Apply backdrop directly to the frame
-    print("|cffff9900[Skins Debug]|r Applying backdrop...")
+    -- Apply clean modern backdrop
     frame:SetBackdrop(skin.backdrop)
     frame:SetBackdropColor(unpack(skin.bgColor))
     
@@ -221,7 +230,325 @@ function Skin:ApplyFrameSkin(frame, skinName)
         frame:SetBackdropBorderColor(unpack(skin.borderColor))
     end
     
-    print("|cff00ff00[Skins Debug]|r Successfully applied skin to:", frame:GetName() or "unnamed frame")
+    -- Skin child frames
+    self:SkinChildFrames(frame)
+end
+
+--[[
+    Strips all Blizzard decorative textures from a frame
+]]
+function Skin:StripBlizzardTextures(frame)
+    if not frame then return end
+    
+    -- Common Blizzard texture names to hide
+    local texturesToHide = {
+        "TopLeft", "TopRight", "BotLeft", "BotRight",
+        "TopMiddle", "BottomMiddle", "LeftMiddle", "RightMiddle",
+        "Bg", "BG", "Background",
+        "TopTileStreaks",
+        "Portrait", "PortraitFrame",
+        "TitleBg", "TitleText",
+        "Inset",
+        "InsetBorderTop", "InsetBorderBottom", "InsetBorderLeft", "InsetBorderRight",
+        "InsetBorderTopLeft", "InsetBorderTopRight", "InsetBorderBottomLeft", "InsetBorderBottomRight",
+        "TopEdge", "BottomEdge", "LeftEdge", "RightEdge",
+        "Corner",
+    }
+    
+    -- Hide named regions
+    for _, texName in ipairs(texturesToHide) do
+        local region = frame[texName]
+        if region then
+            if region.Hide then region:Hide() end
+            if region.SetAlpha then region:SetAlpha(0) end
+        end
+    end
+    
+    -- Hide all textures with "Portrait" or "Border" in the name
+    if frame.GetName then
+        local frameName = frame:GetName()
+        if frameName then
+            for _, suffix in ipairs({"Border", "Portrait", "Bg", "TopTileStreaks", "Inset"}) do
+                local region = _G[frameName..suffix]
+                if region then
+                    if region.Hide then region:Hide() end
+                    if region.SetAlpha then region:SetAlpha(0) end
+                end
+            end
+        end
+    end
+    
+    -- Iterate through all regions and hide textures
+    local regions = {frame:GetRegions()}
+    for _, region in ipairs(regions) do
+        if region:GetObjectType() == "Texture" then
+            local texPath = region:GetTexture()
+            if texPath then
+                local texPathLower = string.lower(tostring(texPath))
+                -- Hide interface art textures
+                if string.find(texPathLower, "interface") and 
+                   (string.find(texPathLower, "frame") or 
+                    string.find(texPathLower, "border") or
+                    string.find(texPathLower, "portrait") or
+                    string.find(texPathLower, "corner")) then
+                    region:SetAlpha(0)
+                    region:Hide()
+                end
+            end
+        end
+    end
+    
+    -- Hide close button textures but keep it functional
+    if frame.CloseButton then
+        self:SkinCloseButton(frame.CloseButton)
+    end
+end
+
+--[[
+    Skins child frames like buttons, tabs, scrollbars
+]]
+function Skin:SkinChildFrames(frame)
+    if not frame then return end
+    
+    -- Skin all child buttons
+    local children = {frame:GetChildren()}
+    for _, child in ipairs(children) do
+        if child:GetObjectType() == "Button" then
+            self:SkinFrameButton(child)
+        elseif child:GetObjectType() == "CheckButton" then
+            self:SkinCheckButton(child)
+        elseif child:GetObjectType() == "Frame" and child.GetScrollChild then
+            -- Scrollframe
+            self:SkinScrollFrame(child)
+        end
+    end
+    
+    -- Skin tabs
+    for i = 1, 10 do
+        local tab = _G[(frame:GetName() or "").."Tab"..i]
+        if tab then
+            self:SkinTab(tab)
+        else
+            break
+        end
+    end
+end
+
+--[[
+    Skins a close button
+]]
+function Skin:SkinCloseButton(btn)
+    if not btn then return end
+    
+    -- Hide default textures
+    if btn.SetNormalTexture then btn:SetNormalTexture("") end
+    if btn.SetPushedTexture then btn:SetPushedTexture("") end
+    if btn.SetHighlightTexture then btn:SetHighlightTexture("") end
+    
+    -- Create custom X
+    if not btn.customX then
+        btn.customX = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        btn.customX:SetPoint("CENTER", 1, 0)
+        btn.customX:SetText("×")
+        btn.customX:SetTextColor(0.8, 0.2, 0.2)
+    end
+    
+    -- Hover effect
+    btn:SetScript("OnEnter", function(self)
+        self.customX:SetTextColor(1, 0, 0)
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self.customX:SetTextColor(0.8, 0.2, 0.2)
+    end)
+end
+
+--[[
+    Skins a regular button
+]]
+function Skin:SkinFrameButton(btn)
+    if not btn or btn.muiButtonSkinned then return end
+    
+    -- Strip Blizzard textures
+    if btn.Left then btn.Left:SetAlpha(0) end
+    if btn.Right then btn.Right:SetAlpha(0) end
+    if btn.Middle then btn.Middle:SetAlpha(0) end
+    if btn.SetNormalTexture then btn:SetNormalTexture("") end
+    if btn.SetPushedTexture then btn:SetPushedTexture("") end
+    if btn.SetDisabledTexture then btn:SetDisabledTexture("") end
+    
+    -- Add backdrop
+    if BackdropTemplateMixin and not btn.SetBackdrop then
+        Mixin(btn, BackdropTemplateMixin)
+        if btn.OnBackdropLoaded then
+            btn:OnBackdropLoaded()
+        end
+    end
+    
+    if btn.SetBackdrop then
+        btn:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 1, right = 1, top = 1, bottom = 1 }
+        })
+        btn:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        btn:SetBackdropBorderColor(0, 0, 0, 1)
+        
+        -- Hover effect
+        btn:HookScript("OnEnter", function(self)
+            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+        end)
+        btn:HookScript("OnLeave", function(self)
+            self:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        end)
+    end
+    
+    btn.muiButtonSkinned = true
+end
+
+--[[
+    Skins a checkbox
+]]
+function Skin:SkinCheckButton(check)
+    if not check or check.muiCheckSkinned then return end
+    
+    -- Hide default checkbox texture
+    if check.SetNormalTexture then check:SetNormalTexture("") end
+    if check.SetPushedTexture then check:SetPushedTexture("") end
+    if check.SetHighlightTexture then check:SetHighlightTexture("") end
+    if check.SetCheckedTexture then check:SetCheckedTexture("") end
+    if check.SetDisabledCheckedTexture then check:SetDisabledCheckedTexture("") end
+    
+    -- Create modern checkbox
+    if BackdropTemplateMixin and not check.SetBackdrop then
+        Mixin(check, BackdropTemplateMixin)
+        if check.OnBackdropLoaded then
+            check:OnBackdropLoaded()
+        end
+    end
+    
+    if check.SetBackdrop then
+        check:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 1, right = 1, top = 1, bottom = 1 }
+        })
+        check:SetBackdropColor(0.1, 0.1, 0.1, 1)
+        check:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+        
+        -- Custom checkmark
+        if not check.muiCheck then
+            check.muiCheck = check:CreateTexture(nil, "OVERLAY")
+            check.muiCheck:SetTexture("Interface\\Buttons\\WHITE8X8")
+            check.muiCheck:SetPoint("TOPLEFT", 3, -3)
+            check.muiCheck:SetPoint("BOTTOMRIGHT", -3, 3)
+            check.muiCheck:SetVertexColor(0, 1, 0, 1)
+        end
+        
+        check:HookScript("OnClick", function(self)
+            if self:GetChecked() then
+                self.muiCheck:Show()
+            else
+                self.muiCheck:Hide()
+            end
+        end)
+        
+        -- Initial state
+        if check:GetChecked() then
+            check.muiCheck:Show()
+        else
+            check.muiCheck:Hide()
+        end
+    end
+    
+    check.muiCheckSkinned = true
+end
+
+--[[
+    Skins a scrollframe
+]]
+function Skin:SkinScrollFrame(scroll)
+    if not scroll or scroll.muiScrollSkinned then return end
+    
+    -- Skin scrollbar
+    local scrollbar = scroll.ScrollBar or scroll.scrollBar
+    if scrollbar then
+        -- Hide default textures
+        if scrollbar.Background then scrollbar.Background:Hide() end
+        if scrollbar.Top then scrollbar.Top:Hide() end
+        if scrollbar.Bottom then scrollbar.Bottom:Hide() end
+        if scrollbar.Middle then scrollbar.Middle:Hide() end
+        
+        -- Skin thumb
+        local thumb = scrollbar.ThumbTexture or scrollbar.thumbTexture
+        if thumb then
+            thumb:SetTexture("Interface\\Buttons\\WHITE8X8")
+            thumb:SetVertexColor(0.3, 0.3, 0.3, 1)
+        end
+        
+        -- Skin buttons
+        if scrollbar.ScrollUpButton then
+            self:SkinFrameButton(scrollbar.ScrollUpButton)
+        end
+        if scrollbar.ScrollDownButton then
+            self:SkinFrameButton(scrollbar.ScrollDownButton)
+        end
+    end
+    
+    scroll.muiScrollSkinned = true
+end
+
+--[[
+    Skins a tab button
+]]
+function Skin:SkinTab(tab)
+    if not tab or tab.muiTabSkinned then return end
+    
+    -- Hide default textures
+    if tab.Left then tab.Left:SetAlpha(0) end
+    if tab.Right then tab.Right:SetAlpha(0) end
+    if tab.Middle then tab.Middle:SetAlpha(0) end
+    if tab.LeftDisabled then tab.LeftDisabled:SetAlpha(0) end
+    if tab.RightDisabled then tab.RightDisabled:SetAlpha(0) end
+    if tab.MiddleDisabled then tab.MiddleDisabled:SetAlpha(0) end
+    if tab.LeftHighlight then tab.LeftHighlight:SetAlpha(0) end
+    if tab.RightHighlight then tab.RightHighlight:SetAlpha(0) end
+    if tab.MiddleHighlight then tab.MiddleHighlight:SetAlpha(0) end
+    
+    -- Create modern tab backdrop
+    if BackdropTemplateMixin and not tab.SetBackdrop then
+        Mixin(tab, BackdropTemplateMixin)
+        if tab.OnBackdropLoaded then
+            tab:OnBackdropLoaded()
+        end
+    end
+    
+    if tab.SetBackdrop then
+        tab:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 1, right = 1, top = 1, bottom = 1 }
+        })
+        
+        -- Update colors based on selection
+        local function UpdateTabColor()
+            if tab:GetID() == PanelTemplates_GetSelectedTab(tab:GetParent()) then
+                tab:SetBackdropColor(0.2, 0.2, 0.2, 1)
+                tab:SetBackdropBorderColor(0, 1, 0, 1)
+            else
+                tab:SetBackdropColor(0.1, 0.1, 0.1, 0.8)
+                tab:SetBackdropBorderColor(0.3, 0.3, 0.3, 1)
+            end
+        end
+        
+        tab:HookScript("OnShow", UpdateTabColor)
+        tab:HookScript("OnClick", UpdateTabColor)
+        UpdateTabColor()
+    end
+    
+    tab.muiTabSkinned = true
 end
 
 --[[
@@ -548,59 +875,27 @@ end
 function Skin:SkinBlizzardFrames()
     if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames then return end
     
-    print("|cff00ff00[Skins Debug]|r Starting SkinBlizzardFrames()")
-    
     -- Use WoW 12.0 API to find frames
     local function TrySkinFrame(frameName)
         local frame = _G[frameName]
-        if frame then
-            print("|cffff9900[Skins Debug]|r Found frame:", frameName)
-            
-            if frame.muiSkinned then
-                print("|cffaaaaaa[Skins Debug]|r Frame already skinned:", frameName)
-                return
-            end
-            
-            -- Check if frame has backdrop support
-            if not frame.SetBackdrop then
-                print("|cffff9900[Skins Debug]|r Frame needs BackdropTemplate:", frameName)
-                -- Try to add BackdropTemplate mixin
-                if BackdropTemplateMixin then
-                    Mixin(frame, BackdropTemplateMixin)
-                    if frame.OnBackdropLoaded then
-                        frame:OnBackdropLoaded()
-                    end
-                    print("|cff00ff00[Skins Debug]|r Added BackdropTemplate to:", frameName)
-                else
-                    print("|cffff0000[Skins Debug]|r BackdropTemplateMixin not available for:", frameName)
-                    return
-                end
-            end
-            
-            -- Now try to skin it
+        if frame and not frame.muiSkinned then
             Skin:ApplyFrameSkin(frame)
             frame.muiSkinned = true
-            print("|cff00ff00[Skins Debug]|r Successfully skinned:", frameName)
-        else
-            print("|cffff0000[Skins Debug]|r Frame not found:", frameName)
         end
     end
     
     -- Character & Equipment
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Character Frames ===")
     TrySkinFrame("CharacterFrame")
     TrySkinFrame("PaperDollFrame")
     TrySkinFrame("ReputationFrame")
     TrySkinFrame("TokenFrame")
     
     -- Spellbook & Professions  
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Spellbook/Professions ===")
     TrySkinFrame("SpellBookFrame")
     TrySkinFrame("PlayerSpellsFrame")
     TrySkinFrame("ProfessionsFrame")
     
     -- Collections
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Collections ===")
     TrySkinFrame("CollectionsJournal")
     TrySkinFrame("MountJournal")
     TrySkinFrame("PetJournal")
@@ -608,54 +903,32 @@ function Skin:SkinBlizzardFrames()
     TrySkinFrame("WardrobeFrame")
     
     -- Achievements & Encounters
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Achievements/Encounters ===")
     TrySkinFrame("AchievementFrame")
     TrySkinFrame("EncounterJournal")
     
     -- Social
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Social Frames ===")
     TrySkinFrame("FriendsFrame")
     TrySkinFrame("CommunitiesFrame")
     TrySkinFrame("GuildFrame")
     
     -- PvP
-    print("|cffaaaaaa[Skins Debug]|r === Skinning PvP Frames ===")
     TrySkinFrame("PVPUIFrame")
     TrySkinFrame("PVEFrame")
     
     -- Quest & NPC
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Quest/NPC Frames ===")
     TrySkinFrame("QuestFrame")
     TrySkinFrame("GossipFrame")
     TrySkinFrame("PlayerChoiceFrame")
     
     -- Trading
-    print("|cffaaaaaa[Skins Debug]|r === Skinning Trading Frames ===")
     TrySkinFrame("MerchantFrame")
     TrySkinFrame("MailFrame")
     TrySkinFrame("TradeFrame")
     
     -- System
-    print("|cffaaaaaa[Skins Debug]|r === Skinning System Frames ===")
     TrySkinFrame("GameMenuFrame")
     TrySkinFrame("SettingsPanel")
     TrySkinFrame("AddonList")
-    
-    -- Hook frames that load later
-    print("|cffaaaaaa[Skins Debug]|r === Setting up delayed skinning ===")
-    C_Timer.After(2, function()
-        print("|cffff9900[Skins Debug]|r Attempting delayed skinning...")
-        
-        -- Try again for frames that might have loaded late
-        TrySkinFrame("CharacterFrame")
-        TrySkinFrame("SpellBookFrame")
-        TrySkinFrame("PlayerSpellsFrame")
-        TrySkinFrame("CollectionsJournal")
-        
-        print("|cff00ff00[Skins Debug]|r Delayed skinning complete")
-    end)
-    
-    print("|cff00ff00[Skins Debug]|r SkinBlizzardFrames() complete")
 end
 
 -- ============================================================================
