@@ -221,11 +221,15 @@ function AB:CreateBar(barKey, config)
             StanceBarFrame:SetParent(container)
             StanceBarFrame:ClearAllPoints()
             StanceBarFrame:SetAllPoints(container)
+            StanceBarFrame:SetFrameStrata(container:GetFrameStrata())
+            StanceBarFrame:SetFrameLevel(container:GetFrameLevel() + 10)
             StanceBarFrame:Show()
             for i = 1, 10 do
                 local btn = _G["StanceButton"..i]
                 if btn then
                     btn:SetParent(container)
+                    btn:SetFrameStrata(container:GetFrameStrata())
+                    btn:SetFrameLevel(container:GetFrameLevel() + 15)
                     btn:Show()
                 end
             end
