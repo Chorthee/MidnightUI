@@ -597,12 +597,24 @@ function AB:CollectButtons(container, barKey)
                 AB:UpdateAllEmptyButtons()
             end)
             btn:HookScript("OnReceiveDrag", function()
-                forceShowEmpty = false
+                local cursorType = GetCursorInfo and GetCursorInfo()
+                if cursorType then
+                    -- Still holding something, keep empty buttons visible
+                    forceShowEmpty = true
+                else
+                    forceShowEmpty = false
+                end
                 AB:UpdateAllEmptyButtons()
             end)
             btn:HookScript("OnMouseUp", function()
                 if forceShowEmpty then
-                    forceShowEmpty = false
+                    local cursorType = GetCursorInfo and GetCursorInfo()
+                    if cursorType then
+                        -- Still holding something, keep empty buttons visible
+                        forceShowEmpty = true
+                    else
+                        forceShowEmpty = false
+                    end
                     AB:UpdateAllEmptyButtons()
                 end
             end)
