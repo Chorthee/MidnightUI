@@ -177,38 +177,33 @@ function UIButtons:UpdateNudgeArrows()
     end
     
     -- Get container position
-    local containerX = container:GetCenter()
     local containerY = select(2, container:GetCenter())
-    local screenWidth = UIParent:GetWidth()
     local screenHeight = UIParent:GetHeight()
     
-    -- Determine which side of screen container is on
-    local onLeft = containerX < screenWidth / 2
+    -- Determine if container is on top or bottom half of screen
     local onTop = containerY > screenHeight / 2
     
-    -- Position arrows intelligently
-    local spacing = 30
+    -- Position all 4 arrows in a single horizontal row: < ^ v >
+    local spacing = 2  -- Spacing between arrows
+    local offset = 5   -- Distance from container
     
-    -- Vertical arrows (above or below based on position)
+    container.arrows.LEFT:ClearAllPoints()
+    container.arrows.UP:ClearAllPoints()
+    container.arrows.DOWN:ClearAllPoints()
+    container.arrows.RIGHT:ClearAllPoints()
+    
     if onTop then
-        -- Container is on top, put arrows below
-        container.arrows.UP:SetPoint("TOP", container, "BOTTOM", -spacing, -5)
-        container.arrows.DOWN:SetPoint("TOP", container, "BOTTOM", spacing, -5)
+        -- Container is on top, put arrow row below
+        container.arrows.LEFT:SetPoint("TOP", container, "BOTTOM", 0, -offset)
+        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
     else
-        -- Container is on bottom, put arrows above
-        container.arrows.UP:SetPoint("BOTTOM", container, "TOP", -spacing, 5)
-        container.arrows.DOWN:SetPoint("BOTTOM", container, "TOP", spacing, 5)
-    end
-    
-    -- Horizontal arrows (same level as container)
-    if onLeft then
-        -- Container is on left, put arrows on right
-        container.arrows.LEFT:SetPoint("LEFT", container, "RIGHT", 5, 0)
-        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", 2, 0)
-    else
-        -- Container is on right, put arrows on left
-        container.arrows.RIGHT:SetPoint("RIGHT", container, "LEFT", -5, 0)
-        container.arrows.LEFT:SetPoint("RIGHT", container.arrows.RIGHT, "LEFT", -2, 0)
+        -- Container is on bottom, put arrow row above
+        container.arrows.LEFT:SetPoint("BOTTOM", container, "TOP", 0, offset)
+        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
     end
     
     -- Show all arrows
