@@ -1093,8 +1093,8 @@ function AB:UpdateEmptyButtons(barKey)
                     actionID = btn:GetActionID()
                 end
                 local hasAction = actionID and HasAction(actionID)
-                -- Always set type/action for secure drops
-                if btn.SetAttribute and actionID then
+                -- Only set attributes out of combat to avoid taint
+                if btn.SetAttribute and actionID and not InCombatLockdown() then
                     btn:SetAttribute("type", "action")
                     btn:SetAttribute("action", actionID)
                 end
