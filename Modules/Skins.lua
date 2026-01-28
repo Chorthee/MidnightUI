@@ -250,6 +250,22 @@ end
 function Skin:StripBlizzardTextures(frame)
     if not frame then return end
     
+    -- Strip all draw layers first
+    for i = 1, frame:GetNumRegions() do
+        local region = select(i, frame:GetRegions())
+        if region and region.GetObjectType then
+            local success, objType = pcall(function() return region:GetObjectType() end)
+            if success and objType == "Texture" then
+                local drawLayer = region:GetDrawLayer()
+                if drawLayer == "BACKGROUND" or drawLayer == "BORDER" or drawLayer == "ARTWORK" then
+                    region:SetTexture(nil)
+                    region:SetAlpha(0)
+                    region:Hide()
+                end
+            end
+        end
+    end
+    
     -- Hide NineSlice (WoW 12.0 border system)
     if frame.NineSlice then
         frame.NineSlice:SetAlpha(0)
@@ -271,7 +287,9 @@ function Skin:StripBlizzardTextures(frame)
         frame.PortraitContainer:SetAlpha(0)
         frame.PortraitContainer:Hide()
         if frame.PortraitContainer.portrait then frame.PortraitContainer.portrait:Hide() end
+        if frame.PortraitContainer.Portrait then frame.PortraitContainer.Portrait:Hide() end
         if frame.PortraitContainer.CircleMask then frame.PortraitContainer.CircleMask:Hide() end
+        if frame.PortraitContainer.PortraitRing then frame.PortraitContainer.PortraitRing:Hide() end
     end
     
     -- Hide Portrait (legacy)
@@ -282,6 +300,10 @@ function Skin:StripBlizzardTextures(frame)
     if frame.Portrait then
         frame.Portrait:SetAlpha(0)
         frame.Portrait:Hide()
+    end
+    if frame.PortraitFrame then
+        frame.PortraitFrame:SetAlpha(0)
+        frame.PortraitFrame:Hide()
     end
     
     -- Hide Title Container but preserve text
@@ -295,20 +317,25 @@ function Skin:StripBlizzardTextures(frame)
         frame.TitleContainer:SetAlpha(0)
     end
     
-    -- Hide Bg texture and variations
-    if frame.Bg then
-        frame.Bg:SetAlpha(0)
-        frame.Bg:Hide()
-    end
-    if frame.BG then
-        frame.BG:SetAlpha(0)
-        frame.BG:Hide()
+    -- Hide all background textures
+    local bgTextures = {
+        "Bg", "BG", "bg", "Background", "BGTexture",
+        "TopTileStreaks", "TitleBg", "DialogBG", "BorderFrame"
+    }
+    for _, bgName in ipairs(bgTextures) do
+        if frame[bgName] then
+            frame[bgName]:SetAlpha(0)
+            frame[bgName]:Hide()
+        end
     end
     
-    -- Hide TopTileStreaks
-    if frame.TopTileStreaks then
-        frame.TopTileStreaks:SetAlpha(0)
-        frame.TopTileStreaks:Hide()
+    -- Hide model background pieces
+    for _, corner in ipairs({"TopLeft", "TopRight", "BotLeft", "BotRight", "Top", "Bottom", "Left", "Right"}) do
+        local bg = frame["Background"..corner]
+        if bg then
+            bg:SetAlpha(0)
+            bg:Hide()
+        end
     end
     
     -- Hide all edge textures
@@ -326,7 +353,7 @@ function Skin:StripBlizzardTextures(frame)
         end
     end
     
-    -- Hide Inset and its components
+    -- Hide Inset and its components (very common in Blizzard frames)
     if frame.Inset then
         if frame.Inset.Bg then
             frame.Inset.Bg:SetAlpha(0)
@@ -335,6 +362,15 @@ function Skin:StripBlizzardTextures(frame)
         if frame.Inset.NineSlice then
             frame.Inset.NineSlice:SetAlpha(0)
             frame.Inset.NineSlice:Hide()
+            -- Hide NineSlice pieces in Inset
+            if frame.Inset.NineSlice.TopEdge then frame.Inset.NineSlice.TopEdge:Hide() end
+            if frame.Inset.NineSlice.BottomEdge then frame.Inset.NineSlice.BottomEdge:Hide() end
+            if frame.Inset.NineSlice.LeftEdge then frame.Inset.NineSlice.LeftEdge:Hide() end
+            if frame.Inset.NineSlice.RightEdge then frame.Inset.NineSlice.RightEdge:Hide() end
+            if frame.Inset.NineSlice.TopLeftCorner then frame.Inset.NineSlice.TopLeftCorner:Hide() end
+            if frame.Inset.NineSlice.TopRightCorner then frame.Inset.NineSlice.TopRightCorner:Hide() end
+            if frame.Inset.NineSlice.BottomLeftCorner then frame.Inset.NineSlice.BottomLeftCorner:Hide() end
+            if frame.Inset.NineSlice.BottomRightCorner then frame.Inset.NineSlice.BottomRightCorner:Hide() end
         end
         -- Strip Inset borders
         for _, edge in ipairs({"Top", "Bottom", "Left", "Right", "TopLeft", "TopRight", "BottomLeft", "BottomRight"}) do
@@ -345,10 +381,20 @@ function Skin:StripBlizzardTextures(frame)
         end
     end
     
+    -- Hide InsetFrame if it exists separately
+    if frame.InsetFrame then
+        frame.InsetFrame:SetAlpha(0)
+    end
+    
     -- Hide various border elements
     local borderElements = {
         "TopLeftTexture", "TopRightTexture", "BottomLeftTexture", "BottomRightTexture",
-        "TopTexture", "BottomTexture", "LeftTexture", "RightTexture"
+        "TopTexture", "BottomTexture", "LeftTexture", "RightTexture",
+        "TopLeftCorner", "TopRightCorner", "BottomLeftCorner", "BottomRightCorner",
+        "TopBorder", "BottomBorder", "LeftBorder", "RightBorder",
+        "BorderLeft", "BorderRight", "BorderTop", "BorderBottom",
+        "_TopLeft", "_TopRight", "_BottomLeft", "_BottomRight",
+        "_Left", "_Right", "_Top", "_Bottom"
     }
     
     for _, borderName in ipairs(borderElements) do
@@ -356,6 +402,12 @@ function Skin:StripBlizzardTextures(frame)
             frame[borderName]:SetAlpha(0)
             frame[borderName]:Hide()
         end
+    end
+    
+    -- Hide overlay textures
+    if frame.Overlay then
+        frame.Overlay:SetAlpha(0)
+        frame.Overlay:Hide()
     end
     
     -- Hide all textures by scanning regions
@@ -391,7 +443,24 @@ function Skin:StripBlizzardTextures(frame)
                             path:find("collections") or
                             path:find("encounter") or
                             path:find("tradeskill") or
-                            path:find("profession")
+                            path:find("profession") or
+                            path:find("tooltip") or
+                            path:find("raidboss") or
+                            path:find("calendar") or
+                            path:find("lfg") or
+                            path:find("trade") or
+                            path:find("loot") or
+                            path:find("taxiframe") or
+                            path:find("petition") or
+                            path:find("tabard") or
+                            path:find("barbershop") or
+                            path:find("itemupgrade") or
+                            path:find("transmogrify") or
+                            path:find("voidstorage") or
+                            path:find("blackmarket") or
+                            path:find("ui-background") or
+                            path:find("ui-frame") or
+                            path:find("divider")
                         
                         if shouldHide then
                             region:SetTexture(nil)
