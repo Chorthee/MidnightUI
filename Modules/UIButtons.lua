@@ -112,16 +112,17 @@ function UIButtons:CreateButtons()
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
             btn:SetFrameStrata("TOOLTIP")
-            btn:SetFrameLevel(200)            
-            -- Set up secure attributes for logout/exit buttons
+            btn:SetFrameLevel(200)
+            
+            -- Set up secure attributes for logout/exit buttons FIRST
             if key == "logout" then
                 btn:SetAttribute("type", "macro")
-                btn:SetAttribute("macrotext", "/camp")
-                btn:RegisterForClicks("LeftButtonUp")
+                btn:SetAttribute("macrotext", "/logout")
+                btn:RegisterForClicks("AnyUp", "AnyDown")
             elseif key == "exit" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/quit")
-                btn:RegisterForClicks("LeftButtonUp")
+                btn:RegisterForClicks("AnyUp", "AnyDown")
             else
                 btn:RegisterForClicks("AnyUp")
             end            
@@ -164,7 +165,6 @@ function UIButtons:CreateButtons()
             btn.getData = data.getColor
             btn:Show()
             btn:SetAlpha(1)
-            btn:EnableMouse(true)
             
             uiButtons[key] = btn  -- Changed variable name
         end
