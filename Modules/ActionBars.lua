@@ -634,29 +634,29 @@ function AB:UpdateButtonElements(btn)
         highlight:SetBlendMode("ADD")
     end
     
-    -- Fix pushed texture - expand 1px beyond button to ensure full coverage
+    -- Fix pushed texture - align properly with button edges
     local pushed = btn:GetPushedTexture()
     if pushed then
         pushed:ClearAllPoints()
-        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", -1, 1)
-        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 1, -1)
+        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -2)
         pushed:SetTexCoord(0, 1, 0, 1)
         pushed:SetDrawLayer("ARTWORK", 1)
     end
     
-    -- Fix flash texture - expand 1px beyond button
+    -- Fix flash texture
     if btn.Flash then
         btn.Flash:ClearAllPoints()
-        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", -1, 1)
-        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 1, -1)
+        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -2)
     end
     
-    -- Fix checked texture - expand 1px beyond button
+    -- Fix checked texture
     local checked = btn:GetCheckedTexture()
     if checked then
         checked:ClearAllPoints()
-        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", -1, 1)
-        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 1, -1)
+        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -2)
     end
     
     -- Hide NormalTexture (the default button border/background)
