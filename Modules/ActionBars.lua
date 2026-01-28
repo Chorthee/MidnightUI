@@ -856,27 +856,31 @@ function AB:UpdateEmptyButtons(barKey)
     
     for _, btn in ipairs(container.buttons) do
         if btn then
-            -- Force button to be visible if showEmpty is enabled
+            -- Get action ID - different methods for different button types
+            local actionID = btn.action
+            if not actionID and btn.GetPagedID then
+                actionID = btn:GetPagedID()
+            elseif not actionID and btn.GetActionID then
+                actionID = btn:GetActionID()
+            end
+            
+            local hasAction = actionID and HasAction(actionID)
+            
             if db.showEmpty then
                 -- Show all buttons regardless of action
                 btn:SetAlpha(1)
                 btn:Show()
                 
-                -- Ensure icon is visible even if empty
+                -- Grey out empty buttons' icons
                 if btn.icon then
-                    btn.icon:SetAlpha(0.5) -- Show greyed out if no action
+                    if hasAction then
+                        btn.icon:SetAlpha(1)
+                    else
+                        btn.icon:SetAlpha(0.5)
+                    end
                 end
             else
                 -- Use default Blizzard behavior - check if button has action
-                local actionID = btn.action
-                if not actionID and btn.GetPagedID then
-                    actionID = btn:GetPagedID()
-                elseif not actionID and btn.GetActionID then
-                    actionID = btn:GetActionID()
-                end
-                
-                local hasAction = actionID and HasAction(actionID)
-                
                 if hasAction then
                     btn:SetAlpha(1)
                     btn:Show()
