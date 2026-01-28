@@ -609,10 +609,15 @@ function AB:UpdateBar(barKey)
     
     -- Handle Move Mode display
     if MidnightUI.moveMode then
+        -- Ensure container is visible
+        container:Show()
+        container:SetAlpha(1)
+        
         -- Show drag frame with green border
         if container.dragFrame then
             container.dragFrame:Show()
             container.dragFrame:EnableMouse(true)
+            container.dragFrame:SetAlpha(1)
         end
         
         -- Fade the actual action buttons to 30% opacity
