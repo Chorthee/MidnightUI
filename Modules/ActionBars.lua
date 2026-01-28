@@ -260,6 +260,10 @@ function AB:CreateBar(barKey, config)
     -- Collect buttons (do this even if blizzBar is nil, for MainMenuBar)
     self:CollectButtons(container, barKey)
     
+    -- Ensure container allows mouse clicks to pass through to buttons
+    container:EnableMouse(false)
+    container:SetFrameStrata("LOW")
+    
     -- CHANGED: Create drag frame for Move Mode with enhanced styling
     container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
     container.dragFrame:SetAllPoints()
