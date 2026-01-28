@@ -427,6 +427,15 @@ function AB:UpdateBar(barKey)
         container:Show()
     else
         container:Hide()
+        -- Also hide all hotkey frames on buttons when bar is disabled
+        for _, btn in ipairs(container.buttons) do
+            if btn then
+                local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
+                if hotkey then
+                    hotkey:Hide()
+                end
+            end
+        end
         return
     end
     
@@ -538,15 +547,14 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
+    -- Hide TextOverlayContainer which creates the rectangle backgrounds
+    if btn.TextOverlayContainer then
+        btn.TextOverlayContainer:Hide()
+    end
+    
     -- Hotkey text
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
-        -- Always hide the background texture
-        if hotkey.Background then
-            hotkey.Background:SetTexture(nil)
-            hotkey.Background:Hide()
-        end
-        
         if db.showHotkeys then
             hotkey:Show()
             hotkey:ClearAllPoints()
