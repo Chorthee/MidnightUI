@@ -641,6 +641,7 @@ function AB:LayoutButtons(container, barKey)
         btn:ClearAllPoints()
         btn:SetParent(container)
         btn:SetSize(buttonSize, buttonSize)
+        btn:Show() -- Ensure button is shown
         
         local col = (i - 1) % columns
         local row = math.floor((i - 1) / columns)
@@ -653,6 +654,9 @@ function AB:LayoutButtons(container, barKey)
         -- Update button elements
         self:UpdateButtonElements(btn)
     end
+    
+    -- Update empty button visibility after layout
+    self:UpdateEmptyButtons(barKey)
 end
 
 function AB:UpdateButtonElements(btn)
