@@ -87,8 +87,10 @@ function Skin:OnDBReady()
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
-    -- Wait longer to ensure all UI elements are loaded
-    C_Timer.After(1.5, function()
+    -- Wait for UI to fully load
+    C_Timer.After(2, function()
+        if not self.db or not self.db.profile then return end
+        
         if self.db.profile.skinActionBars then
             self:SkinActionBarButtons()
         end
@@ -112,7 +114,54 @@ function Skin:PLAYER_ENTERING_WORLD()
         if self.db.profile.skinBlizzardFrames then
             self:SkinBlizzardFrames()
         end
+        
+        -- Hook frame show events to skin frames as they appear
+        self:SetupDynamicSkinning()
     end)
+end
+
+-- ============================================================================
+-- DYNAMIC SKINNING HOOKS
+-- ============================================================================
+
+function Skin:SetupDynamicSkinning()
+    if self.dynamicHooksSetup then return end
+    
+    -- Hook into frame creation to skin new frames
+    local function SkinFrameOnShow(frame)
+        if not frame.muiSkinned and Skin.db and Skin.db.profile.skinBlizzardFrames then
+            Skin:ApplyFrameSkin(frame)
+            frame.muiSkinned = true
+        end
+    end
+    
+    -- List of frame names to watch for
+    local framesToWatch = {
+        "CharacterFrame",
+        "SpellBookFrame", 
+        "ProfessionsFrame",
+        "CollectionsJournal",
+        "EncounterJournal",
+        "AchievementFrame",
+        "WorldMapFrame",
+        "PVPUIFrame",
+        "CommunitiesFrame",
+        "PlayerChoiceFrame",
+        "QuestFrame",
+        "GossipFrame",
+        "MerchantFrame",
+        "MailFrame",
+        "GameMenuFrame",
+    }
+    
+    for _, frameName in ipairs(framesToWatch) do
+        local frame = _G[frameName]
+        if frame and frame.HookScript then
+            frame:HookScript("OnShow", SkinFrameOnShow)
+        end
+    end
+    
+    self.dynamicHooksSetup = true
 end
 
 -- ============================================================================
@@ -126,6 +175,7 @@ end
 ]]
 function Skin:ApplyFrameSkin(frame, skinName)
     if not frame then return end
+    if not frame.SetBackdrop and not frame.SetBackdropTemplate then return end
     
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile then
@@ -136,19 +186,20 @@ function Skin:ApplyFrameSkin(frame, skinName)
     
     local skin = SKINS[skinName] or SKINS["Midnight"]
     
-    -- Create backdrop frame if it doesn't exist
-    if not frame.muiBackdrop then
-        frame.muiBackdrop = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-        frame.muiBackdrop:SetAllPoints()
-        
-        local level = frame:GetFrameLevel()
-        frame.muiBackdrop:SetFrameLevel(level > 0 and level - 1 or 0)
+    -- Ensure frame has BackdropTemplate mixin
+    if not frame.SetBackdrop and BackdropTemplateMixin then
+        Mixin(frame, BackdropTemplateMixin)
+        frame:OnBackdropLoaded()
     end
     
-    -- Apply backdrop
-    frame.muiBackdrop:SetBackdrop(skin.backdrop)
-    frame.muiBackdrop:SetBackdropColor(unpack(skin.bgColor))
-    frame.muiBackdrop:SetBackdropBorderColor(unpack(skin.borderColor))
+    -- Apply backdrop directly to the frame
+    if frame.SetBackdrop then
+        frame:SetBackdrop(skin.backdrop)
+        frame:SetBackdropColor(unpack(skin.bgColor))
+        if skin.borderAlpha and skin.borderAlpha > 0 then
+            frame:SetBackdropBorderColor(unpack(skin.borderColor))
+        end
+    end
 end
 
 --[[
@@ -442,185 +493,150 @@ end
 -- ============================================================================
 
 function Skin:SkinBags()
-    -- Container frames (bags)
-    for i = 0, NUM_CONTAINER_FRAMES do
-        local bag = _G["ContainerFrame"..i]
-        if bag then
-            self:ApplyFrameSkin(bag)
-            
-            -- Skin individual bag slots
-            for j = 1, bag.size or 0 do
-                local button = _G["ContainerFrame"..i.."Item"..j]
-                if button then
-                    self:SkinButton(button)
-                end
+    if not self.db or not self.db.profile or not self.db.profile.skinBags then return end
+    
+    -- WoW 12.0 Combined Bags
+    C_Timer.After(0.5, function()
+        if ContainerFrameCombinedBags and not ContainerFrameCombinedBags.muiSkinned then
+            Skin:ApplyFrameSkin(ContainerFrameCombinedBags)
+            ContainerFrameCombinedBags.muiSkinned = true
+        end
+        
+        -- Individual bags (if user separates them)
+        for i = 1, 13 do
+            local bagFrame = _G["ContainerFrame"..i]
+            if bagFrame and not bagFrame.muiSkinned then
+                Skin:ApplyFrameSkin(bagFrame)
+                bagFrame.muiSkinned = true
             end
         end
-    end
-    
-    -- Bank frame
-    if BankFrame then
-        self:ApplyFrameSkin(BankFrame)
-    end
-    
-    -- Combined bags (if using Blizzard combined bags)
-    if ContainerFrameCombinedBags then
-        self:ApplyFrameSkin(ContainerFrameCombinedBags)
-    end
+        
+        -- Bank
+        if BankFrame and not BankFrame.muiSkinned then
+            Skin:ApplyFrameSkin(BankFrame)
+            BankFrame.muiSkinned = true
+        end
+        
+        -- Account Bank
+        if AccountBankPanel and not AccountBankPanel.muiSkinned then
+            Skin:ApplyFrameSkin(AccountBankPanel)
+            AccountBankPanel.muiSkinned = true
+        end
+    end)
 end
 
 -- ============================================================================
 -- BLIZZARD UI FRAMES SKINNING
 -- ============================================================================
-
-function Skin:SkinBlizzardFrames()
-    -- Major UI frames
-    local majorFrames = {
-        -- Character panels
-        CharacterFrame,
-        PaperDollFrame,
-        ReputationFrame,
-        TokenFrame,
-        
-        -- Spellbook
-        SpellBookFrame,
-        
-        -- Talents
-        PlayerTalentFrame,
-        ClassTalentFrame,
-        
-        -- Collections
-        CollectionsJournal,
-        MountJournal,
-        PetJournal,
-        ToyBox,
-        HeirloomsJournal,
-        WardrobeFrame,
-        
-        -- Adventure Guide
-        EncounterJournal,
-        
-        -- Achievements
-        AchievementFrame,
-        
-        -- Quest Log
-        QuestLogFrame,
-        QuestFrame,
-        
-        -- Friends/Social
-        FriendsFrame,
-        
-        -- Guild
-        GuildFrame,
-        CommunitiesFrame,
-        
-        -- PvP
-        PVPUIFrame,
-        
-        -- LFG
-        LFGDungeonReadyDialog,
-        PVEFrame,
-        
-        -- Mailbox
-        MailFrame,
-        
-        -- Merchant
-        MerchantFrame,
-        
-        -- Trainer
-        ClassTrainerFrame,
-        
-        -- Profession
-        ProfessionsFrame,
-        
-        -- Auction House
-        AuctionHouseFrame,
-        
-        -- Game Menu
-        GameMenuFrame,
-        
-        -- Video Options
-        VideoOptionsFrame,
-        
-        -- Interface Options
-        SettingsPanel,
-        
-        -- Help
-        HelpFrame,
-        
-        -- Calendar
-        CalendarFrame,
-        
-        -- Gossip
-        GossipFrame,
-        
-        -- Quest Detail
-        QuestFrame,
-        
-        -- Loot Frame
-        LootFrame,
-        GroupLootFrame1,
-        
-        -- Ready Check
-        ReadyCheckFrame,
-        
-        -- Role Poll
-        RolePollPopup,
-        
-        -- Stack Split
-        StackSplitFrame,
-        
-        -- Dropdown menus
-        DropDownList1,
-        DropDownList2,
-    }
+if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames then return end
     
-    for _, frame in ipairs(majorFrames) do
-        if frame then
-            self:ApplyFrameSkin(frame)
+    -- Use WoW 12.0 API to find frames
+    local function TrySkinFrame(frameName)
+        local frame = _G[frameName]
+        if frame and not frame.muiSkinned then
+            Skin:ApplyFrameSkin(frame)
+            frame.muiSkinned = true
         end
     end
     
-    -- Skin popups
+    -- Character & Equipment
+    TrySkinFrame("CharacterFrame")
+    TrySkinFrame("PaperDollFrame")
+    TrySkinFrame("ReputationFrame")
+    TrySkinFrame("TokenFrame")
+    
+    -- Spellbook & Professions  
+    TrySkinFrame("SpellBookFrame")
+    TrySkinFrame("ProfessionsFrame")
+    TrySkinFrame("ProfessionsCustomerOrdersFrame")
+    
+    -- Talents (War Within uses new system)
+    TrySkinFrame("PlayerSpellsFrame")
+    TrySkinFrame("ClassTalentFrame")
+    
+    -- Collections
+    TrySkinFrame("CollectionsJournal")
+    TrySkinFrame("MountJournal")
+    TrySkinFrame("PetJournal")
+    TrySkinFrame("ToyBox")
+    TrySkinFrame("HeirloomsJournal")
+    TrySkinFrame("WardrobeFrame")
+    
+    -- Adventure Guide & Achievements
+    TrySkinFrame("EncounterJournal")
+    TrySkinFrame("AchievementFrame")
+    
+    -- World Map (new in War Within)
+    TrySkinFrame("WorldMapFrame")
+    
+    -- Social & Guild
+    TrySkinFrame("FriendsFrame")
+    TrySkinFrame("CommunitiesFrame")
+    TrySkinFrame("GuildFrame")
+    
+    -- PvP & Group Finder
+    TrySkinFrame("PVPUIFrame")
+    TrySkinFrame("PVEFrame")
+    TrySkinFrame("LFGDungeonReadyDialog")
+    
+    -- Quest & NPC Interaction
+    TrySkinFrame("QuestFrame")
+    TrySkinFrame("GossipFrame")
+    TrySkinFrame("QuestLogPopupDetailFrame")
+    TrySkinFrame("PlayerChoiceFrame")
+    
+    -- Trading & Services
+    TrySkinFrame("MerchantFrame")
+    TrySkinFrame("MailFrame")
+    TrySkinFrame("TradeFrame")
+    TrySkinFrame("AuctionHouseFrame")
+    
+    -- System
+    TrySkinFrame("GameMenuFrame")
+    TrySkinFrame("VideoOptionsFrame")
+    TrySkinFrame("InterfaceOptionsFrame")
+    TrySkinFrame("SettingsPanel")
+    TrySkinFrame("AddonList")
+    TrySkinFrame("KeyBindingFrame")
+    TrySkinFrame("MacroFrame")
+    
+    -- Calendar & Help
+    TrySkinFrame("CalendarFrame")
+    TrySkinFrame("HelpFrame")
+    
+    -- Loot & Popups
+    TrySkinFrame("LootFrame")
+    TrySkinFrame("GroupLootFrame1")
+    TrySkinFrame("StackSplitFrame")
+    
     for i = 1, 4 do
-        local popup = _G["StaticPopup"..i]
-        if popup then
-            self:ApplyFrameSkin(popup)
-        end
+        TrySkinFrame("StaticPopup"..i)
     end
-    
     -- Hook into frame show events to skin dynamically created frames
     self:HookDynamicFrames()
 end
 
 -- ============================================================================
--- DYNAMIC FRAME HOOKING
+-- TOOLTIP SKINNING
 -- ============================================================================
 
-function Skin:HookDynamicFrames()
-    -- Hook tooltip creation
-    local function hookTooltip(tooltip)
+function Skin:SkinTooltips()
+    local tooltips = {
+        GameTooltip,
+        ItemRefTooltip,
+        ShoppingTooltip1,
+        ShoppingTooltip2,
+        EmbeddedItemTooltip,
+    }
+    
+    for _, tooltip in ipairs(tooltips) do
         if tooltip and not tooltip.muiSkinned then
-            Skin:ApplyFrameSkin(tooltip)
+            self:ApplyFrameSkin(tooltip)
             tooltip.muiSkinned = true
         end
     end
-    
-    -- Hook GameTooltip
-    if GameTooltip then
-        GameTooltip:HookScript("OnShow", function(self)
-            hookTooltip(self)
-        end)
-    end
-    
-    -- Hook addon compartment frame
-    if AddonCompartmentFrame then
-        self:ApplyFrameSkin(AddonCompartmentFrame)
-    end
-    
-    -- Note: Removed hooks for EncounterJournal_DisplayInstance and MerchantFrame_Update
-    -- as these functions don't exist in WoW 12.0 and cause errors
 end
+
 -- ============================================================================
 -- CHAT FRAME SKINNING
 -- ============================================================================
