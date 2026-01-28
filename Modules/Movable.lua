@@ -11,7 +11,7 @@ Movable.registeredFrames = {}
 Movable.registeredNudgeFrames = {}
 
 -- Grid settings
-local GRID_SIZE = 8
+local GRID_SIZE = 16
 local gridFrame = nil
 
 -- ============================================================================
@@ -41,9 +41,9 @@ function Movable:CreateGrid()
     
     gridFrame.lines = {}
     
-    -- Draw gray grid lines (every 8 pixels), but skip positions where green lines will be
+    -- Draw gray grid lines (every 16 pixels), but skip positions where green lines will be
     for x = 0, screenWidth, GRID_SIZE do
-        if (x % 40) ~= 0 then  -- Skip multiples of 40
+        if (x % 80) ~= 0 then  -- Skip multiples of 80
             local line = gridFrame:CreateTexture(nil, "BACKGROUND")
             line:SetTexture("Interface\\Buttons\\WHITE8X8")
             line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
@@ -55,7 +55,7 @@ function Movable:CreateGrid()
     end
     
     for y = 0, screenHeight, GRID_SIZE do
-        if (y % 40) ~= 0 then  -- Skip multiples of 40
+        if (y % 80) ~= 0 then  -- Skip multiples of 80
             local line = gridFrame:CreateTexture(nil, "BACKGROUND")
             line:SetTexture("Interface\\Buttons\\WHITE8X8")
             line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
@@ -66,8 +66,8 @@ function Movable:CreateGrid()
         end
     end
     
-    -- Now draw green emphasis lines every 40 pixels
-    for x = 0, screenWidth, 40 do
+    -- Now draw green emphasis lines every 80 pixels
+    for x = 0, screenWidth, 80 do
         local line = gridFrame:CreateTexture(nil, "OVERLAY")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
         line:SetVertexColor(0, 0.6, 0, 0.8)
@@ -77,7 +77,7 @@ function Movable:CreateGrid()
         table.insert(gridFrame.lines, line)
     end
     
-    for y = 0, screenHeight, 40 do
+    for y = 0, screenHeight, 80 do
         local line = gridFrame:CreateTexture(nil, "OVERLAY")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
         line:SetVertexColor(0, 0.6, 0, 0.8)
