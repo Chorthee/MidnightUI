@@ -896,7 +896,8 @@ function AB:UpdateButtonElements(btn)
     if not btn.emptyBackground then
         btn.emptyBackground = btn:CreateTexture(nil, "BACKGROUND")
         btn.emptyBackground:SetTexture("Interface\\Buttons\\UI-Quickslot2")
-        btn.emptyBackground:SetTexCoord(0, 1, 0, 1)
+        -- Crop out transparent padding: these values work well for Blizzard's button border
+        btn.emptyBackground:SetTexCoord(0.14, 0.86, 0.14, 0.86)
         btn.emptyBackground:SetDrawLayer("BACKGROUND", 0)
         btn.emptyBackground:SetAllPoints(btn)
         btn.emptyBackground:SetAlpha(1)
