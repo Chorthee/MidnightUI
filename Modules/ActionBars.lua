@@ -339,6 +339,15 @@ function AB:CreateBar(barKey, config)
     container.label:SetTextColor(1, 1, 1, 1)
     container.label:SetShadowOffset(2, -2)
     container.label:SetShadowColor(0, 0, 0, 1)
+
+    -- Add a red dot at the top edge to indicate the center of the bar
+    if not container.centerDot then
+        local dot = container.dragFrame:CreateTexture(nil, "OVERLAY")
+        dot:SetColorTexture(1, 0, 0, 1) -- Solid red
+        dot:SetSize(10, 10)
+        dot:SetPoint("TOP", container.dragFrame, "TOP", 0, 0)
+        container.centerDot = dot
+    end
     
     -- Drag handlers using Movable module
     local Movable = MidnightUI:GetModule("Movable")
