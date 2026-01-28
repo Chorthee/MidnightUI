@@ -159,18 +159,21 @@ function UIButtons:CreateButtons()
             elseif key == "addons" then
                 btn:RegisterForClicks("AnyUp")
                 btn:SetScript("OnClick", function()
-                    if not _G.IsAddOnLoaded or not _G.LoadAddOn then return end
-                    if not _G.IsAddOnLoaded("Blizzard_AddOnManager") then
-                        local loaded, reason = _G.LoadAddOn("Blizzard_AddOnManager")
-                        if not loaded then
-                            UIErrorsFrame:AddMessage("Unable to load AddOn Manager: "..(reason or "unknown error"), 1, 0, 0)
-                            return
+                    if not AddonList then
+                        if _G.LoadAddOn then
+                            local loaded, reason = _G.LoadAddOn("Blizzard_AddOnManager")
+                            if not loaded then
+                                UIErrorsFrame:AddMessage("Unable to load AddOn Manager: "..(reason or "unknown error"), 1, 0, 0)
+                                return
+                            end
                         end
                     end
-                    if ToggleAddOnManager then
-                        ToggleAddOnManager()
-                    elseif InterfaceOptionsFrame_OpenToCategory then
-                        InterfaceOptionsFrame_OpenToCategory("AddOns")
+                    if AddonList then
+                        if AddonList:IsShown() then
+                            AddonList:Hide()
+                        else
+                            AddonList:Show()
+                        end
                     end
                 end)
             else
