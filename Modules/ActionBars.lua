@@ -547,29 +547,36 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hide TextOverlayContainer completely - it's the source of rectangles
+    -- Keep TextOverlayContainer but hide ONLY the background texture atlas
     if btn.TextOverlayContainer then
-        btn.TextOverlayContainer:SetParent(nil)
-        btn.TextOverlayContainer:Hide()
-        btn.TextOverlayContainer:SetAlpha(0)
+        -- The container uses an atlas for the background - disable it
+        btn.TextOverlayContainer:SetBackdrop(nil)
+        
+        -- Try to access and disable the background directly
+        local bg = btn.TextOverlayContainer:GetRegions()
+        if bg and bg:GetObjectType() == "Texture" then
+            bg:SetTexture(nil)
+            bg:SetAlpha(0)
+        end
+        
+        -- Keep the container and its text visible
+        btn.TextOverlayContainer:Show()
+        btn.TextOverlayContainer:SetAlpha(1)
     end
     
-    -- Fix highlight to match button borders properly
+    -- Fix highlight to match full button area (no insets)
     local highlight = btn:GetHighlightTexture()
     if highlight then
         highlight:ClearAllPoints()
-        highlight:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -1)
-        highlight:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -1, 1)
+        highlight:SetAllPoints(btn)
         highlight:SetDrawLayer("HIGHLIGHT")
     end
     
-    -- Style hotkey text (use the button's HotKey, not from TextOverlayContainer)
+    -- Style hotkey text
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
-    if hotkey and hotkey:GetParent() ~= btn.TextOverlayContainer then
+    if hotkey then
         if db.showHotkeys then
             hotkey:Show()
-            hotkey:ClearAllPoints()
-            hotkey:SetPoint("TOPRIGHT", btn, "TOPRIGHT", 2, -2)
             hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
             hotkey:SetTextColor(1, 1, 1)
             hotkey:SetDrawLayer("OVERLAY", 7)
