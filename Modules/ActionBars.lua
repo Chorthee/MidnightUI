@@ -434,27 +434,31 @@ function AB:UpdateBar(barKey)
     container:ClearAllPoints()
     container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
     
-    -- Layout buttons
+    -- Layout buttons FIRST
     self:LayoutButtons(container, barKey)
+    
+    -- CRITICAL: Always re-skin buttons after layout to ensure they stay skinned
+    if self.db.profile.skinButtons and container.buttons then
+        for _, btn in ipairs(container.buttons) do
+            -- Force re-skin by temporarily removing the flag
+            btn.muiSkinned = nil
+            self:SkinButton(btn)
+        end
+    end
     
     -- Update fading
     self:UpdateBarFading(barKey)
     
-    -- CHANGED: Drag frame visibility now controlled by Move Mode only
-    -- Show drag frame only in Move Mode, hide otherwise
+    -- Drag frame visibility controlled by Move Mode
     if MidnightUI.moveMode then
         container.dragFrame:Show()
         container.dragFrame:EnableMouse(true)
-        -- Make buttons translucent in Move Mode
-        self:SetButtonsAlpha(container, 0.2)
     else
         container.dragFrame:Hide()
         container.dragFrame:EnableMouse(false)
-        -- Restore button visibility when not in Move Mode
-        self:SetButtonsAlpha(container, 1.0)
     end
     
-    -- Special handling for MainMenuBar - ensure it stays contained
+    -- Special handling for MainMenuBar
     if barKey == "MainMenuBar" and container.blizzBar then
         container.blizzBar:Show()
     end
@@ -553,8 +557,11 @@ function AB:SetButtonsAlpha(container, alpha)
     
     for _, btn in ipairs(container.buttons) do
         if btn then
-            -- Set alpha for the button and all its visible elements
-            btn:SetAlpha(alpha)
+            -- CHANGED: Only set alpha on the button itself, not all elements
+            -- This prevents the skin from being affected
+            if btn.muiBg then
+                btn.muiBg:SetAlpha(alpha)
+            end
         end
     end
 end
@@ -578,33 +585,40 @@ function AB:SkinAllButtons()
 end
 
 function AB:SkinButton(btn)
-    if not btn or btn.muiSkinned then return end
+    if not btn then return end
     
-    -- Create dark background
+    -- REMOVED: if btn.muiSkinned then return end
+    -- We want to be able to re-skin buttons when needed
+    
+    -- Create dark background if it doesn't exist
     if not btn.muiBg then
-        btn.muiBg = btn:CreateTexture(nil, "BACKGROUND")
+        btn.muiBg = btn:CreateTexture(nil, "BACKGROUND", nil, -8)
         btn.muiBg:SetAllPoints(btn)
         btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
     end
+    
+    -- Always ensure background is visible
+    btn.muiBg:Show()
+    btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
     
     -- Trim icon edges for square look
     local icon = btn.icon or _G[btn:GetName() and btn:GetName().."Icon"]
     if icon then
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        icon:Show()
     end
     
     -- Hide default textures
     if btn.Border then btn.Border:SetAlpha(0) end
     if btn.NormalTexture then 
         local nt = btn.NormalTexture
-        if nt.SetAlpha then nt:SetAlpha(0) end
+        if nt and nt.SetAlpha then nt:SetAlpha(0) end
     end
     if btn.SlotBackground then btn.SlotBackground:SetAlpha(0) end
     
     -- Special handling for MainMenuBar buttons
     local btnName = btn:GetName()
     if btnName and btnName:match("^ActionButton%d+$") then
-        -- Remove Blizzard's special positioning
         btn:SetParent(bars["MainMenuBar"])
         btn.ignoreFramePositionManager = true
     end
