@@ -70,7 +70,7 @@ function Skin:OnDBReady()
             skinMinimap = true,
             skinTooltips = true,
             skinChatFrames = false,
-            skinUnitFrames = true,
+            skinUnitFrames = false,  -- Disabled by default due to Blizzard conflicts
             skinBags = true,
             skinBlizzardFrames = true,
             buttonBackgroundColor = {0.1, 0.1, 0.1, 0.8},
@@ -636,19 +636,8 @@ function Skin:HookDynamicFrames()
         self:ApplyFrameSkin(AddonCompartmentFrame)
     end
     
-    -- Hook encounter journal
-    hooksecurefunc("EncounterJournal_DisplayInstance", function()
-        if EncounterJournal then
-            Skin:ApplyFrameSkin(EncounterJournal)
-        end
-    end)
-    
-    -- Hook merchant frame
-    hooksecurefunc("MerchantFrame_Update", function()
-        if MerchantFrame then
-            Skin:ApplyFrameSkin(MerchantFrame)
-        end
-    end)
+    -- Note: Removed hooks for EncounterJournal_DisplayInstance and MerchantFrame_Update
+    -- as these functions don't exist in WoW 12.0 and cause errors
 end
 -- ============================================================================
 -- CHAT FRAME SKINNING
@@ -713,6 +702,52 @@ function Skin:GetOptions()
                     self.db.profile.skinActionBars = v
                     if v then
                         self:SkinActionBarButtons()
+                    else
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinUnitFrames = {
+                name = "Skin Unit Frames (Experimental)",
+                desc = "Apply skin to player, target, party, and raid frames. WARNING: May conflict with Blizzard unit frames. Disable if you experience errors.",
+                type = "toggle",
+                order = 12,
+                width = "full",
+                get = function() return self.db.profile.skinUnitFrames end,
+                set = function(_, v)
+                    self.db.profile.skinUnitFrames = v
+                    C_UI.Reload()
+                end
+            },
+            skinBags = {
+                name = "Skin Bags",
+                desc = "Apply skin to bags and bank frames",
+                type = "toggle",
+                order = 13,
+                width = "full",
+                get = function() return self.db.profile.skinBags end,
+                set = function(_, v)
+                    self.db.profile.skinBags = v
+                    if v then
+                        self:SkinBags()
+                    else
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinBlizzardFrames = {
+                name = "Skin Blizzard UI Frames",
+                desc = "Apply skin to character panel, spellbook, talents, collections, etc.",
+                type = "toggle",
+                order = 14,
+                width = "full",
+                get = function() return self.db.profile.skinBlizzardFrames end,
+                set = function(_, v)
+                    self.db.profile.skinBlizzardFrames = v
+                    if v then
+                        self:SkinBlizzardFrames()
+                    else
+                        C_UI.Reload()
                     end
                 end
             },
@@ -720,7 +755,7 @@ function Skin:GetOptions()
                 name = "Skin Tooltips",
                 desc = "Apply skin to game tooltips",
                 type = "toggle",
-                order = 12,
+                order = 15,
                 width = "full",
                 get = function() return self.db.profile.skinTooltips end,
                 set = function(_, v)
@@ -734,7 +769,7 @@ function Skin:GetOptions()
                 name = "Skin Chat Frames",
                 desc = "Apply skin to chat windows",
                 type = "toggle",
-                order = 13,
+                order = 16,
                 width = "full",
                 get = function() return self.db.profile.skinChatFrames end,
                 set = function(_, v)
