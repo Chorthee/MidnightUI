@@ -437,6 +437,7 @@ function AB:CreateBar(barKey, config)
                 if DEFAULT_CHAT_FRAME then
                     local p, relTo, relP, px, py = container:GetPoint()
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
                 end
                 AB:SaveBarPosition(barKey)
                 return
