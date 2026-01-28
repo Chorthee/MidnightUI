@@ -82,6 +82,12 @@ function Skin:OnDBReady()
     
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     print("|cff00ff00[Skins]|r Registered for PLAYER_ENTERING_WORLD")
+    
+    -- Immediately trigger skinning since we may have already entered world
+    C_Timer.After(0.1, function()
+        print("|cff00ff00[Skins]|r Manually triggering PLAYER_ENTERING_WORLD handler")
+        self:PLAYER_ENTERING_WORLD()
+    end)
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
