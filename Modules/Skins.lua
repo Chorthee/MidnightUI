@@ -202,7 +202,7 @@ function Skin:ApplyFrameSkin(frame, skinName)
     
     local skin = SKINS[skinName] or SKINS["Midnight"]
     
-    -- Strip all Blizzard decorative textures
+    -- Strip all Blizzard decorative textures FIRST
     self:StripBlizzardTextures(frame)
     
     -- Ensure frame has BackdropTemplate mixin
@@ -222,7 +222,7 @@ function Skin:ApplyFrameSkin(frame, skinName)
         return
     end
     
-    -- Apply clean modern backdrop
+    -- Apply clean modern backdrop with higher draw layer
     frame:SetBackdrop(skin.backdrop)
     frame:SetBackdropColor(unpack(skin.bgColor))
     
@@ -230,7 +230,17 @@ function Skin:ApplyFrameSkin(frame, skinName)
         frame:SetBackdropBorderColor(unpack(skin.borderColor))
     end
     
-    -- Skin child frames
+    -- Force backdrop to show
+    if frame.SetBackdropColor then
+        frame:SetBackdropColor(unpack(skin.bgColor))
+    end
+    
+    -- Skin the close button
+    if frame.CloseButton then
+        self:SkinCloseButton(frame.CloseButton)
+    end
+    
+    -- Skin child frames AFTER applying backdrop
     self:SkinChildFrames(frame)
 end
 
@@ -240,67 +250,95 @@ end
 function Skin:StripBlizzardTextures(frame)
     if not frame then return end
     
-    -- Common Blizzard texture names to hide
-    local texturesToHide = {
-        "TopLeft", "TopRight", "BotLeft", "BotRight",
-        "TopMiddle", "BottomMiddle", "LeftMiddle", "RightMiddle",
-        "Bg", "BG", "Background",
-        "TopTileStreaks",
-        "Portrait", "PortraitFrame",
-        "TitleBg", "TitleText",
-        "Inset",
-        "InsetBorderTop", "InsetBorderBottom", "InsetBorderLeft", "InsetBorderRight",
-        "InsetBorderTopLeft", "InsetBorderTopRight", "InsetBorderBottomLeft", "InsetBorderBottomRight",
+    -- Hide NineSlice (WoW 12.0 border system)
+    if frame.NineSlice then
+        frame.NineSlice:SetAlpha(0)
+        frame.NineSlice:Hide()
+    end
+    
+    -- Hide Portrait Container
+    if frame.PortraitContainer then
+        frame.PortraitContainer:SetAlpha(0)
+        frame.PortraitContainer:Hide()
+    end
+    
+    -- Hide Title Container
+    if frame.TitleContainer then
+        if frame.TitleContainer.TitleText then
+            -- Keep the text but hide the background
+            local titleText = frame.TitleContainer.TitleText
+            titleText:SetParent(frame)
+            titleText:ClearAllPoints()
+            titleText:SetPoint("TOP", frame, "TOP", 0, -5)
+        end
+        frame.TitleContainer:SetAlpha(0)
+    end
+    
+    -- Hide Bg texture
+    if frame.Bg then
+        frame.Bg:SetAlpha(0)
+        frame.Bg:Hide()
+    end
+    
+    -- Hide TopTileStreaks
+    if frame.TopTileStreaks then
+        frame.TopTileStreaks:SetAlpha(0)
+        frame.TopTileStreaks:Hide()
+    end
+    
+    -- Hide all edge textures
+    local edgeTextures = {
         "TopEdge", "BottomEdge", "LeftEdge", "RightEdge",
-        "Corner",
+        "TopLeftCorner", "TopRightCorner", "BottomLeftCorner", "BottomRightCorner",
+        "Center"
     }
     
-    -- Hide named regions
-    for _, texName in ipairs(texturesToHide) do
-        local region = frame[texName]
-        if region then
-            if region.Hide then region:Hide() end
-            if region.SetAlpha then region:SetAlpha(0) end
+    for _, texName in ipairs(edgeTextures) do
+        if frame[texName] then
+            frame[texName]:SetAlpha(0)
+            frame[texName]:Hide()
         end
     end
     
-    -- Hide all textures with "Portrait" or "Border" in the name
-    if frame.GetName then
-        local frameName = frame:GetName()
-        if frameName then
-            for _, suffix in ipairs({"Border", "Portrait", "Bg", "TopTileStreaks", "Inset"}) do
-                local region = _G[frameName..suffix]
-                if region then
-                    if region.Hide then region:Hide() end
-                    if region.SetAlpha then region:SetAlpha(0) end
+    -- Hide Inset
+    if frame.Inset then
+        if frame.Inset.Bg then
+            frame.Inset.Bg:SetAlpha(0)
+            frame.Inset.Bg:Hide()
+        end
+        if frame.Inset.NineSlice then
+            frame.Inset.NineSlice:SetAlpha(0)
+            frame.Inset.NineSlice:Hide()
+        end
+    end
+    
+    -- Hide all textures named with common patterns
+    for _, region in pairs({frame:GetRegions()}) do
+        if region and region.GetObjectType then
+            local success, objType = pcall(function() return region:GetObjectType() end)
+            if success and objType == "Texture" then
+                local texturePath = region:GetTexture and region:GetTexture()
+                if texturePath then
+                    local path = tostring(texturePath):lower()
+                    -- Hide interface art textures
+                    if path:find("interface") and (
+                        path:find("frame") or 
+                        path:find("border") or
+                        path:find("portrait") or
+                        path:find("corner") or
+                        path:find("parchment") or
+                        path:find("characterframe") or
+                        path:find("paperdoll") or
+                        path:find("questframe") or
+                        path:find("gossip") or
+                        path:find("merchant") or
+                        path:find("mail")) then
+                        region:SetAlpha(0)
+                        region:Hide()
+                    end
                 end
             end
         end
-    end
-    
-    -- Iterate through all regions and hide textures
-    local regions = {frame:GetRegions()}
-    for _, region in ipairs(regions) do
-        if region:GetObjectType() == "Texture" then
-            local texPath = region:GetTexture()
-            if texPath then
-                local texPathLower = string.lower(tostring(texPath))
-                -- Hide interface art textures
-                if string.find(texPathLower, "interface") and 
-                   (string.find(texPathLower, "frame") or 
-                    string.find(texPathLower, "border") or
-                    string.find(texPathLower, "portrait") or
-                    string.find(texPathLower, "corner")) then
-                    region:SetAlpha(0)
-                    region:Hide()
-                end
-            end
-        end
-    end
-    
-    -- Hide close button textures but keep it functional
-    if frame.CloseButton then
-        self:SkinCloseButton(frame.CloseButton)
     end
 end
 
@@ -347,28 +385,77 @@ end
     Skins a close button
 ]]
 function Skin:SkinCloseButton(btn)
-    if not btn then return end
+    if not btn or btn.muiCloseSkinned then return end
     
-    -- Hide default textures
+    -- Completely strip the button textures
+    for i = 1, btn:GetNumRegions() do
+        local region = select(i, btn:GetRegions())
+        if region and region.GetObjectType then
+            local success, objType = pcall(function() return region:GetObjectType() end)
+            if success and objType == "Texture" then
+                region:SetTexture(nil)
+                region:Hide()
+            end
+        end
+    end
+    
+    -- Hide all button textures
     if btn.SetNormalTexture then btn:SetNormalTexture("") end
     if btn.SetPushedTexture then btn:SetPushedTexture("") end
     if btn.SetHighlightTexture then btn:SetHighlightTexture("") end
+    if btn.SetDisabledTexture then btn:SetDisabledTexture("") end
     
-    -- Create custom X
+    -- Size the button
+    btn:SetSize(20, 20)
+    
+    -- Create dark background
+    if BackdropTemplateMixin and not btn.SetBackdrop then
+        Mixin(btn, BackdropTemplateMixin)
+        if btn.OnBackdropLoaded then
+            btn:OnBackdropLoaded()
+        end
+    end
+    
+    if btn.SetBackdrop then
+        btn:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 0, right = 0, top = 0, bottom = 0 }
+        })
+        btn:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        btn:SetBackdropBorderColor(0, 0, 0, 1)
+    end
+    
+    -- Create custom X text
     if not btn.customX then
         btn.customX = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-        btn.customX:SetPoint("CENTER", 1, 0)
+        btn.customX:SetPoint("CENTER", 0, 0)
         btn.customX:SetText("×")
-        btn.customX:SetTextColor(0.8, 0.2, 0.2)
+        btn.customX:SetTextColor(0.8, 0.2, 0.2, 1)
+        btn.customX:SetFont("Fonts\\FRIZQT__.TTF", 18, "OUTLINE")
     end
     
     -- Hover effect
-    btn:SetScript("OnEnter", function(self)
-        self.customX:SetTextColor(1, 0, 0)
+    btn:HookScript("OnEnter", function(self)
+        if self.customX then
+            self.customX:SetTextColor(1, 0, 0, 1)
+        end
+        if self.SetBackdropColor then
+            self:SetBackdropColor(0.3, 0.1, 0.1, 1)
+        end
     end)
-    btn:SetScript("OnLeave", function(self)
-        self.customX:SetTextColor(0.8, 0.2, 0.2)
+    
+    btn:HookScript("OnLeave", function(self)
+        if self.customX then
+            self.customX:SetTextColor(0.8, 0.2, 0.2, 1)
+        end
+        if self.SetBackdropColor then
+            self:SetBackdropColor(0.2, 0.2, 0.2, 1)
+        end
     end)
+    
+    btn.muiCloseSkinned = true
 end
 
 --[[
