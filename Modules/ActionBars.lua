@@ -387,6 +387,10 @@ function AB:CreateBar(barKey, config)
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
                 end
+                container:ClearAllPoints()
+                container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
+                AB:SaveBarPosition(barKey)
+                return
             else
                 -- Only check snapping to other bars if NOT snapping to center
                 if bars then
