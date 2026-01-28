@@ -658,17 +658,10 @@ function AB:UpdateButtonElements(btn)
         checked:Hide()
     end
     
-    -- Debug: Print all textures to identify green border
-    if btn:GetName() == "ActionButton1" then
-        print("=== Button Textures Debug ===")
-        for i = 1, btn:GetNumRegions() do
-            local region = select(i, btn:GetRegions())
-            if region:GetObjectType() == "Texture" then
-                local r, g, b, a = region:GetVertexColor()
-                print(string.format("%s: R=%.2f G=%.2f B=%.2f A=%.2f", 
-                    region:GetName() or "unnamed", r or 0, g or 0, b or 0, a or 0))
-            end
-        end
+    -- Hide the green equipped item Border texture
+    if btn.Border then
+        btn.Border:SetAlpha(0)
+        btn.Border:Hide()
     end
     
     -- Hide NormalTexture (the default button border/background)
