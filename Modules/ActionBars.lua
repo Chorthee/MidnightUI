@@ -362,10 +362,12 @@ function AB:CreateBar(barKey, config)
                         local selfBottom = container:GetBottom()
                         
                         if otherLeft and selfLeft then
-                            -- Check if bars have vertical overlap (needed for horizontal snapping)
+                            -- Check if bars have vertical overlap AND are not horizontally overlapping
                             local hasVerticalOverlap = not (selfBottom > otherTop or selfTop < otherBottom)
+                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
                             
-                            if hasVerticalOverlap then
+                            -- Only snap horizontally if they have vertical overlap but NO horizontal overlap
+                            if hasVerticalOverlap and not hasHorizontalOverlap then
                                 -- Snap right edge of self to left edge of other (self on left)
                                 local rightToLeftDist = math.abs(selfRight - otherLeft)
                                 if rightToLeftDist < snapThreshold and not snappedX then
@@ -379,10 +381,8 @@ function AB:CreateBar(barKey, config)
                                 end
                             end
                             
-                            -- Check if bars have horizontal overlap (needed for vertical snapping)
-                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
-                            
-                            if hasHorizontalOverlap then
+                            -- Only snap vertically if they have horizontal overlap but NO vertical overlap
+                            if hasHorizontalOverlap and not hasVerticalOverlap then
                                 -- Snap bottom edge of self to top edge of other (self below)
                                 local bottomToTopDist = math.abs(selfBottom - otherTop)
                                 if bottomToTopDist < snapThreshold and not snappedY then
