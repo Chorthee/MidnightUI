@@ -786,14 +786,10 @@ function AB:UpdateButtonElements(btn)
         end)
     end
     
-    -- Handle NormalTexture (the default button border/background)
+    -- Hide NormalTexture (the default button border/background)
     local normalTex = btn:GetNormalTexture()
     if normalTex then
-        -- Size it to match the button
-        normalTex:ClearAllPoints()
-        normalTex:SetAllPoints(btn)
-        normalTex:SetTexCoord(0, 1, 0, 1)
-        -- We'll control visibility in UpdateEmptyButtons
+        normalTex:SetAlpha(0)
     end
     
     -- Hide border textures that might show as rectangles
@@ -844,6 +840,29 @@ function AB:UpdateEmptyButtons(barKey)
     
     if not container or not container.buttons or not db then return end
     
+    -- Check if this bar should even be visible for this class
+    local barShouldBeHidden = false
+    if barKey == "PetActionBar" then
+        -- Hide if player has no pet action bar
+        barShouldBeHidden = not HasPetUI()
+    elseif barKey == "StanceBar" then
+        -- Hide if player has no stance bar
+        barShouldBeHidden = GetNumShapeshiftForms() == 0
+    end
+    
+    -- If bar shouldn't exist for this class, hide everything including keybinds
+    if barShouldBeHidden then
+        for _, btn in ipairs(container.buttons) do
+            if btn then
+                btn:Hide()
+                if btn.customHotkey then
+                    btn.customHotkey:Hide()
+                end
+            end
+        end
+        return
+    end
+    
     -- Override Blizzard's empty button hiding if we want to show empty buttons
     if barKey ~= "PetActionBar" and barKey ~= "StanceBar" then
         local settings = Settings.GetCategory("ActionBars")
@@ -871,11 +890,9 @@ function AB:UpdateEmptyButtons(barKey)
             local hasAction = actionID and HasAction(actionID)
             
             if db.showEmpty then
-                -- Force show all buttons
-                btn:Show()
+                -- Show all buttons
                 btn:SetAlpha(1)
-                
-                -- Show/hide icon based on whether there's an action
+                btn:Show()
                 if btn.icon then
                     if hasAction then
                         btn.icon:SetAlpha(1)
@@ -883,19 +900,6 @@ function AB:UpdateEmptyButtons(barKey)
                     else
                         btn.icon:SetAlpha(0)
                         btn.icon:Hide()
-                    end
-                end
-                
-                -- Show normal texture for empty buttons
-                local normalTexture = btn:GetNormalTexture()
-                if normalTexture then
-                    if hasAction then
-                        -- Hide normal texture when there's an icon
-                        normalTexture:SetAlpha(0)
-                    else
-                        -- Show normal texture for empty buttons
-                        normalTexture:SetAlpha(0.5)
-                        normalTexture:Show()
                     end
                 end
             else
@@ -907,12 +911,11 @@ function AB:UpdateEmptyButtons(barKey)
                         btn.icon:SetAlpha(1)
                         btn.icon:Show()
                     end
-                    local normalTexture = btn:GetNormalTexture()
-                    if normalTexture then
-                        normalTexture:SetAlpha(0)
-                    end
                 else
                     btn:Hide()
+                    if btn.customHotkey then
+                        btn.customHotkey:Hide()
+                    end
                 end
             end
         end
