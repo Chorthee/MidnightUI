@@ -53,16 +53,6 @@ function UF:SkinFrame(frame)
         end
     end
     
-    -- 3. Hide Blizzard Art (Modern API safe approach)
-    -- We don't remove textures to avoid taints, we just set alpha to 0
-    if frame.TextureFrame then
-        frame.TextureFrame:SetAlpha(0)
-    end
-    
-    -- Specific handling for PlayerFrame's circular portrait
-    if frame == PlayerFrame and PlayerFrame.PlayerFrameContent and PlayerFrame.PlayerFrameContent.PlayerFrameContainer then
-        -- Hooking into the container to hide the default frame ring
-        local container = PlayerFrame.PlayerFrameContent.PlayerFrameContainer
-        if container.FrameTexture then container.FrameTexture:SetAlpha(0) end
-    end
+    -- Blizzard art restoration: do not hide or set alpha to Blizzard art/textures
+    -- All Blizzard art and textures are preserved
 end
