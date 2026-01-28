@@ -345,10 +345,13 @@ function AB:CollectButtons(container, barKey)
     local buttons = {}
     
     if barKey == "MainMenuBar" then
+        print("  Collecting ActionButtons...")
         for i = 1, 12 do
             local btn = _G["ActionButton"..i]
+            print("    ActionButton" .. i .. " = " .. tostring(btn))
             if btn then table.insert(buttons, btn) end
         end
+        print("  Found " .. #buttons .. " ActionButtons")
     elseif barKey == "PetActionBar" then
         for i = 1, 10 do
             local btn = _G["PetActionButton"..i]
