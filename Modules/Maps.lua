@@ -43,38 +43,24 @@ local defaults = {
 -- INITIALIZATION
 -- -----------------------------------------------------------------------------
 function Maps:OnInitialize()
-    print("|cff00ff00MidnightUI:|r Maps:OnInitialize() called")
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
-    print("|cff00ff00MidnightUI:|r Maps registered for MIDNIGHTUI_DB_READY message")
 end
 
 function Maps:OnDBReady()
-    print("|cff00ff00MidnightUI:|r Maps:OnDBReady() called!")
-    
     if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules then
-        print("|cffff0000MidnightUI:|r Maps - MidnightUI.db not ready!")
         self:Disable()
         return
     end
     
     if not MidnightUI.db.profile.modules.maps then 
-        print("|cffff0000MidnightUI:|r Maps module is disabled in config")
         self:Disable()
         return 
     end
     
-    print("|cff00ff00MidnightUI:|r Maps initializing database...")
-    
     self.db = MidnightUI.db:RegisterNamespace("Maps", defaults)
     
-    print("|cff00ff00MidnightUI:|r Maps database initialized")
-    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    
-    -- Register for Move Mode changes using AceEvent's message system
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    
-    print("|cff00ff00MidnightUI:|r Maps module loaded")
     
     -- Manually call setup since PLAYER_ENTERING_WORLD already fired
     C_Timer.After(0.1, function()
@@ -83,8 +69,6 @@ function Maps:OnDBReady()
 end
 
 function Maps:PLAYER_ENTERING_WORLD()
-    print("|cff00ff00MidnightUI:|r Maps:PLAYER_ENTERING_WORLD() called")
-    
     -- CRITICAL FIX: Stub out Layout function to prevent errors
     if not Minimap.Layout or Minimap.Layout == nil then
         Minimap.Layout = function() end
@@ -96,8 +80,6 @@ function Maps:PLAYER_ENTERING_WORLD()
     self:SetupElements()
     self:SkinBlizzardButtons()
     self:UpdateLayout()
-    
-    print("|cff00ff00MidnightUI:|r Maps setup complete")
 end
 
 -- -----------------------------------------------------------------------------

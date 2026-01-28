@@ -4,26 +4,17 @@ local UIButtons = MidnightUI:NewModule("UIButtons", "AceEvent-3.0")
 local buttons = {}
 
 function UIButtons:OnInitialize()
-    print("|cff00ff00MidnightUI:|r UIButtons:OnInitialize() called")
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
-    print("|cff00ff00MidnightUI:|r UIButtons registered for MIDNIGHTUI_DB_READY message")
 end
 
 function UIButtons:OnDBReady()
-    print("|cff00ff00MidnightUI:|r UIButtons:OnDBReady() called!")
-    
-    -- Check if module is enabled
     if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules then
-        print("|cffff0000MidnightUI:|r UIButtons - MidnightUI.db not ready!")
         return
     end
     
     if not MidnightUI.db.profile.modules.buttons then 
-        print("|cffff0000MidnightUI:|r UIButtons module is disabled in config")
         return 
     end
-    
-    print("|cff00ff00MidnightUI:|r UIButtons initializing database...")
     
     self.db = MidnightUI.db:RegisterNamespace("UIButtons", {
         profile = {
@@ -40,14 +31,8 @@ function UIButtons:OnDBReady()
         }
     })
     
-    print("|cff00ff00MidnightUI:|r UIButtons database initialized")
-    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    
-    -- Register for Move Mode changes using AceEvent's message system
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    
-    print("|cff00ff00MidnightUI:|r UIButtons module loaded")
     
     -- Manually call setup since PLAYER_ENTERING_WORLD already fired
     C_Timer.After(0.1, function()
@@ -56,15 +41,11 @@ function UIButtons:OnDBReady()
 end
 
 function UIButtons:PLAYER_ENTERING_WORLD()
-    print("|cff00ff00MidnightUI:|r UIButtons:PLAYER_ENTERING_WORLD() called")
     self:CreateButtons()
     self:UpdateLayout()
-    print("|cff00ff00MidnightUI:|r UIButtons created and positioned")
 end
 
 function UIButtons:CreateButtons()
-    print("|cff00ff00MidnightUI:|r UIButtons:CreateButtons() starting...")
-    
     local buttonData = {
         reload = {
             name = "Reload",
@@ -110,14 +91,10 @@ function UIButtons:CreateButtons()
         }
     }
 
-    local buttonCount = 0
     for key, data in pairs(buttonData) do
         local config = self.db.profile.buttons[key]
-        print("|cff00ff00MidnightUI:|r Checking button '"..key.."': enabled="..tostring(config and config.enabled))
         
         if config and config.enabled then
-            buttonCount = buttonCount + 1
-            print("|cff00ff00MidnightUI:|r Creating button '"..key.."'...")
             
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
@@ -174,13 +151,8 @@ function UIButtons:CreateButtons()
             btn:EnableMouse(true)
             
             buttons[key] = btn
-            
-            -- DEBUG: Print button position after creation
-            print("|cff00ff00MidnightUI:|r Button '"..key.."' created - shown="..tostring(btn:IsShown())..", alpha="..btn:GetAlpha()..", strata="..btn:GetFrameStrata())
         end
     end
-    
-    print("|cff00ff00MidnightUI:|r Total buttons created: "..buttonCount)
     
     -- Register for Move Mode changes to update the Move button color
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
@@ -195,8 +167,6 @@ function UIButtons:OnMoveModeChanged(event, enabled)
 end
 
 function UIButtons:UpdateLayout()
-    print("|cff00ff00MidnightUI:|r UIButtons:UpdateLayout() called")
-    
     local sortedButtons = {}
     
     for key, btn in pairs(buttons) do
@@ -209,8 +179,6 @@ function UIButtons:UpdateLayout()
     local scale = self.db.profile.scale
     local spacing = self.db.profile.spacing
     
-    print("|cff00ff00MidnightUI:|r Positioning "..#sortedButtons.." buttons with scale="..scale..", spacing="..spacing)
-    
     -- Position buttons from right to left (reversed loop)
     for i = #sortedButtons, 1, -1 do
         local data = sortedButtons[i]
@@ -220,19 +188,15 @@ function UIButtons:UpdateLayout()
         if i == #sortedButtons then
             -- First button (rightmost) anchors to BOTTOMRIGHT
             data.btn:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 10)
-            print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned at BOTTOMRIGHT")
         else
             -- Subsequent buttons go to the left
             local nextBtn = sortedButtons[i+1].btn
             data.btn:SetPoint("RIGHT", nextBtn, "LEFT", -spacing, 0)
-            print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned to left of previous button")
         end
         
         -- Double check it's shown
         data.btn:Show()
     end
-    
-    print("|cff00ff00MidnightUI:|r UIButtons layout complete")
 end
 
 function UIButtons:GetOptions()
