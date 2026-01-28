@@ -547,19 +547,17 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hide TextOverlayContainer's background textures
+    -- Completely hide TextOverlayContainer to remove rectangles
     if btn.TextOverlayContainer then
-        -- Remove all textures but keep fontstrings
-        for i = 1, btn.TextOverlayContainer:GetNumRegions() do
-            local region = select(i, btn.TextOverlayContainer:GetRegions())
-            if region then
-                local objType = region:GetObjectType()
-                if objType == "Texture" then
-                    region:SetTexture(nil)
-                    region:Hide()
-                end
-            end
-        end
+        btn.TextOverlayContainer:SetAlpha(0)
+        btn.TextOverlayContainer:Hide()
+    end
+    
+    -- Fix highlight texture to match button size
+    local highlight = btn:GetHighlightTexture()
+    if highlight then
+        highlight:ClearAllPoints()
+        highlight:SetAllPoints(btn.icon or btn)
     end
     
     -- Hotkey text styling
@@ -568,7 +566,7 @@ function AB:UpdateButtonElements(btn)
         if db.showHotkeys then
             hotkey:Show()
             hotkey:ClearAllPoints()
-            hotkey:SetPoint("TOPRIGHT", 2, -2)
+            hotkey:SetPoint("TOPRIGHT", btn.icon or btn, "TOPRIGHT", 2, -2)
             hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
             hotkey:SetTextColor(1, 1, 1)
             hotkey:SetDrawLayer("OVERLAY", 7)
