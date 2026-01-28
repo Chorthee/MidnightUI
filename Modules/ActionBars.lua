@@ -997,59 +997,76 @@ function AB:UpdateEmptyButtons(barKey)
         end
     end
     
-    for _, btn in ipairs(container.buttons) do
+    for i, btn in ipairs(container.buttons) do
         if btn then
-            -- Get action ID - different methods for different button types
-            local actionID = btn.action
-            if not actionID and btn.GetPagedID then
-                actionID = btn:GetPagedID()
-            elseif not actionID and btn.GetActionID then
-                actionID = btn:GetActionID()
-            end
-            
-            local hasAction = actionID and HasAction(actionID)
-            
-            if db.showEmpty then
-                -- Show all buttons
+            if barKey == "StanceBar" then
+                local icon = btn.Icon or btn.icon or _G[btn:GetName().."Icon"]
+                local texture = nil
+                if GetShapeshiftFormInfo then
+                    texture = select(1, GetShapeshiftFormInfo(i))
+                end
                 btn:SetAlpha(1)
                 btn:Show()
-                if btn.icon then
-                    if hasAction then
-                        btn.icon:SetAlpha(1)
-                        btn.icon:Show()
-                        -- Hide empty background when there's an action
-                        if btn.emptyBackground then btn.emptyBackground:Hide() end
-                        if btn.emptyBorder then btn.emptyBorder:Hide() end
-                    else
-                        btn.icon:SetAlpha(0)
-                        btn.icon:Hide()
-                        -- Show empty background for empty buttons
-                        if btn.emptyBackground then btn.emptyBackground:Show() end
-                        if btn.emptyBorder then btn.emptyBorder:Show() end
-                    end
+                if icon and texture then
+                    icon:SetTexture(texture)
+                    icon:SetAlpha(1)
+                    icon:Show()
+                    if btn.emptyBackground then btn.emptyBackground:Hide() end
+                    if btn.emptyBorder then btn.emptyBorder:Hide() end
                 else
-                    -- No icon property, show empty background
+                    if icon then
+                        icon:SetAlpha(0)
+                        icon:Hide()
+                    end
                     if btn.emptyBackground then btn.emptyBackground:Show() end
                     if btn.emptyBorder then btn.emptyBorder:Show() end
                 end
             else
-                -- Hide empty buttons
-                if hasAction then
+                -- ...existing code for other bars...
+                local actionID = btn.action
+                if not actionID and btn.GetPagedID then
+                    actionID = btn:GetPagedID()
+                elseif not actionID and btn.GetActionID then
+                    actionID = btn:GetActionID()
+                end
+                local hasAction = actionID and HasAction(actionID)
+                if db.showEmpty then
                     btn:SetAlpha(1)
                     btn:Show()
                     if btn.icon then
-                        btn.icon:SetAlpha(1)
-                        btn.icon:Show()
+                        if hasAction then
+                            btn.icon:SetAlpha(1)
+                            btn.icon:Show()
+                            if btn.emptyBackground then btn.emptyBackground:Hide() end
+                            if btn.emptyBorder then btn.emptyBorder:Hide() end
+                        else
+                            btn.icon:SetAlpha(0)
+                            btn.icon:Hide()
+                            if btn.emptyBackground then btn.emptyBackground:Show() end
+                            if btn.emptyBorder then btn.emptyBorder:Show() end
+                        end
+                    else
+                        if btn.emptyBackground then btn.emptyBackground:Show() end
+                        if btn.emptyBorder then btn.emptyBorder:Show() end
                     end
-                    if btn.emptyBackground then btn.emptyBackground:Hide() end
-                    if btn.emptyBorder then btn.emptyBorder:Hide() end
                 else
-                    btn:Hide()
-                    if btn.customHotkey then
-                        btn.customHotkey:Hide()
+                    if hasAction then
+                        btn:SetAlpha(1)
+                        btn:Show()
+                        if btn.icon then
+                            btn.icon:SetAlpha(1)
+                            btn.icon:Show()
+                        end
+                        if btn.emptyBackground then btn.emptyBackground:Hide() end
+                        if btn.emptyBorder then btn.emptyBorder:Hide() end
+                    else
+                        btn:Hide()
+                        if btn.customHotkey then
+                            btn.customHotkey:Hide()
+                        end
+                        if btn.emptyBackground then btn.emptyBackground:Hide() end
+                        if btn.emptyBorder then btn.emptyBorder:Hide() end
                     end
-                    if btn.emptyBackground then btn.emptyBackground:Hide() end
-                    if btn.emptyBorder then btn.emptyBorder:Hide() end
                 end
             end
         end
