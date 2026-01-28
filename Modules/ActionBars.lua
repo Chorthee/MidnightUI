@@ -355,7 +355,6 @@ function AB:CreateBar(barKey, config)
     end)
     container.dragFrame:SetScript("OnDragStop", function(self)
         container:StopMovingOrSizing()
-        
         -- Snap to center and other bars if move mode active
         if MidnightUI.moveMode then
             local point, relativeTo, relativePoint, x, y = container:GetPoint()
@@ -371,6 +370,7 @@ function AB:CreateBar(barKey, config)
             local bestDistX, bestDistY = 9999, 9999
             local alignX = nil
             local alignTo = nil
+            local snapDebug = "none"
             -- Check snapping to other bars FIRST (higher priority)
             if bars then
                 for otherBarKey, otherBar in pairs(bars) do
@@ -386,16 +386,16 @@ function AB:CreateBar(barKey, config)
                             if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
                                 bestSnapX = x + (otherLeft - selfRight)
                                 bestDistX = rightToLeftDist
-                                -- Align left edge to other bar's left edge
                                 alignX = otherLeft
                                 alignTo = "left"
+                                snapDebug = "snap: right edge to other left"
                             end
                             if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
                                 bestSnapX = x + (otherRight - selfLeft)
                                 bestDistX = leftToRightDist
-                                -- Align right edge to other bar's right edge
                                 alignX = otherRight - selfWidth
                                 alignTo = "right"
+                                snapDebug = "snap: left edge to other right"
                             end
                             -- Vertical snapping (top-bottom adjacency)
                             local bottomToTopDist = math.abs(selfBottom - otherTop)
@@ -403,10 +403,12 @@ function AB:CreateBar(barKey, config)
                             if bottomToTopDist < snapThreshold and bottomToTopDist < bestDistY then
                                 bestSnapY = y + (otherTop - selfBottom)
                                 bestDistY = bottomToTopDist
+                                snapDebug = "snap: bottom to other top"
                             end
                             if topToBottomDist < snapThreshold and topToBottomDist < bestDistY then
                                 bestSnapY = y + (otherBottom - selfTop)
                                 bestDistY = topToBottomDist
+                                snapDebug = "snap: top to other bottom"
                             end
                         end
                     end
@@ -424,6 +426,7 @@ function AB:CreateBar(barKey, config)
                     relativeTo = UIParent
                     relativePoint = "BOTTOM"
                     bestSnapX = 0
+                    snapDebug = "snap: center to screen"
                 else
                     bestSnapX = x
                 end
@@ -433,6 +436,7 @@ function AB:CreateBar(barKey, config)
                 local selfCenterY = (selfTop + selfBottom) / 2
                 if math.abs(selfCenterY - screenCenterY) < snapThreshold * 2 then
                     bestSnapY = 0
+                    if snapDebug == "none" then snapDebug = "snap: center Y to screen" end
                 end
             end
             -- If alignX is set, use it to align left/right edges (pixel-perfect)
@@ -448,17 +452,18 @@ function AB:CreateBar(barKey, config)
             if alignX and alignTo then
                 local parentLeft = (relativeTo and relativeTo.GetLeft) and relativeTo:GetLeft() or (UIParent:GetLeft() or 0)
                 if alignTo == "left" and math.abs(selfRight - alignX) < snapThreshold then
-                    -- Snap right edge to other bar's left edge
                     finalX = alignX - parentLeft - selfWidth + (selfRight - selfLeft)
                 elseif alignTo == "right" and math.abs(selfLeft - alignX) < snapThreshold then
-                    -- Snap left edge to other bar's right edge
                     finalX = alignX - parentLeft
                 end
+            end
+            -- Debug print to chat
+            if snapDebug and DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] " .. barKey .. " " .. snapDebug)
             end
             container:ClearAllPoints()
             container:SetPoint(anchorPoint, relativeTo, relativePoint, finalX, finalY)
         end
-        
         AB:SaveBarPosition(barKey)
     end)
     container.dragFrame:SetScript("OnMouseUp", function(self, button)
