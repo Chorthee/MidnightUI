@@ -215,7 +215,22 @@ function AB:CreateBar(barKey, config)
         -- Show the Blizzard bar so its buttons are visible
         blizzBar:Show()
         blizzBar:SetAlpha(1)
-        
+
+        -- Special handling for StanceBar: parent Blizzard StanceBarFrame and its buttons
+        if barKey == "StanceBar" and StanceBarFrame then
+            StanceBarFrame:SetParent(container)
+            StanceBarFrame:ClearAllPoints()
+            StanceBarFrame:SetAllPoints(container)
+            StanceBarFrame:Show()
+            for i = 1, 10 do
+                local btn = _G["StanceButton"..i]
+                if btn then
+                    btn:SetParent(container)
+                    btn:Show()
+                end
+            end
+        end
+
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
             -- Unregister from EditModeManager completely
