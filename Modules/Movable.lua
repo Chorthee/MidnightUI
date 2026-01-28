@@ -96,7 +96,24 @@ function Movable:OnEnable()
     -- Listen for move mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", function(event, enabled)
         print("!!! MOVABLE RECEIVED MESSAGE !!! enabled=" .. tostring(enabled))
-        self:OnMoveModeChanged(event, enabled)
+        
+        -- Inline the grid show/hide logic
+        if enabled then
+            print("  Calling ShowGrid...")
+            if not gridFrame then
+                print("    Creating grid...")
+                Movable:CreateGrid()
+            end
+            print("    Showing grid frame")
+            gridFrame:Show()
+            print("    Grid shown=" .. tostring(gridFrame:IsShown()))
+        else
+            print("  Hiding grid...")
+            if gridFrame then
+                gridFrame:Hide()
+            end
+            print("    Grid hidden")
+        end
     end)
     print("Movable:OnEnable - Registered for MIDNIGHTUI_MOVEMODE_CHANGED")
 end
