@@ -189,6 +189,11 @@ function AB:CreateBar(barKey, config)
         
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
+            -- Unregister from EditModeManager completely
+            if EditModeManagerFrame then
+                EditModeManagerFrame:UnregisterFrame(blizzBar)
+            end
+            
             -- Completely detach from Blizzard's management
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
@@ -202,16 +207,19 @@ function AB:CreateBar(barKey, config)
             blizzBar:SetScript("OnHide", nil)
             blizzBar:SetScript("OnEvent", nil)
             
-            -- Parent to container FIRST
-            blizzBar:SetParent(container)
+            -- Kill Blizzard's positioning by hooking the functions
+            hooksecurefunc(blizzBar, "SetPoint", function(self)
+                if not self.midnightLock then
+                    self.midnightLock = true
+                    self:ClearAllPoints()
+                    self:SetPoint("CENTER", container, "CENTER", 0, 0)
+                    self.midnightLock = false
+                end
+            end)
             
-            -- Kill Blizzard's positioning by making the functions do nothing
-            local origSetPoint = blizzBar.SetPoint
-            blizzBar.SetPoint = function() end
-            blizzBar.ClearAllPoints = function() end
-            
-            -- Now use the original function to position it once
-            origSetPoint(blizzBar, "CENTER", container, "CENTER", 0, 0)
+            -- Position it in the container
+            blizzBar:ClearAllPoints()
+            blizzBar:SetPoint("CENTER", container, "CENTER", 0, 0)
             
             -- Make buttons parent to container instead of MainMenuBar
             for i = 1, 12 do
