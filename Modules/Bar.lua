@@ -1360,8 +1360,8 @@ function Bar:CreateBarFrame(id)
         function() return not Bar.db.profile.locked end
     )
     
-    -- Create nudge controls for the bar
-    local nudgeFrame = Movable:CreateNudgeControls(
+    -- Create compact arrow controls for this bar (like UIButtons)
+    local nudgeFrame = Movable:CreateContainerArrows(
         f,
         { offsetX = 0, offsetY = 0 },
         function()

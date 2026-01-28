@@ -321,17 +321,22 @@ function Movable:ShowNudgeControls(nudgeFrame, parentFrame)
     
     nudgeFrame:ClearAllPoints()
     
-    -- Position nudge frame relative to parent's CURRENT position
-    local parentX, parentY = parentFrame:GetCenter()
-    if parentX and parentY then
-        -- If parent is on right half of screen, put nudge on left
-        if parentX > UIParent:GetWidth() / 2 then
-            nudgeFrame:SetPoint("RIGHT", parentFrame, "LEFT", -10, 0)
-        else
-            nudgeFrame:SetPoint("LEFT", parentFrame, "RIGHT", 10, 0)
-        end
+    -- Special handling for Minimap - center the nudge frame on it
+    if parentFrame == Minimap then
+        nudgeFrame:SetPoint("CENTER", parentFrame, "CENTER", 0, 0)
     else
-        nudgeFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        -- Position nudge frame relative to parent's CURRENT position
+        local parentX, parentY = parentFrame:GetCenter()
+        if parentX and parentY then
+            -- If parent is on right half of screen, put nudge on left
+            if parentX > UIParent:GetWidth() / 2 then
+                nudgeFrame:SetPoint("RIGHT", parentFrame, "LEFT", -10, 0)
+            else
+                nudgeFrame:SetPoint("LEFT", parentFrame, "RIGHT", 10, 0)
+            end
+        else
+            nudgeFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        end
     end
     
     nudgeFrame:Show()

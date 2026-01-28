@@ -451,9 +451,21 @@ function AB:UpdateBar(barKey)
     if MidnightUI.moveMode then
         container.dragFrame:Show()
         container.dragFrame:EnableMouse(true)
+        
+        -- Show nudge controls
+        local Movable = MidnightUI:GetModule("Movable")
+        if container.nudgeFrame and Movable then
+            Movable:ShowNudgeControls(container.nudgeFrame, container.dragFrame)
+        end
     else
         container.dragFrame:Hide()
         container.dragFrame:EnableMouse(false)
+        
+        -- Hide nudge controls
+        local Movable = MidnightUI:GetModule("Movable")
+        if container.nudgeFrame and Movable then
+            Movable:HideNudgeControls(container.nudgeFrame)
+        end
     end
     
     -- Special handling for MainMenuBar
