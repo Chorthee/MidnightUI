@@ -461,10 +461,14 @@ function AB:UpdateBar(barKey)
             end
         end
         
-        -- Show nudge controls
-        local Movable = MidnightUI:GetModule("Movable")
-        if container.nudgeFrame and Movable then
-            Movable:ShowNudgeControls(container.nudgeFrame, container.dragFrame)
+        -- Show arrow nudge controls (they show automatically with parent drag frame)
+        if container.nudgeFrame then
+            -- Arrow buttons are already parented to dragFrame and will show when it shows
+            -- Just make sure they're visible
+            if container.nudgeFrame.UP then container.nudgeFrame.UP:Show() end
+            if container.nudgeFrame.DOWN then container.nudgeFrame.DOWN:Show() end
+            if container.nudgeFrame.LEFT then container.nudgeFrame.LEFT:Show() end
+            if container.nudgeFrame.RIGHT then container.nudgeFrame.RIGHT:Show() end
         end
     else
         -- Hide drag frame
@@ -480,10 +484,12 @@ function AB:UpdateBar(barKey)
             end
         end
         
-        -- Hide nudge controls
-        local Movable = MidnightUI:GetModule("Movable")
-        if container.nudgeFrame and Movable then
-            Movable:HideNudgeControls(container.nudgeFrame)
+        -- Hide arrow nudge controls
+        if container.nudgeFrame then
+            if container.nudgeFrame.UP then container.nudgeFrame.UP:Hide() end
+            if container.nudgeFrame.DOWN then container.nudgeFrame.DOWN:Hide() end
+            if container.nudgeFrame.LEFT then container.nudgeFrame.LEFT:Hide() end
+            if container.nudgeFrame.RIGHT then container.nudgeFrame.RIGHT:Hide() end
         end
     end
     
