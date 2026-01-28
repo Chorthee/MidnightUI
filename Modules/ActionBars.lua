@@ -515,30 +515,30 @@ function AB:CollectButtons(container, barKey)
     elseif barKey == "StanceBar" then
         for i = 1, 10 do
             local btn = _G["StanceButton"..i]
-            if btn then 
+            if btn then
                 btn:Show()
                 btn:SetAlpha(1)
-                -- Update the icon texture manually
-                local icon = btn.icon or _G[btn:GetName().."Icon"]
+                -- Parent to container for visibility
+                if btn:GetParent() ~= container then
+                    btn:SetParent(container)
+                end
+                -- Try all possible icon references
+                local icon = btn.Icon or btn.icon or _G[btn:GetName().."Icon"]
+                local texture = nil
+                if GetShapeshiftFormInfo then
+                    texture = select(1, GetShapeshiftFormInfo(i))
+                end
                 if icon then
-                    local texture, isActive, isCastable = GetShapeshiftFormInfo(i)
                     if texture then
                         icon:SetTexture(texture)
                         icon:Show()
                     else
+                        icon:SetTexture(nil)
                         icon:Hide()
                     end
                 end
-                -- Ensure the button updates its icon/state
-                if btn.Update then
-                    btn:Update()
-                end
-                table.insert(buttons, btn) 
+                table.insert(buttons, btn)
             end
-        end
-        -- Force update the stance bar
-        if StanceBar and StanceBar.Update then
-            StanceBar:Update()
         end
     else
         -- Standard action bars
