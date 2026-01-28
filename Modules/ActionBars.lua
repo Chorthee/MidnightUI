@@ -442,11 +442,38 @@ function AB:CreateBar(barKey, config)
                 
                 container:ClearAllPoints()
                 container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
+                
+                -- Refresh move mode state after reset
+                if MidnightUI.moveMode then
+                    AB:UpdateBar(barKey)
+                end
             end
         end
     )
     
     container.nudgeFrame = nudgeFrame
+    
+    -- Hook into nudge arrows to refresh move mode state after nudging
+    if nudgeFrame and nudgeFrame.UP then
+        for _, direction in ipairs({"UP", "DOWN", "LEFT", "RIGHT"}) do
+            local btn = nudgeFrame[direction]
+            if btn then
+                local origOnClick = btn:GetScript("OnClick")
+                btn:SetScript("OnClick", function(self, ...)
+                    if origOnClick then
+                        origOnClick(self, ...)
+                    end
+                    -- Save position and refresh move mode state
+                    AB:SaveBarPosition(barKey)
+                    if MidnightUI.moveMode then
+                        C_Timer.After(0, function()
+                            AB:UpdateBar(barKey)
+                        end)
+                    end
+                end)
+            end
+        end
+    end
     
     -- Register nudge frame with dragFrame as parent
     if nudgeFrame then
