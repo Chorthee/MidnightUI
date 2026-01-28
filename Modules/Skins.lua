@@ -167,16 +167,19 @@ function Skin:SkinActionBarButtons()
         hooksecurefunc("ActionButton_OnEvent", function(button)
             if Skin.db and Skin.db.profile.skinActionBars then
                 C_Timer.After(0, function()
+                    print("|cffff9900[Skins Debug]|r ActionButton_OnEvent hook fired for:", button:GetName())
                     Skin:SkinButton(button)
                 end)
             end
         end)
         
         self.hooksSetup = true
+        print("|cff00ff00[Skins]|r Hooks setup complete")
     end
     
     -- Skin ALL existing action buttons with multiple attempts
     local function SkinAllButtons()
+        print("|cffff9900[Skins Debug]|r Starting SkinAllButtons()")
         local buttonsSkinned = 0
         
         for i = 1, 12 do
@@ -193,8 +196,22 @@ function Skin:SkinActionBarButtons()
             
             for _, btn in ipairs(buttons) do
                 if btn then
+                    print("|cffff9900[Skins Debug]|r Found button:", btn:GetName())
                     self:SkinButton(btn)
                     buttonsSkinned = buttonsSkinned + 1
+                else
+                    -- Print which button wasn't found
+                    local buttonNames = {
+                        "ActionButton"..i,
+                        "MultiBarBottomLeftButton"..i,
+                        "MultiBarBottomRightButton"..i,
+                        "MultiBarRightButton"..i,
+                        "MultiBarLeftButton"..i,
+                        "MultiBar5Button"..i,
+                        "MultiBar6Button"..i,
+                        "MultiBar7Button"..i
+                    }
+                    print("|cffff0000[Skins Debug]|r Button not found:", buttonNames[i] or "unknown")
                 end
             end
         end
@@ -203,12 +220,14 @@ function Skin:SkinActionBarButtons()
         for i = 1, 10 do
             local btn = _G["PetActionButton"..i]
             if btn then
+                print("|cffff9900[Skins Debug]|r Found pet button:", btn:GetName())
                 self:SkinButton(btn)
                 buttonsSkinned = buttonsSkinned + 1
             end
             
             btn = _G["StanceButton"..i]
             if btn then
+                print("|cffff9900[Skins Debug]|r Found stance button:", btn:GetName())
                 self:SkinButton(btn)
                 buttonsSkinned = buttonsSkinned + 1
             end
@@ -218,29 +237,51 @@ function Skin:SkinActionBarButtons()
     end
     
     -- Try immediately
+    print("|cffff9900[Skins Debug]|r Attempting immediate skin")
     SkinAllButtons()
     
     -- Try again after 1 second in case buttons load late
-    C_Timer.After(1, SkinAllButtons)
+    C_Timer.After(1, function()
+        print("|cffff9900[Skins Debug]|r Attempting skin after 1 second")
+        SkinAllButtons()
+    end)
     
     -- Try one more time after 3 seconds
-    C_Timer.After(3, SkinAllButtons)
+    C_Timer.After(3, function()
+        print("|cffff9900[Skins Debug]|r Attempting skin after 3 seconds")
+        SkinAllButtons()
+    end)
 end
 
 function Skin:SkinButton(btn)
-    if not btn or not self.db.profile.skinActionBars then return end
+    if not btn then 
+        print("|cffff0000[Skins Debug]|r SkinButton called with nil button")
+        return 
+    end
+    
+    if not self.db.profile.skinActionBars then 
+        print("|cffff0000[Skins Debug]|r skinActionBars is disabled")
+        return 
+    end
+    
+    print("|cffff9900[Skins Debug]|r Skinning button:", btn:GetName())
     
     local bgColor = self.db.profile.buttonBackgroundColor
     
     -- Create dark background
     if not btn.muiSkinBg then
+        print("|cffff9900[Skins Debug]|r Creating muiSkinBg for:", btn:GetName())
         btn.muiSkinBg = btn:CreateTexture(nil, "BACKGROUND", nil, -8)
         btn.muiSkinBg:SetAllPoints(btn)
+    else
+        print("|cffff9900[Skins Debug]|r muiSkinBg already exists for:", btn:GetName())
     end
     
     btn.muiSkinBg:Show()
     btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
     btn.muiSkinBg:SetColorTexture(unpack(bgColor))
+    
+    print("|cff00ff00[Skins Debug]|r Background texture set for:", btn:GetName(), "Color:", bgColor[1], bgColor[2], bgColor[3], bgColor[4])
     
     -- Get icon texture
     local icon = btn.icon or btn.Icon
@@ -255,12 +296,16 @@ function Skin:SkinButton(btn)
     if icon and icon.SetTexCoord then
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         icon:SetDrawLayer("ARTWORK", 1)
+        print("|cff00ff00[Skins Debug]|r Icon cropped for:", btn:GetName())
+    else
+        print("|cffff0000[Skins Debug]|r No icon found for:", btn:GetName())
     end
     
     -- Hide Blizzard elements
     self:HideBlizzardButtonElements(btn)
     
     btn.muiSkinned = true
+    print("|cff00ff00[Skins Debug]|r Button fully skinned:", btn:GetName())
 end
 
 function Skin:MaintainButtonSkin(btn)
