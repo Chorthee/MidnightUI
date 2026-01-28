@@ -377,7 +377,18 @@ function AB:CreateBar(barKey, config)
             local barWidth = selfRight - selfLeft
             local selfCenterX = (selfLeft + selfRight) / 2
             if DEFAULT_CHAT_FRAME then
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] BAR: "..tostring(barKey).." UIParent width="..tostring(screenWidth).." selfLeft="..tostring(selfLeft).." selfRight="..tostring(selfRight).." selfCenterX="..tostring(selfCenterX).." screenCenterX="..tostring(screenCenterX).." diff="..tostring(math.abs(selfCenterX - screenCenterX)))
+                local cursorX, cursorY = GetCursorPosition()
+                local uiScale = UIParent:GetEffectiveScale()
+                local scaledCursorX = cursorX / uiScale
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] BAR: "..tostring(barKey)..
+                    " UIParent width="..tostring(screenWidth)..
+                    " selfLeft="..tostring(selfLeft)..
+                    " selfRight="..tostring(selfRight)..
+                    " selfCenterX="..tostring(selfCenterX)..
+                    " screenCenterX="..tostring(screenCenterX)..
+                    " diff="..tostring(math.abs(selfCenterX - screenCenterX))..
+                    " mouseX="..tostring(scaledCursorX)..
+                    " mouseDiff="..tostring(math.abs(scaledCursorX - screenCenterX)))
             end
             if math.abs(selfCenterX - screenCenterX) < 60 then
                 anchorPoint = "BOTTOM"
