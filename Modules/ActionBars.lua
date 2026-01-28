@@ -413,10 +413,16 @@ end
 
 function AB:UpdateBar(barKey)
     local container = bars[barKey]
-    if not container then return end
+    if not container then 
+        print("UpdateBar: No container for " .. tostring(barKey))
+        return 
+    end
     
     local db = self.db.profile.bars[barKey]
-    if not db then return end
+    if not db then 
+        print("UpdateBar: No db for " .. tostring(barKey))
+        return 
+    end
     
     -- Show/Hide based on settings
     if db.enabled then
@@ -440,11 +446,17 @@ function AB:UpdateBar(barKey)
     -- Update fading
     self:UpdateBarFading(barKey)
     
+    -- DEBUG
+    print("UpdateBar: " .. barKey .. " moveMode=" .. tostring(MidnightUI.moveMode) .. " dragFrame=" .. tostring(container.dragFrame ~= nil))
+    
     -- CHANGED: Handle Move Mode display
     if MidnightUI.moveMode then
+        print("  -> Showing drag frame for " .. barKey)
         -- Show drag frame with green border
-        container.dragFrame:Show()
-        container.dragFrame:EnableMouse(true)
+        if container.dragFrame then
+            container.dragFrame:Show()
+            container.dragFrame:EnableMouse(true)
+        end
         
         -- Fade the actual action buttons to 30% opacity
         for _, btn in ipairs(container.buttons) do
@@ -459,9 +471,12 @@ function AB:UpdateBar(barKey)
             Movable:ShowNudgeControls(container.nudgeFrame, container.dragFrame)
         end
     else
+        print("  -> Hiding drag frame for " .. barKey)
         -- Hide drag frame
-        container.dragFrame:Hide()
-        container.dragFrame:EnableMouse(false)
+        if container.dragFrame then
+            container.dragFrame:Hide()
+            container.dragFrame:EnableMouse(false)
+        end
         
         -- Restore button opacity to 100%
         for _, btn in ipairs(container.buttons) do
