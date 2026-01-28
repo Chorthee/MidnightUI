@@ -371,65 +371,62 @@ function AB:CreateBar(barKey, config)
             local alignX = nil
             local alignTo = nil
             local snapDebug = "none"
-            -- Check snapping to other bars FIRST (higher priority)
-            if bars then
-                for otherBarKey, otherBar in pairs(bars) do
-                    if otherBarKey ~= barKey and otherBar:IsShown() then
-                        local otherLeft = otherBar:GetLeft()
-                        local otherRight = otherBar:GetRight()
-                        local otherTop = otherBar:GetTop()
-                        local otherBottom = otherBar:GetBottom()
-                        if otherLeft then
-                            -- Horizontal snapping (left-right adjacency)
-                            local rightToLeftDist = math.abs(selfRight - otherLeft)
-                            local leftToRightDist = math.abs(selfLeft - otherRight)
-                            if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
-                                bestSnapX = x + (otherLeft - selfRight)
-                                bestDistX = rightToLeftDist
-                                alignX = otherLeft
-                                alignTo = "left"
-                                snapDebug = "snap: right edge to other left"
-                            end
-                            if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
-                                bestSnapX = x + (otherRight - selfLeft)
-                                bestDistX = leftToRightDist
-                                alignX = otherRight - selfWidth
-                                alignTo = "right"
-                                snapDebug = "snap: left edge to other right"
-                            end
-                            -- Vertical snapping (top-bottom adjacency)
-                            local bottomToTopDist = math.abs(selfBottom - otherTop)
-                            local topToBottomDist = math.abs(selfTop - otherBottom)
-                            if bottomToTopDist < snapThreshold and bottomToTopDist < bestDistY then
-                                bestSnapY = y + (otherTop - selfBottom)
-                                bestDistY = bottomToTopDist
-                                snapDebug = "snap: bottom to other top"
-                            end
-                            if topToBottomDist < snapThreshold and topToBottomDist < bestDistY then
-                                bestSnapY = y + (otherBottom - selfTop)
-                                bestDistY = topToBottomDist
-                                snapDebug = "snap: top to other bottom"
+            -- Check for center snap FIRST (now highest priority)
+            local screenWidth = UIParent:GetWidth()
+            local screenCenterX = screenWidth / 2
+            local barWidth = selfRight - selfLeft
+            local selfCenterX = (selfLeft + selfRight) / 2
+            if math.abs(selfCenterX - screenCenterX) < 60 then
+                anchorPoint = "BOTTOM"
+                relativeTo = UIParent
+                relativePoint = "BOTTOM"
+                bestSnapX = 0
+                snapDebug = "snap: center to screen"
+            else
+                -- Only check snapping to other bars if not snapping to center
+                if bars then
+                    for otherBarKey, otherBar in pairs(bars) do
+                        if otherBarKey ~= barKey and otherBar:IsShown() then
+                            local otherLeft = otherBar:GetLeft()
+                            local otherRight = otherBar:GetRight()
+                            local otherTop = otherBar:GetTop()
+                            local otherBottom = otherBar:GetBottom()
+                            if otherLeft then
+                                -- Horizontal snapping (left-right adjacency)
+                                local rightToLeftDist = math.abs(selfRight - otherLeft)
+                                local leftToRightDist = math.abs(selfLeft - otherRight)
+                                if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
+                                    bestSnapX = x + (otherLeft - selfRight)
+                                    bestDistX = rightToLeftDist
+                                    alignX = otherLeft
+                                    alignTo = "left"
+                                    snapDebug = "snap: right edge to other left"
+                                end
+                                if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
+                                    bestSnapX = x + (otherRight - selfLeft)
+                                    bestDistX = leftToRightDist
+                                    alignX = otherRight - selfWidth
+                                    alignTo = "right"
+                                    snapDebug = "snap: left edge to other right"
+                                end
+                                -- Vertical snapping (top-bottom adjacency)
+                                local bottomToTopDist = math.abs(selfBottom - otherTop)
+                                local topToBottomDist = math.abs(selfTop - otherBottom)
+                                if bottomToTopDist < snapThreshold and bottomToTopDist < bestDistY then
+                                    bestSnapY = y + (otherTop - selfBottom)
+                                    bestDistY = bottomToTopDist
+                                    snapDebug = "snap: bottom to other top"
+                                end
+                                if topToBottomDist < snapThreshold and topToBottomDist < bestDistY then
+                                    bestSnapY = y + (otherBottom - selfTop)
+                                    bestDistY = topToBottomDist
+                                    snapDebug = "snap: top to other bottom"
+                                end
                             end
                         end
                     end
                 end
-            end
-            -- Only snap to screen center if we didn't snap to another bar
-            if not bestSnapX then
-                local screenWidth = UIParent:GetWidth()
-                local screenCenterX = screenWidth / 2
-                local barWidth = selfRight - selfLeft
-                local selfCenterX = (selfLeft + selfRight) / 2
-                -- Only snap to center if bar is within 60px of center
-                if math.abs(selfCenterX - screenCenterX) < 60 then
-                    anchorPoint = "BOTTOM"
-                    relativeTo = UIParent
-                    relativePoint = "BOTTOM"
-                    bestSnapX = 0
-                    snapDebug = "snap: center to screen"
-                else
-                    bestSnapX = x
-                end
+                if not bestSnapX then bestSnapX = x end
             end
             if not bestSnapY then
                 local screenCenterY = UIParent:GetHeight() / 2
