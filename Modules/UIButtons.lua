@@ -159,8 +159,9 @@ function UIButtons:CreateButtons()
             elseif key == "addons" then
                 btn:RegisterForClicks("AnyUp")
                 btn:SetScript("OnClick", function()
-                    if not IsAddOnLoaded("Blizzard_AddOnManager") then
-                        local loaded, reason = LoadAddOn("Blizzard_AddOnManager")
+                    if not _G.IsAddOnLoaded or not _G.LoadAddOn then return end
+                    if not _G.IsAddOnLoaded("Blizzard_AddOnManager") then
+                        local loaded, reason = _G.LoadAddOn("Blizzard_AddOnManager")
                         if not loaded then
                             UIErrorsFrame:AddMessage("Unable to load AddOn Manager: "..(reason or "unknown error"), 1, 0, 0)
                             return
