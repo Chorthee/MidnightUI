@@ -538,14 +538,25 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Completely hide hotkey frame for now to debug rectangles
+    -- Hotkey text
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
-        hotkey:Hide()
-        hotkey:SetAlpha(0)
+        -- Always hide the background texture
         if hotkey.Background then
-            hotkey.Background:SetAlpha(0)
+            hotkey.Background:SetTexture(nil)
             hotkey.Background:Hide()
+        end
+        
+        if db.showHotkeys then
+            hotkey:Show()
+            hotkey:ClearAllPoints()
+            hotkey:SetPoint("TOPRIGHT", 2, -2)
+            hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+            hotkey:SetTextColor(1, 1, 1)
+            hotkey:SetDrawLayer("OVERLAY", 7)
+            hotkey:SetAlpha(1)
+        else
+            hotkey:Hide()
         end
     end
     
