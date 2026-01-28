@@ -381,9 +381,9 @@ function AB:CreateBar(barKey, config)
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
                 bestSnapX = 0
-                snapDebug = "snap: center to screen"
+                snapDebug = "snap: center to screen (exclusive)"
             else
-                -- Only check snapping to other bars if not snapping to center
+                -- Only check snapping to other bars if NOT snapping to center
                 if bars then
                     for otherBarKey, otherBar in pairs(bars) do
                         if otherBarKey ~= barKey and otherBar:IsShown() then
