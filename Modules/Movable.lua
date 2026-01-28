@@ -6,12 +6,17 @@ local Movable = MidnightUI:NewModule("Movable", "AceEvent-3.0")
 -- Centralized drag and nudge functionality for all MidnightUI modules
 -- ============================================================================
 
+-- Store registered movable frames with their highlight overlays
+Movable.registeredFrames = {}
+Movable.registeredNudgeFrames = {}
+
 -- ============================================================================
 -- 1. DRAG FUNCTIONALITY
 -- ============================================================================
 
 --[[
     Makes a frame draggable with CTRL+ALT or Move Mode
+    Also adds green highlight in Move Mode
     @param frame - The frame to make draggable
     @param saveCallback - Optional function(point, x, y) called when drag stops
     @param unlockCheck - Optional function() that returns true if frame should be movable
@@ -60,6 +65,17 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
             MidnightUI:OpenConfig()
         end
     end)
+    
+    -- Create green highlight overlay (hidden by default)
+    if not frame.movableHighlight then
+        frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+        frame.movableHighlight:SetAllPoints()
+        frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2)
+        frame.movableHighlight:Hide()
+    end
+    
+    -- Register this frame for Move Mode highlighting
+    table.insert(self.registeredFrames, frame)
 end
 
 -- ============================================================================
@@ -226,6 +242,36 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     -- Initial display update
     self:UpdateNudgeDisplay(nudge, db)
     
+    -- Setup mouseover behavior for parent frame
+    if parentFrame and not parentFrame.movableNudgeHooked then
+        parentFrame:HookScript("OnEnter", function()
+            if MidnightUI.moveMode and nudge then
+                Movable:ShowNudgeControls(nudge, parentFrame)
+            end
+        end)
+        
+        parentFrame:HookScript("OnLeave", function()
+            if nudge and not MouseIsOver(nudge) then
+                C_Timer.After(0.1, function()
+                    if nudge and not MouseIsOver(parentFrame) and not MouseIsOver(nudge) then
+                        nudge:Hide()
+                    end
+                end)
+            end
+        end)
+        
+        parentFrame.movableNudgeHooked = true
+    end
+    
+    -- Hide nudge when mouse leaves nudge frame
+    nudge:SetScript("OnLeave", function(self)
+        C_Timer.After(0.1, function()
+            if not MouseIsOver(parentFrame) and not MouseIsOver(self) then
+                self:Hide()
+            end
+        end)
+    end)
+    
     return nudge
 end
 
@@ -248,15 +294,13 @@ end
     @param parentFrame - The frame to anchor near
 ]]
 function Movable:ShowNudgeControls(nudgeFrame, parentFrame)
-    if not nudgeFrame or not parentFrame then return end
+    if not nudgeFrame or not parentFrame or not MidnightUI.moveMode then return end
     
     nudgeFrame:ClearAllPoints()
     
     -- Position nudge frame to the right of parent
     local parentX, parentY = parentFrame:GetCenter()
     if parentX and parentY then
-        local screenHeight = UIParent:GetHeight()
-        
         -- If parent is on right half of screen, put nudge on left
         if parentX > UIParent:GetWidth() / 2 then
             nudgeFrame:SetPoint("RIGHT", parentFrame, "LEFT", -10, 0)
@@ -286,7 +330,6 @@ end
 
 function Movable:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    self.registeredNudgeFrames = {}
 end
 
 --[[
@@ -304,15 +347,23 @@ function Movable:RegisterNudgeFrame(nudgeFrame, parentFrame)
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
-    -- Show/hide all registered nudge frames based on Move Mode
-    for _, data in ipairs(self.registeredNudgeFrames) do
-        if enabled then
-            -- Only show if mouse is over parent
-            if MouseIsOver(data.parent) then
-                self:ShowNudgeControls(data.nudge, data.parent)
+    -- Show/hide green highlights on all registered frames
+    for _, frame in ipairs(self.registeredFrames) do
+        if frame and frame.movableHighlight then
+            if enabled then
+                frame.movableHighlight:Show()
+            else
+                frame.movableHighlight:Hide()
             end
-        else
-            self:HideNudgeControls(data.nudge)
+        end
+    end
+    
+    -- Hide all nudge frames when Move Mode is disabled
+    if not enabled then
+        for _, data in ipairs(self.registeredNudgeFrames) do
+            if data.nudge then
+                self:HideNudgeControls(data.nudge)
+            end
         end
     end
 end
@@ -403,6 +454,25 @@ function Movable:CreateContainerArrows(container, db)
         container.arrows[direction] = btn
     end
     
+    -- Setup mouseover for container arrows
+    if not container.movableArrowsHooked then
+        container:HookScript("OnEnter", function()
+            if MidnightUI.moveMode and container.arrows then
+                Movable:UpdateContainerArrows(container)
+            end
+        end)
+        
+        container:HookScript("OnLeave", function()
+            C_Timer.After(0.1, function()
+                if not MouseIsOver(container) then
+                    Movable:HideContainerArrows(container)
+                end
+            end)
+        end)
+        
+        container.movableArrowsHooked = true
+    end
+    
     return container.arrows
 end
 
@@ -454,6 +524,18 @@ function Movable:UpdateContainerArrows(container)
     -- Show all arrows
     for _, arrow in pairs(container.arrows) do
         arrow:Show()
+    end
+end
+
+--[[
+    Hides container arrows
+    @param container - The container with .arrows table
+]]
+function Movable:HideContainerArrows(container)
+    if not container or not container.arrows then return end
+    
+    for _, arrow in pairs(container.arrows) do
+        arrow:Hide()
     end
 end
 

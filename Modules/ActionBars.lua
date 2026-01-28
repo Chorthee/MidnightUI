@@ -267,6 +267,47 @@ function AB:CreateBar(barKey, config)
         end
     end)
     
+    -- Create nudge controls for this action bar
+    local nudgeFrame = Movable:CreateNudgeControls(
+        container,
+        { offsetX = 0, offsetY = 0 },  -- Temporary DB structure
+        function()
+            -- Apply the nudge offset
+            local db = AB.db.profile.bars[barKey]
+            local nudgeDB = nudgeFrame.db
+            db.x = (db.x or 0) + (nudgeDB.offsetX or 0)
+            db.y = (db.y or 0) + (nudgeDB.offsetY or 0)
+            
+            -- Reset the nudge offset
+            nudgeDB.offsetX = 0
+            nudgeDB.offsetY = 0
+            
+            -- Update the bar position
+            container:ClearAllPoints()
+            container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
+            
+            Movable:UpdateNudgeDisplay(nudgeFrame, nudgeDB)
+        end,
+        nil
+    )
+    
+    -- Store nudge frame reference
+    container.nudgeFrame = nudgeFrame
+    
+    -- Register for Move Mode highlighting
+    Movable:MakeFrameDraggable(
+        container.dragFrame,
+        function(point, x, y)
+            AB:SaveBarPosition(barKey)
+        end,
+        function() return not AB.db.profile.locked end
+    )
+    
+    -- Register nudge frame
+    if nudgeFrame then
+        Movable:RegisterNudgeFrame(nudgeFrame, container)
+    end
+    
     return container
 end
 
