@@ -547,30 +547,49 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Completely hide TextOverlayContainer to remove rectangles
+    -- Keep TextOverlayContainer visible but hide its background
     if btn.TextOverlayContainer then
-        btn.TextOverlayContainer:SetAlpha(0)
-        btn.TextOverlayContainer:Hide()
+        btn.TextOverlayContainer:Show()
+        btn.TextOverlayContainer:SetAlpha(1)
+        
+        -- Make the background atlas transparent
+        if btn.TextOverlayContainer.SetAtlas then
+            btn.TextOverlayContainer:SetAtlas(nil)
+        end
+        
+        -- Loop through and hide only the background texture layers
+        if btn.TextOverlayContainer.Backdrop then
+            btn.TextOverlayContainer.Backdrop:SetAlpha(0)
+        end
+        
+        -- Style the hotkey text inside the container
+        if btn.TextOverlayContainer.HotKey then
+            local hotkey = btn.TextOverlayContainer.HotKey
+            if db.showHotkeys then
+                hotkey:Show()
+                hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+                hotkey:SetTextColor(1, 1, 1)
+            else
+                hotkey:Hide()
+            end
+        end
     end
     
-    -- Fix highlight texture to match button size
+    -- Fix highlight texture to match icon exactly
     local highlight = btn:GetHighlightTexture()
-    if highlight then
+    if highlight and btn.icon then
         highlight:ClearAllPoints()
-        highlight:SetAllPoints(btn.icon or btn)
+        highlight:SetPoint("TOPLEFT", btn.icon, "TOPLEFT", 0, 0)
+        highlight:SetPoint("BOTTOMRIGHT", btn.icon, "BOTTOMRIGHT", 0, 0)
     end
     
-    -- Hotkey text styling
+    -- Also check for the legacy HotKey fontstring
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
         if db.showHotkeys then
             hotkey:Show()
-            hotkey:ClearAllPoints()
-            hotkey:SetPoint("TOPRIGHT", btn.icon or btn, "TOPRIGHT", 2, -2)
             hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
             hotkey:SetTextColor(1, 1, 1)
-            hotkey:SetDrawLayer("OVERLAY", 7)
-            hotkey:SetAlpha(1)
         else
             hotkey:Hide()
         end
