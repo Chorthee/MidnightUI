@@ -326,8 +326,9 @@ function AB:CreateBar(barKey, config)
             
             -- Snap to other action bars if within 16px (one grid square)
             if AB.bars then
+                local snapped = false
                 for otherBarKey, otherBar in pairs(AB.bars) do
-                    if otherBarKey ~= barKey and otherBar:IsShown() then
+                    if otherBarKey ~= barKey and otherBar:IsShown() and not snapped then
                         local otherLeft = otherBar:GetLeft()
                         local otherRight = otherBar:GetRight()
                         local otherTop = otherBar:GetTop()
@@ -338,32 +339,40 @@ function AB:CreateBar(barKey, config)
                         local selfBottom = container:GetBottom()
                         
                         if otherLeft and selfLeft then
-                            -- Snap right edge of self to left edge of other (side by side, self on left)
-                            if math.abs(selfRight - otherLeft) < 16 then
-                                local gap = otherLeft - selfRight
-                                x = x + gap
-                                selfLeft = selfLeft + gap
-                                selfRight = selfRight + gap
+                            -- Check for horizontal overlap (needed for vertical snapping)
+                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
+                            
+                            -- Check for vertical overlap (needed for horizontal snapping)
+                            local hasVerticalOverlap = not (selfTop < otherBottom or selfBottom > otherTop)
+                            
+                            -- Snap horizontally (left-right) only if there's vertical overlap
+                            if hasVerticalOverlap then
+                                -- Snap right edge of self to left edge of other (self on left)
+                                if math.abs(selfRight - otherLeft) < 16 then
+                                    x = x + (otherLeft - selfRight)
+                                    snapped = true
+                                end
+                                
+                                -- Snap left edge of self to right edge of other (self on right)
+                                if not snapped and math.abs(selfLeft - otherRight) < 16 then
+                                    x = x + (otherRight - selfLeft)
+                                    snapped = true
+                                end
                             end
                             
-                            -- Snap left edge of self to right edge of other (side by side, self on right)
-                            if math.abs(selfLeft - otherRight) < 16 then
-                                local gap = otherRight - selfLeft
-                                x = x + gap
-                                selfTop = selfTop + gap
-                                selfBottom = selfBottom + gap
-                            end
-                            
-                            -- Snap top edge of self to bottom edge of other (self above other)
-                            if math.abs(selfBottom - otherTop) < 16 then
-                                local gap = otherTop - selfBottom
-                                y = y + gap
-                            end
-                            
-                            -- Snap bottom edge of self to top edge of other (self below other)
-                            if math.abs(selfTop - otherBottom) < 16 then
-                                local gap = otherBottom - selfTop
-                                y = y + gap
+                            -- Snap vertically (top-bottom) only if there's horizontal overlap
+                            if not snapped and hasHorizontalOverlap then
+                                -- Snap bottom edge of self to top edge of other (self below)
+                                if math.abs(selfBottom - otherTop) < 16 then
+                                    y = y + (otherTop - selfBottom)
+                                    snapped = true
+                                end
+                                
+                                -- Snap top edge of self to bottom edge of other (self above)
+                                if not snapped and math.abs(selfTop - otherBottom) < 16 then
+                                    y = y + (otherBottom - selfTop)
+                                    snapped = true
+                                end
                             end
                         end
                     end
