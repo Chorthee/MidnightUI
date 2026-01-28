@@ -77,7 +77,13 @@ function AB:OnInitialize()
 end
 
 function AB:OnDBReady()
-    if not MidnightUI.db.profile.modules.actionbars then return end
+    print("ActionBars:OnDBReady called!")
+    print("  modules.actionbars enabled: " .. tostring(MidnightUI.db.profile.modules.actionbars))
+    
+    if not MidnightUI.db.profile.modules.actionbars then 
+        print("  ActionBars module DISABLED in config, exiting")
+        return 
+    end
     
     self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
     
@@ -85,6 +91,7 @@ function AB:OnDBReady()
         masqueGroup = Masque:Group("Midnight ActionBars")
     end
     
+    print("  Registering events...")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -95,9 +102,11 @@ function AB:OnDBReady()
     
     -- ADDED: Register for Move Mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    print("  ActionBars module ready!")
 end
 
 function AB:PLAYER_ENTERING_WORLD()
+    print("ActionBars:PLAYER_ENTERING_WORLD called!")
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()
