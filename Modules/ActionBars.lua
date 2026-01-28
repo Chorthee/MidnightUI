@@ -567,6 +567,8 @@ function AB:UpdateButtonElements(btn)
         local key = GetBindingKey(btn.commandName or btn.bindingAction)
         if key then
             local text = GetBindingText(key, "KEY_", 1)
+            text = string.upper(text) -- Convert to uppercase
+            text = string.sub(text, 1, 4) -- Limit to 4 characters
             btn.customHotkey:SetText(text)
             btn.customHotkey:Show()
         else
