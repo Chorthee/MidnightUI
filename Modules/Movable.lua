@@ -158,35 +158,20 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
         btn:SetScript("OnClick", function()
             local step = IsShiftKeyDown() and 10 or 1
             
-            -- CRITICAL FIX: Get CURRENT position from container, not from DB
-            local currentPoint, _, _, currentX, currentY = container:GetPoint()
-            
-            -- Use current position if DB doesn't have it
-            local pos = db.position or {}
-            pos.point = pos.point or currentPoint or "CENTER"
-            pos.x = pos.x or currentX or 0
-            pos.y = pos.y or currentY or 0
-            
             if direction == "UP" then
-                pos.y = pos.y + step
+                db.offsetY = (db.offsetY or 0) + step
             elseif direction == "DOWN" then
-                pos.y = pos.y - step
+                db.offsetY = (db.offsetY or 0) - step
             elseif direction == "LEFT" then
-                pos.x = pos.x - step
+                db.offsetX = (db.offsetX or 0) - step
             elseif direction == "RIGHT" then
-                pos.x = pos.x + step
+                db.offsetX = (db.offsetX or 0) + step
             end
             
-            -- Save to database
-            db.position = pos
-            
-            -- Update container position
-            container:ClearAllPoints()
-            container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
+            applyCallback()
+            Movable:UpdateNudgeDisplay(nudge, db)
+            if updateCallback then updateCallback() end
         end)
-        
-        btn:Hide()
-        container.arrows[direction] = btn
     end
     
     -- Create 4 arrow buttons
