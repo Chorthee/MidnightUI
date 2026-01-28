@@ -538,6 +538,11 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
+    -- Update the button's hotkey text first
+    if btn.UpdateHotkeys then
+        btn:UpdateHotkeys()
+    end
+    
     -- Hotkey text
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
