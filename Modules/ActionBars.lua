@@ -82,6 +82,7 @@ end
 
 function AB:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
+    self:RegisterEvent("CURSOR_UPDATE")
 end
 
 function AB:OnDBReady()
@@ -1038,6 +1039,7 @@ function AB:UpdateEmptyButtons(barKey)
                 if ShouldShowEmpty(db) then
                     btn:SetAlpha(1)
                     btn:Show()
+                    btn:Enable() -- ensure button is enabled for dropping
                     if btn.icon then
                         if hasAction then
                             btn.icon:SetAlpha(1)
@@ -1058,6 +1060,7 @@ function AB:UpdateEmptyButtons(barKey)
                     if hasAction then
                         btn:SetAlpha(1)
                         btn:Show()
+                        btn:Enable()
                         if btn.icon then
                             btn.icon:SetAlpha(1)
                             btn.icon:Show()
@@ -1066,6 +1069,7 @@ function AB:UpdateEmptyButtons(barKey)
                         if btn.emptyBorder then btn.emptyBorder:Hide() end
                     else
                         btn:Hide()
+                        btn:Disable() -- prevent interaction when hidden
                         if btn.customHotkey then
                             btn.customHotkey:Hide()
                         end
