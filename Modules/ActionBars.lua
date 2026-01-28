@@ -339,14 +339,10 @@ function AB:CreateBar(barKey, config)
                         local selfBottom = container:GetBottom()
                         
                         if otherLeft and selfLeft then
-                            -- Check for horizontal overlap (needed for vertical snapping)
-                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
+                            -- For side-by-side snapping, check if Y ranges overlap or are close
+                            local yRangeOverlap = (selfBottom <= otherTop and selfTop >= otherBottom)
                             
-                            -- Check for vertical overlap (needed for horizontal snapping)
-                            local hasVerticalOverlap = not (selfTop < otherBottom or selfBottom > otherTop)
-                            
-                            -- Snap horizontally (left-right) only if there's vertical overlap
-                            if hasVerticalOverlap then
+                            if yRangeOverlap then
                                 -- Snap right edge of self to left edge of other (self on left)
                                 if math.abs(selfRight - otherLeft) < 16 then
                                     x = x + (otherLeft - selfRight)
@@ -360,8 +356,10 @@ function AB:CreateBar(barKey, config)
                                 end
                             end
                             
-                            -- Snap vertically (top-bottom) only if there's horizontal overlap
-                            if not snapped and hasHorizontalOverlap then
+                            -- For top-bottom snapping, check if X ranges overlap or are close
+                            local xRangeOverlap = (selfLeft <= otherRight and selfRight >= otherLeft)
+                            
+                            if not snapped and xRangeOverlap then
                                 -- Snap bottom edge of self to top edge of other (self below)
                                 if math.abs(selfBottom - otherTop) < 16 then
                                     y = y + (otherTop - selfBottom)
