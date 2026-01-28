@@ -128,69 +128,39 @@ end
 -- ============================================================================
 
 function AB:HideBlizzardElements()
-    -- Hide MainMenuBar art and arrows
+    -- Hide MainActionBar page controls
+    if MainActionBar then
+        if MainActionBar.ActionBarPageNumber then
+            MainActionBar.ActionBarPageNumber:Hide()
+            MainActionBar.ActionBarPageNumber:SetAlpha(0)
+            
+            if MainActionBar.ActionBarPageNumber.UpButton then
+                MainActionBar.ActionBarPageNumber.UpButton:Hide()
+            end
+            if MainActionBar.ActionBarPageNumber.DownButton then
+                MainActionBar.ActionBarPageNumber.DownButton:Hide()
+            end
+        end
+    end
+    
+    -- Hide MainMenuBar art and arrows (old frame, might still exist)
     if MainMenuBar then
         MainMenuBar:Hide()
         MainMenuBar:SetAlpha(0)
-        MainMenuBar:SetParent(MidnightUI.hiddenFrame or CreateFrame("Frame"))
         
         if MainMenuBar.ArtFrame then
             MainMenuBar.ArtFrame:Hide()
             MainMenuBar.ArtFrame:SetAlpha(0)
-            if MainMenuBar.ArtFrame.LeftEndCap then MainMenuBar.ArtFrame.LeftEndCap:Hide() end
-            if MainMenuBar.ArtFrame.RightEndCap then MainMenuBar.ArtFrame.RightEndCap:Hide() end
-            if MainMenuBar.ArtFrame.Background then MainMenuBar.ArtFrame.Background:Hide() end
-        end
-        
-        if MainMenuBar.Background then
-            MainMenuBar.Background:Hide()
-            MainMenuBar.Background:SetAlpha(0)
-        end
-        
-        -- Hook OnShow to keep it hidden
-        MainMenuBar:HookScript("OnShow", function(self) self:Hide() end)
-    end
-    
-    -- Hide the action bar page controller
-    if ActionBarController then
-        ActionBarController:Hide()
-        ActionBarController:SetAlpha(0)
-        ActionBarController:SetParent(MidnightUI.hiddenFrame or CreateFrame("Frame"))
-        if ActionBarController.HookScript then
-            ActionBarController:HookScript("OnShow", function(self) self:Hide() end)
         end
     end
     
-    -- Hide MainMenuBarArtFrame if it exists separately
-    if MainMenuBarArtFrame then
-        MainMenuBarArtFrame:Hide()
-        MainMenuBarArtFrame:SetAlpha(0)
-        MainMenuBarArtFrame:SetParent(MidnightUI.hiddenFrame or CreateFrame("Frame"))
-    end
-    
-    -- Hide MainMenuBarArtFrameBackground
-    if MainMenuBarArtFrameBackground then
-        MainMenuBarArtFrameBackground:Hide()
-    end
-    
-    -- Hide page arrows
-    if ActionBarUpButton then 
-        ActionBarUpButton:Hide()
-        ActionBarUpButton:SetParent(MidnightUI.hiddenFrame or CreateFrame("Frame"))
-    end
-    if ActionBarDownButton then 
-        ActionBarDownButton:Hide() 
-        ActionBarDownButton:SetParent(MidnightUI.hiddenFrame or CreateFrame("Frame"))
-    end
-    
-    -- Hide any page number display
-    if MainMenuBarPageNumber then
-        MainMenuBarPageNumber:Hide()
-    end
-    
-    if self.db.profile.hideGryphons then
-        -- Skin status tracking bars (XP/Rep)
-        if StatusTrackingBarManager then
+    -- Hide the XP/Rep bar if hideGryphons is enabled, otherwise just reposition it
+    if StatusTrackingBarManager then
+        if self.db.profile.hideGryphons then
+            StatusTrackingBarManager:Hide()
+            StatusTrackingBarManager:SetAlpha(0)
+        else
+            -- Just skin it
             MidnightUI:SkinFrame(StatusTrackingBarManager)
         end
     end
