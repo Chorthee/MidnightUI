@@ -972,7 +972,7 @@ function AB:UpdateEmptyButtons(barKey)
         barShouldBeHidden = GetNumShapeshiftForms() == 0
     end
     
-    -- If bar shouldn't exist for this class, hide everything including keybinds
+    -- If bar shouldn shouldn't exist for this class, hide everything including keybinds
     if barShouldBeHidden then
         for _, btn in ipairs(container.buttons) do
             if btn then
@@ -1628,3 +1628,4 @@ function AB:GetOptions()
     end
     
     return options
+end
