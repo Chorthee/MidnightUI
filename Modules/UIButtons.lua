@@ -63,6 +63,8 @@ function UIButtons:PLAYER_ENTERING_WORLD()
 end
 
 function UIButtons:CreateButtons()
+    print("|cff00ff00MidnightUI:|r UIButtons:CreateButtons() starting...")
+    
     local buttonData = {
         character = {
             name = "Character",
@@ -109,12 +111,20 @@ function UIButtons:CreateButtons()
         }
     }
 
+    local buttonCount = 0
     for key, data in pairs(buttonData) do
         local config = self.db.profile.buttons[key]
+        print("|cff00ff00MidnightUI:|r Checking button '"..key.."': enabled="..tostring(config and config.enabled))
+        
         if config and config.enabled then
+            buttonCount = buttonCount + 1
+            print("|cff00ff00MidnightUI:|r Creating button '"..key.."'...")
+            
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
             btn:RegisterForClicks("AnyUp")
+            btn:SetFrameStrata("HIGH")
+            btn:SetFrameLevel(100)
             
             -- Background
             local bg = btn:CreateTexture(nil, "BACKGROUND")
@@ -157,9 +167,15 @@ function UIButtons:CreateButtons()
             btn.key = key
             btn.getData = data.getColor
             
+            -- FORCE SHOW
+            btn:Show()
+            
             buttons[key] = btn
+            print("|cff00ff00MidnightUI:|r Button '"..key.."' created successfully")
         end
     end
+    
+    print("|cff00ff00MidnightUI:|r Total buttons created: "..buttonCount)
     
     -- Register for Move Mode changes to update the Move button color
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
@@ -174,6 +190,8 @@ function UIButtons:OnMoveModeChanged(event, enabled)
 end
 
 function UIButtons:UpdateLayout()
+    print("|cff00ff00MidnightUI:|r UIButtons:UpdateLayout() called")
+    
     local sortedButtons = {}
     
     for key, btn in pairs(buttons) do
@@ -185,7 +203,8 @@ function UIButtons:UpdateLayout()
     
     local scale = self.db.profile.scale
     local spacing = self.db.profile.spacing
-    local totalWidth = 0
+    
+    print("|cff00ff00MidnightUI:|r Positioning "..#sortedButtons.." buttons with scale="..scale..", spacing="..spacing)
     
     for i, data in ipairs(sortedButtons) do
         data.btn:ClearAllPoints()
@@ -193,13 +212,18 @@ function UIButtons:UpdateLayout()
         
         if i == 1 then
             data.btn:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 10)
+            print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned at BOTTOMRIGHT")
         else
             local prevBtn = sortedButtons[i-1].btn
             data.btn:SetPoint("RIGHT", prevBtn, "LEFT", -spacing, 0)
+            print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned to left of previous button")
         end
         
-        totalWidth = totalWidth + (32 * scale) + spacing
+        -- Double check it's shown
+        data.btn:Show()
     end
+    
+    print("|cff00ff00MidnightUI:|r UIButtons layout complete")
 end
 
 function UIButtons:GetOptions()
