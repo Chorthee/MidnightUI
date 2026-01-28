@@ -181,7 +181,6 @@ function Skin:SkinActionBarButtons()
     
     -- Skin ALL existing action buttons with multiple attempts
     local function SkinAllButtons()
-        print("|cffff9900[Skins Debug]|r Starting SkinAllButtons()")
         local buttonsSkinned = 0
         
         for i = 1, 12 do
@@ -198,22 +197,8 @@ function Skin:SkinActionBarButtons()
             
             for _, btn in ipairs(buttons) do
                 if btn then
-                    print("|cffff9900[Skins Debug]|r Found button:", btn:GetName())
                     self:SkinButton(btn)
                     buttonsSkinned = buttonsSkinned + 1
-                else
-                    -- Print which button wasn't found
-                    local buttonNames = {
-                        "ActionButton"..i,
-                        "MultiBarBottomLeftButton"..i,
-                        "MultiBarBottomRightButton"..i,
-                        "MultiBarRightButton"..i,
-                        "MultiBarLeftButton"..i,
-                        "MultiBar5Button"..i,
-                        "MultiBar6Button"..i,
-                        "MultiBar7Button"..i
-                    }
-                    print("|cffff0000[Skins Debug]|r Button not found:", buttonNames[i] or "unknown")
                 end
             end
         end
@@ -222,37 +207,30 @@ function Skin:SkinActionBarButtons()
         for i = 1, 10 do
             local btn = _G["PetActionButton"..i]
             if btn then
-                print("|cffff9900[Skins Debug]|r Found pet button:", btn:GetName())
                 self:SkinButton(btn)
                 buttonsSkinned = buttonsSkinned + 1
             end
             
             btn = _G["StanceButton"..i]
             if btn then
-                print("|cffff9900[Skins Debug]|r Found stance button:", btn:GetName())
                 self:SkinButton(btn)
                 buttonsSkinned = buttonsSkinned + 1
             end
         end
         
-        print("|cff00ff00MidnightUI Skins:|r Skinned " .. buttonsSkinned .. " action bar buttons")
+        if buttonsSkinned > 0 then
+            print("|cff00ff00MidnightUI Skins:|r Skinned " .. buttonsSkinned .. " action bar buttons")
+        end
     end
     
     -- Try immediately
-    print("|cffff9900[Skins Debug]|r Attempting immediate skin")
     SkinAllButtons()
     
     -- Try again after 1 second in case buttons load late
-    C_Timer.After(1, function()
-        print("|cffff9900[Skins Debug]|r Attempting skin after 1 second")
-        SkinAllButtons()
-    end)
+    C_Timer.After(1, SkinAllButtons)
     
     -- Try one more time after 3 seconds
-    C_Timer.After(3, function()
-        print("|cffff9900[Skins Debug]|r Attempting skin after 3 seconds")
-        SkinAllButtons()
-    end)
+    C_Timer.After(3, SkinAllButtons)
     
     -- Set up a periodic check to maintain skins (every 5 seconds)
     if not self.skinMaintenanceTimer then
@@ -353,7 +331,9 @@ function Skin:MaintainButtonSkin(btn)
     self:HideBlizzardButtonElements(btn)
 end
 
-function Skin:HideBlizzardButtonElements(btn)
+function Skin:HideBlizzetDrawLayer("BACKGROUND", -8)
+        btn.muiSkinBg:SetAlpha(1)
+        btn.muiSkinBg:SardButtonElements(btn)
     local elementsToHide = {
         "Border",
         "NormalTexture",
