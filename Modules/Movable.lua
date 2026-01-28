@@ -383,6 +383,10 @@ function Movable:CreateContainerArrows(container, db)
                 pos.x = pos.x + step
             end
             
+            -- CRITICAL FIX: Save to database
+            db.position = pos
+            
+            -- Update container position
             container:ClearAllPoints()
             container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
         end)
