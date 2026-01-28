@@ -330,25 +330,34 @@ function AB:CreateBar(barKey, config)
         if MidnightUI.moveMode then
             local point, relativeTo, relativePoint, x, y = container:GetPoint()
             
-            local finalX = x
-            local finalY = y
+            -- Get current absolute positions
+            local selfLeft = container:GetLeft()
+            local selfRight = container:GetRight()
+            local selfTop = container:GetTop()
+            local selfBottom = container:GetBottom()
+            local selfWidth = selfRight - selfLeft
+            local selfHeight = selfTop - selfBottom
             
-            -- Snap to center of screen if within 40px
-            if math.abs(x) < 40 then
-                finalX = 0
+            local snapThreshold = 10 -- Distance to trigger snap
+            local bestSnapX, bestSnapY = nil, nil
+            local bestDistX, bestDistY = 9999, 9999
+            
+            -- Snap to screen center
+            local screenCenterX = UIParent:GetWidth() / 2
+            local screenCenterY = UIParent:GetHeight() / 2
+            local selfCenterX = (selfLeft + selfRight) / 2
+            local selfCenterY = (selfTop + selfBottom) / 2
+            
+            if math.abs(selfCenterX - screenCenterX) < snapThreshold * 2 then
+                bestSnapX = 0
+                bestDistX = 0
             end
-            if math.abs(y) < 40 then
-                finalY = 0
+            if math.abs(selfCenterY - screenCenterY) < snapThreshold * 2 then
+                bestSnapY = 0
+                bestDistY = 0
             end
             
-            -- Apply center snap temporarily to get accurate positions
-            container:ClearAllPoints()
-            container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
-            
-            -- Now check for edge snapping to other bars
-            local snapThreshold = 32 -- Snap distance in pixels
-            local snappedX, snappedY = nil, nil
-            
+            -- Check snapping to other bars
             if AB.bars then
                 for otherBarKey, otherBar in pairs(AB.bars) do
                     if otherBarKey ~= barKey and otherBar:IsShown() then
@@ -356,43 +365,45 @@ function AB:CreateBar(barKey, config)
                         local otherRight = otherBar:GetRight()
                         local otherTop = otherBar:GetTop()
                         local otherBottom = otherBar:GetBottom()
-                        local selfLeft = container:GetLeft()
-                        local selfRight = container:GetRight()
-                        local selfTop = container:GetTop()
-                        local selfBottom = container:GetBottom()
                         
-                        if otherLeft and selfLeft then
-                            -- Check if bars have vertical overlap AND are not horizontally overlapping
-                            local hasVerticalOverlap = not (selfBottom > otherTop or selfTop < otherBottom)
-                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
+                        if otherLeft then
+                            -- Horizontal snapping (left-right adjacency)
+                            -- Check if bars are roughly aligned vertically
+                            local verticalAligned = (selfBottom < otherTop + 5) and (selfTop > otherBottom - 5)
                             
-                            -- Only snap horizontally if they have vertical overlap but NO horizontal overlap
-                            if hasVerticalOverlap and not hasHorizontalOverlap then
-                                -- Snap right edge of self to left edge of other (self on left)
-                                local rightToLeftDist = math.abs(selfRight - otherLeft)
-                                if rightToLeftDist < snapThreshold and not snappedX then
-                                    snappedX = finalX + (otherLeft - selfRight)
+                            if verticalAligned then
+                                -- Snap right edge to left edge (bar on left)
+                                local dist = math.abs(selfRight - otherLeft)
+                                if dist < snapThreshold and dist < bestDistX then
+                                    bestSnapX = x + (otherLeft - selfRight)
+                                    bestDistX = dist
                                 end
                                 
-                                -- Snap left edge of self to right edge of other (self on right)
-                                local leftToRightDist = math.abs(selfLeft - otherRight)
-                                if leftToRightDist < snapThreshold and not snappedX then
-                                    snappedX = finalX + (otherRight - selfLeft)
+                                -- Snap left edge to right edge (bar on right)
+                                dist = math.abs(selfLeft - otherRight)
+                                if dist < snapThreshold and dist < bestDistX then
+                                    bestSnapX = x + (otherRight - selfLeft)
+                                    bestDistX = dist
                                 end
                             end
                             
-                            -- Only snap vertically if they have horizontal overlap but NO vertical overlap
-                            if hasHorizontalOverlap and not hasVerticalOverlap then
-                                -- Snap bottom edge of self to top edge of other (self below)
-                                local bottomToTopDist = math.abs(selfBottom - otherTop)
-                                if bottomToTopDist < snapThreshold and not snappedY then
-                                    snappedY = finalY + (otherTop - selfBottom)
+                            -- Vertical snapping (top-bottom adjacency)
+                            -- Check if bars are roughly aligned horizontally
+                            local horizontalAligned = (selfLeft < otherRight + 5) and (selfRight > otherLeft - 5)
+                            
+                            if horizontalAligned then
+                                -- Snap bottom edge to top edge (bar below)
+                                local dist = math.abs(selfBottom - otherTop)
+                                if dist < snapThreshold and dist < bestDistY then
+                                    bestSnapY = y + (otherTop - selfBottom)
+                                    bestDistY = dist
                                 end
                                 
-                                -- Snap top edge of self to bottom edge of other (self above)
-                                local topToBottomDist = math.abs(selfTop - otherBottom)
-                                if topToBottomDist < snapThreshold and not snappedY then
-                                    snappedY = finalY + (otherBottom - selfTop)
+                                -- Snap top edge to bottom edge (bar above)
+                                dist = math.abs(selfTop - otherBottom)
+                                if dist < snapThreshold and dist < bestDistY then
+                                    bestSnapY = y + (otherBottom - selfTop)
+                                    bestDistY = dist
                                 end
                             end
                         end
@@ -400,9 +411,9 @@ function AB:CreateBar(barKey, config)
                 end
             end
             
-            -- Apply snapped positions if any
-            finalX = snappedX or finalX
-            finalY = snappedY or finalY
+            -- Apply best snap positions
+            local finalX = bestSnapX or x
+            local finalY = bestSnapY or y
             
             container:ClearAllPoints()
             container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
