@@ -366,7 +366,7 @@ function AB:CreateBar(barKey, config)
             local selfBottom = container:GetBottom()
             local selfWidth = selfRight - selfLeft
             local selfHeight = selfTop - selfBottom
-            local snapThreshold = 30 -- Distance to trigger snap
+            local snapThreshold = 60 -- Distance to trigger snap (increased)
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
             local alignX = nil
