@@ -547,13 +547,6 @@ function AB:UpdateButtonElements(btn)
             hotkey.Background:SetAlpha(0)
             hotkey.Background:Hide()
         end
-        -- Hide all textures on the hotkey frame
-        for i = 1, hotkey:GetNumRegions() do
-            local region = select(i, hotkey:GetRegions())
-            if region and region.SetAlpha then
-                region:SetAlpha(0)
-            end
-        end
     end
     
     -- Hide NormalTexture (the default button border/background)
