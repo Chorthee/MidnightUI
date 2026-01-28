@@ -548,12 +548,17 @@ function AB:CollectButtons(container, barKey)
                     texture = select(1, GetShapeshiftFormInfo(i))
                 end
                 if icon then
+                    icon:SetDrawLayer("ARTWORK", 1)
                     if texture then
                         icon:SetTexture(texture)
                         icon:Show()
+                        if btn.emptyBackground then btn.emptyBackground:Hide() end
+                        if btn.emptyBorder then btn.emptyBorder:Hide() end
                     else
                         icon:SetTexture(nil)
                         icon:Hide()
+                        if btn.emptyBackground then btn.emptyBackground:Show() end
+                        if btn.emptyBorder then btn.emptyBorder:Show() end
                     end
                 end
                 table.insert(buttons, btn)
