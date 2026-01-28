@@ -174,8 +174,12 @@ end
     @param skinName - Optional specific skin name (defaults to globalSkin)
 ]]
 function Skin:ApplyFrameSkin(frame, skinName)
-    if not frame then return end
-    if not frame.SetBackdrop and not frame.SetBackdropTemplate then return end
+    if not frame then 
+        print("|cffff0000[Skins Debug]|r ApplyFrameSkin called with nil frame")
+        return 
+    end
+    
+    print("|cffff9900[Skins Debug]|r ApplyFrameSkin called for:", frame:GetName() or "unnamed frame")
     
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile then
@@ -185,21 +189,39 @@ function Skin:ApplyFrameSkin(frame, skinName)
     end
     
     local skin = SKINS[skinName] or SKINS["Midnight"]
+    print("|cffff9900[Skins Debug]|r Using skin:", skinName)
     
     -- Ensure frame has BackdropTemplate mixin
-    if not frame.SetBackdrop and BackdropTemplateMixin then
-        Mixin(frame, BackdropTemplateMixin)
-        frame:OnBackdropLoaded()
+    if not frame.SetBackdrop then
+        print("|cffff9900[Skins Debug]|r Frame missing SetBackdrop, attempting to add mixin")
+        if BackdropTemplateMixin then
+            Mixin(frame, BackdropTemplateMixin)
+            if frame.OnBackdropLoaded then
+                frame:OnBackdropLoaded()
+            end
+            print("|cff00ff00[Skins Debug]|r Successfully added BackdropTemplate mixin")
+        else
+            print("|cffff0000[Skins Debug]|r BackdropTemplateMixin not available!")
+            return
+        end
+    end
+    
+    -- Verify SetBackdrop is now available
+    if not frame.SetBackdrop then
+        print("|cffff0000[Skins Debug]|r SetBackdrop still not available after mixin attempt")
+        return
     end
     
     -- Apply backdrop directly to the frame
-    if frame.SetBackdrop then
-        frame:SetBackdrop(skin.backdrop)
-        frame:SetBackdropColor(unpack(skin.bgColor))
-        if skin.borderAlpha and skin.borderAlpha > 0 then
-            frame:SetBackdropBorderColor(unpack(skin.borderColor))
-        end
+    print("|cffff9900[Skins Debug]|r Applying backdrop...")
+    frame:SetBackdrop(skin.backdrop)
+    frame:SetBackdropColor(unpack(skin.bgColor))
+    
+    if skin.borderAlpha and skin.borderAlpha > 0 then
+        frame:SetBackdropBorderColor(unpack(skin.borderColor))
     end
+    
+    print("|cff00ff00[Skins Debug]|r Successfully applied skin to:", frame:GetName() or "unnamed frame")
 end
 
 --[[
@@ -526,88 +548,114 @@ end
 function Skin:SkinBlizzardFrames()
     if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames then return end
     
+    print("|cff00ff00[Skins Debug]|r Starting SkinBlizzardFrames()")
+    
     -- Use WoW 12.0 API to find frames
     local function TrySkinFrame(frameName)
         local frame = _G[frameName]
-        if frame and not frame.muiSkinned then
+        if frame then
+            print("|cffff9900[Skins Debug]|r Found frame:", frameName)
+            
+            if frame.muiSkinned then
+                print("|cffaaaaaa[Skins Debug]|r Frame already skinned:", frameName)
+                return
+            end
+            
+            -- Check if frame has backdrop support
+            if not frame.SetBackdrop then
+                print("|cffff9900[Skins Debug]|r Frame needs BackdropTemplate:", frameName)
+                -- Try to add BackdropTemplate mixin
+                if BackdropTemplateMixin then
+                    Mixin(frame, BackdropTemplateMixin)
+                    if frame.OnBackdropLoaded then
+                        frame:OnBackdropLoaded()
+                    end
+                    print("|cff00ff00[Skins Debug]|r Added BackdropTemplate to:", frameName)
+                else
+                    print("|cffff0000[Skins Debug]|r BackdropTemplateMixin not available for:", frameName)
+                    return
+                end
+            end
+            
+            -- Now try to skin it
             Skin:ApplyFrameSkin(frame)
             frame.muiSkinned = true
+            print("|cff00ff00[Skins Debug]|r Successfully skinned:", frameName)
+        else
+            print("|cffff0000[Skins Debug]|r Frame not found:", frameName)
         end
     end
     
     -- Character & Equipment
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Character Frames ===")
     TrySkinFrame("CharacterFrame")
     TrySkinFrame("PaperDollFrame")
     TrySkinFrame("ReputationFrame")
     TrySkinFrame("TokenFrame")
     
     -- Spellbook & Professions  
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Spellbook/Professions ===")
     TrySkinFrame("SpellBookFrame")
-    TrySkinFrame("ProfessionsFrame")
-    TrySkinFrame("ProfessionsCustomerOrdersFrame")
-    
-    -- Talents (War Within uses new system)
     TrySkinFrame("PlayerSpellsFrame")
-    TrySkinFrame("ClassTalentFrame")
+    TrySkinFrame("ProfessionsFrame")
     
     -- Collections
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Collections ===")
     TrySkinFrame("CollectionsJournal")
     TrySkinFrame("MountJournal")
     TrySkinFrame("PetJournal")
     TrySkinFrame("ToyBox")
-    TrySkinFrame("HeirloomsJournal")
     TrySkinFrame("WardrobeFrame")
     
-    -- Adventure Guide & Achievements
-    TrySkinFrame("EncounterJournal")
+    -- Achievements & Encounters
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Achievements/Encounters ===")
     TrySkinFrame("AchievementFrame")
+    TrySkinFrame("EncounterJournal")
     
-    -- World Map (new in War Within)
-    TrySkinFrame("WorldMapFrame")
-    
-    -- Social & Guild
+    -- Social
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Social Frames ===")
     TrySkinFrame("FriendsFrame")
     TrySkinFrame("CommunitiesFrame")
     TrySkinFrame("GuildFrame")
     
-    -- PvP & Group Finder
+    -- PvP
+    print("|cffaaaaaa[Skins Debug]|r === Skinning PvP Frames ===")
     TrySkinFrame("PVPUIFrame")
     TrySkinFrame("PVEFrame")
-    TrySkinFrame("LFGDungeonReadyDialog")
     
-    -- Quest & NPC Interaction
+    -- Quest & NPC
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Quest/NPC Frames ===")
     TrySkinFrame("QuestFrame")
     TrySkinFrame("GossipFrame")
-    TrySkinFrame("QuestLogPopupDetailFrame")
     TrySkinFrame("PlayerChoiceFrame")
     
-    -- Trading & Services
+    -- Trading
+    print("|cffaaaaaa[Skins Debug]|r === Skinning Trading Frames ===")
     TrySkinFrame("MerchantFrame")
     TrySkinFrame("MailFrame")
     TrySkinFrame("TradeFrame")
-    TrySkinFrame("AuctionHouseFrame")
     
     -- System
+    print("|cffaaaaaa[Skins Debug]|r === Skinning System Frames ===")
     TrySkinFrame("GameMenuFrame")
-    TrySkinFrame("VideoOptionsFrame")
-    TrySkinFrame("InterfaceOptionsFrame")
     TrySkinFrame("SettingsPanel")
     TrySkinFrame("AddonList")
-    TrySkinFrame("KeyBindingFrame")
-    TrySkinFrame("MacroFrame")
     
-    -- Calendar & Help
-    TrySkinFrame("CalendarFrame")
-    TrySkinFrame("HelpFrame")
+    -- Hook frames that load later
+    print("|cffaaaaaa[Skins Debug]|r === Setting up delayed skinning ===")
+    C_Timer.After(2, function()
+        print("|cffff9900[Skins Debug]|r Attempting delayed skinning...")
+        
+        -- Try again for frames that might have loaded late
+        TrySkinFrame("CharacterFrame")
+        TrySkinFrame("SpellBookFrame")
+        TrySkinFrame("PlayerSpellsFrame")
+        TrySkinFrame("CollectionsJournal")
+        
+        print("|cff00ff00[Skins Debug]|r Delayed skinning complete")
+    end)
     
-    -- Loot & Popups
-    TrySkinFrame("LootFrame")
-    TrySkinFrame("GroupLootFrame1")
-    TrySkinFrame("StackSplitFrame")
-    
-    for i = 1, 4 do
-        TrySkinFrame("StaticPopup"..i)
-    end
+    print("|cff00ff00[Skins Debug]|r SkinBlizzardFrames() complete")
 end
 
 -- ============================================================================
