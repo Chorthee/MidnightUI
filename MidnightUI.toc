@@ -36,7 +36,7 @@ Core.lua
 # ------------------------------------------------------------------------------
 # MODULES
 # ------------------------------------------------------------------------------
-Modules\Skin.lua
+Modules\Skins.lua
 Modules\Movable.lua
 Modules\Bar.lua
 Modules\UIButtons.lua
