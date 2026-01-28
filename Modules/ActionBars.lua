@@ -547,9 +547,22 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hide background textures in TextOverlayContainer but keep the text
+    -- Hook TextOverlayContainer to prevent background textures from showing
+    if btn.TextOverlayContainer and not btn.TextOverlayContainer.hooked then
+        btn.TextOverlayContainer:HookScript("OnShow", function(self)
+            for i = 1, select('#', self:GetRegions()) do
+                local region = select(i, self:GetRegions())
+                if region and region:GetObjectType() == "Texture" then
+                    region:SetTexture("")
+                    region:SetAlpha(0)
+                end
+            end
+        end)
+        btn.TextOverlayContainer.hooked = true
+    end
+    
+    -- Hide textures now
     if btn.TextOverlayContainer then
-        -- Loop through all textures and hide them
         for i = 1, select('#', btn.TextOverlayContainer:GetRegions()) do
             local region = select(i, btn.TextOverlayContainer:GetRegions())
             if region and region:GetObjectType() == "Texture" then
@@ -559,12 +572,20 @@ function AB:UpdateButtonElements(btn)
         end
     end
     
-    -- Fix highlight to match full button area
+    -- Ensure icon matches button size exactly
+    if btn.icon then
+        btn.icon:ClearAllPoints()
+        btn.icon:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
+        btn.icon:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
+    end
+    
+    -- Fix highlight to match button perfectly
     local highlight = btn:GetHighlightTexture()
     if highlight then
         highlight:ClearAllPoints()
         highlight:SetAllPoints(btn)
         highlight:SetDrawLayer("HIGHLIGHT")
+        highlight:SetBlendMode("ADD")
     end
     
     -- Style hotkey text
