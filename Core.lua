@@ -45,7 +45,17 @@ function MidnightUI:OnEnable()
     C_Timer.After(0.1, function()
         print("|cff00ff00MidnightUI:|r Sending MIDNIGHTUI_DB_READY message")
         print("|cff00ff00MidnightUI:|r Modules enabled: buttons="..tostring(self.db.profile.modules.buttons)..", maps="..tostring(self.db.profile.modules.maps))
+        
+        -- List all registered modules
+        local moduleList = {}
+        for name, module in self:IterateModules() do
+            table.insert(moduleList, name)
+        end
+        print("|cff00ff00MidnightUI:|r Registered modules: " .. table.concat(moduleList, ", "))
+        
         self:SendMessage("MIDNIGHTUI_DB_READY")
+        
+        print("|cff00ff00MidnightUI:|r DB_READY message sent!")
     end)
     
     -- Register options after modules load

@@ -4,15 +4,26 @@ local UIButtons = MidnightUI:NewModule("UIButtons", "AceEvent-3.0")
 local buttons = {}
 
 function UIButtons:OnInitialize()
+    print("|cff00ff00MidnightUI:|r UIButtons:OnInitialize() called")
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
+    print("|cff00ff00MidnightUI:|r UIButtons registered for MIDNIGHTUI_DB_READY message")
 end
 
 function UIButtons:OnDBReady()
-    -- Check if module is enabled - use correct key "buttons" not "UIButtons"
+    print("|cff00ff00MidnightUI:|r UIButtons:OnDBReady() called!")
+    
+    -- Check if module is enabled
+    if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules then
+        print("|cffff0000MidnightUI:|r UIButtons - MidnightUI.db not ready!")
+        return
+    end
+    
     if not MidnightUI.db.profile.modules.buttons then 
-        print("|cff00ff00MidnightUI:|r UIButtons module is disabled")
+        print("|cffff0000MidnightUI:|r UIButtons module is disabled in config")
         return 
     end
+    
+    print("|cff00ff00MidnightUI:|r UIButtons initializing database...")
     
     self.db = MidnightUI.db:RegisterNamespace("UIButtons", {
         profile = {
@@ -29,6 +40,8 @@ function UIButtons:OnDBReady()
         }
     })
     
+    print("|cff00ff00MidnightUI:|r UIButtons database initialized")
+    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     
     -- Register for Move Mode changes using AceEvent's message system
@@ -38,6 +51,7 @@ function UIButtons:OnDBReady()
 end
 
 function UIButtons:PLAYER_ENTERING_WORLD()
+    print("|cff00ff00MidnightUI:|r UIButtons:PLAYER_ENTERING_WORLD() called")
     self:CreateButtons()
     self:UpdateLayout()
     print("|cff00ff00MidnightUI:|r UIButtons created and positioned")
