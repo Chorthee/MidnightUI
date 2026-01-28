@@ -457,6 +457,15 @@ function AB:CreateBar(barKey, config)
                     local uiParentScale = UIParent:GetEffectiveScale()
                     local barWidth = container:GetRight() and container:GetLeft() and (container:GetRight() - container:GetLeft()) or "nil"
                     local dotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or "nil"
+                    -- Print container and MainMenuBar frame geometry for centering diagnosis
+                    local contLeft, contRight = container:GetLeft(), container:GetRight()
+                    local contWidth = contLeft and contRight and (contRight - contLeft) or "nil"
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container left="..tostring(contLeft)..", right="..tostring(contRight)..", width="..tostring(contWidth))
+                    if container.blizzBar then
+                        local barLeft, barRight = container.blizzBar:GetLeft(), container.blizzBar:GetRight()
+                        local barWidth2 = barLeft and barRight and (barRight - barLeft) or "nil"
+                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] MainMenuBar left="..tostring(barLeft)..", right="..tostring(barRight)..", width="..tostring(barWidth2))
+                    end
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container parent="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parentScale)..", UIParent scale="..tostring(uiParentScale))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Bar width after SetPoint: "..tostring(barWidth))
