@@ -114,7 +114,14 @@ end
 function Skin:ApplyFrameSkin(frame, skinName)
     if not frame then return end
     
-    skinName = skinName or self.db.profile.globalSkin
+    -- Safety check: ensure database is initialized
+    if not self.db or not self.db.profile then
+        print("|cffff0000[Skins]|r ApplyFrameSkin called before database initialized!")
+        skinName = skinName or "Midnight"
+    else
+        skinName = skinName or self.db.profile.globalSkin
+    end
+    
     local skin = SKINS[skinName] or SKINS["Midnight"]
     
     -- Create backdrop frame if it doesn't exist
@@ -138,7 +145,12 @@ end
     @return skin table
 ]]
 function Skin:GetSkin(skinName)
-    skinName = skinName or self.db.profile.globalSkin
+    -- Safety check: ensure database is initialized
+    if not self.db or not self.db.profile then
+        skinName = skinName or "Midnight"
+    else
+        skinName = skinName or self.db.profile.globalSkin
+    end
     return SKINS[skinName] or SKINS["Midnight"]
 end
 
@@ -261,6 +273,12 @@ function Skin:SkinActionBarButtons()
 end
 
 function Skin:SkinButton(btn)
+    -- Safety check: ensure database is initialized
+    if not self.db or not self.db.profile then
+        print("|cffff0000[Skins Debug]|r SkinButton called before database initialized!")
+        return
+    end
+    
     if not btn then 
         print("|cffff0000[Skins Debug]|r SkinButton called with nil button")
         return 
