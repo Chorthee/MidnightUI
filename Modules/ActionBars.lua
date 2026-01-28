@@ -596,6 +596,24 @@ function AB:CollectButtons(container, barKey)
     -- Cache buttons globally for skinning
     for _, btn in ipairs(buttons) do
         buttonCache[btn] = true
+        -- Hook drag events to show/hide empty buttons during drag-and-drop
+        if not btn._hookedDrag then
+            btn:HookScript("OnDragStart", function()
+                forceShowEmpty = true
+                AB:UpdateAllEmptyButtons()
+            end)
+            btn:HookScript("OnReceiveDrag", function()
+                forceShowEmpty = false
+                AB:UpdateAllEmptyButtons()
+            end)
+            btn:HookScript("OnMouseUp", function()
+                if forceShowEmpty then
+                    forceShowEmpty = false
+                    AB:UpdateAllEmptyButtons()
+                end
+            end)
+            btn._hookedDrag = true
+        end
     end
 end
 
