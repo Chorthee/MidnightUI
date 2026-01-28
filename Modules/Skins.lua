@@ -313,23 +313,29 @@ function Skin:SkinChildFrames(frame)
     -- Skin all child buttons
     local children = {frame:GetChildren()}
     for _, child in ipairs(children) do
-        if child:GetObjectType() == "Button" then
-            self:SkinFrameButton(child)
-        elseif child:GetObjectType() == "CheckButton" then
-            self:SkinCheckButton(child)
-        elseif child:GetObjectType() == "Frame" and child.GetScrollChild then
-            -- Scrollframe
-            self:SkinScrollFrame(child)
+        if child and child.GetObjectType then
+            local objType = child:GetObjectType()
+            if objType == "Button" then
+                self:SkinFrameButton(child)
+            elseif objType == "CheckButton" then
+                self:SkinCheckButton(child)
+            elseif objType == "Frame" and child.GetScrollChild then
+                -- Scrollframe
+                self:SkinScrollFrame(child)
+            end
         end
     end
     
     -- Skin tabs
-    for i = 1, 10 do
-        local tab = _G[(frame:GetName() or "").."Tab"..i]
-        if tab then
-            self:SkinTab(tab)
-        else
-            break
+    local frameName = frame:GetName()
+    if frameName then
+        for i = 1, 10 do
+            local tab = _G[frameName.."Tab"..i]
+            if tab then
+                self:SkinTab(tab)
+            else
+                break
+            end
         end
     end
 end
