@@ -120,7 +120,7 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     
     -- Title
     local title = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    title:SetPoint("TOP", 0, -5)
+    title:SetPoint("TOP", 0, -12)
     title:SetText(titleText or "Move Frame")
     title:SetTextColor(0, 1, 0)
     nudge.title = title
@@ -201,7 +201,7 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     -- Reset button
     local reset = CreateFrame("Button", nil, nudge, "BackdropTemplate")
     reset:SetSize(50, 20)
-    reset:SetPoint("BOTTOM", 0, 5)
+    reset:SetPoint("BOTTOM", 0, 15)
     reset:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
