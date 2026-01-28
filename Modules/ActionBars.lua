@@ -658,10 +658,13 @@ function AB:UpdateButtonElements(btn)
         checked:Hide()
     end
     
-    -- Hide the green equipped item Border texture
+    -- Hide the green equipped item Border texture and keep it hidden
     if btn.Border then
         btn.Border:SetAlpha(0)
         btn.Border:Hide()
+        hooksecurefunc(btn.Border, "Show", function(self)
+            self:Hide()
+        end)
     end
     
     -- Hide NormalTexture (the default button border/background)
