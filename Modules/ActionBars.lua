@@ -867,25 +867,35 @@ function AB:UpdateEmptyButtons(barKey)
             local hasAction = actionID and HasAction(actionID)
             
             if db.showEmpty then
-                -- Show all buttons regardless of action
-                btn:SetAlpha(1)
+                -- Force show all buttons
                 btn:Show()
+                btn:SetAlpha(1)
                 
-                -- Grey out empty buttons' icons
+                -- Make sure the button background/border is visible
+                local normalTexture = btn:GetNormalTexture()
+                if normalTexture then
+                    normalTexture:SetAlpha(1)
+                    normalTexture:Show()
+                end
+                
+                -- Show icon if it exists, otherwise ensure empty appearance
                 if btn.icon then
                     if hasAction then
                         btn.icon:SetAlpha(1)
+                        btn.icon:Show()
                     else
-                        btn.icon:SetAlpha(0.5)
+                        -- Empty button - hide icon but keep button visible
+                        btn.icon:SetAlpha(0)
                     end
                 end
             else
-                -- Use default Blizzard behavior - check if button has action
+                -- Hide empty buttons
                 if hasAction then
                     btn:SetAlpha(1)
                     btn:Show()
                     if btn.icon then
                         btn.icon:SetAlpha(1)
+                        btn.icon:Show()
                     end
                 else
                     btn:Hide()
