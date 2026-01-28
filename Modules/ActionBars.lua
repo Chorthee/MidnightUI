@@ -1016,7 +1016,12 @@ function AB:UpdateEmptyButtons(barKey)
     if barShouldBeHidden then
         for _, btn in ipairs(container.buttons) do
             if btn then
-                btn:Hide()
+                -- PetActionBar and StanceBar buttons are Blizzard-protected; avoid Hide in combat
+                if (barKey == "PetActionBar" or barKey == "StanceBar") and InCombatLockdown() then
+                    -- Do nothing in combat
+                else
+                    btn:Hide()
+                end
                 if btn.customHotkey then
                     btn.customHotkey:Hide()
                 end
