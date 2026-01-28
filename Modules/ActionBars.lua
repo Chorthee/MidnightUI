@@ -210,6 +210,10 @@ function AB:CreateBar(barKey, config)
     if blizzBar then
         container.blizzBar = blizzBar
         
+        -- Show the Blizzard bar so its buttons are visible
+        blizzBar:Show()
+        blizzBar:SetAlpha(1)
+        
         -- Special handling for MainMenuBar
         if barKey == "MainMenuBar" then
             -- Unregister from EditModeManager completely
@@ -256,6 +260,8 @@ function AB:CreateBar(barKey, config)
             blizzBar:SetParent(container)
             blizzBar:ClearAllPoints()
             blizzBar:SetAllPoints(container)
+            blizzBar:Show()
+            blizzBar:SetAlpha(1)
             
             if blizzBar.SetMovable then blizzBar:SetMovable(true) end
             if blizzBar.SetUserPlaced then blizzBar:SetUserPlaced(true) end
