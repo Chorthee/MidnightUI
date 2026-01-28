@@ -77,13 +77,7 @@ function AB:OnInitialize()
 end
 
 function AB:OnDBReady()
-    print("ActionBars:OnDBReady called!")
-    print("  modules.actionbars enabled: " .. tostring(MidnightUI.db.profile.modules.actionbars))
-    
-    if not MidnightUI.db.profile.modules.actionbars then 
-        print("  ActionBars module DISABLED in config, exiting")
-        return 
-    end
+    if not MidnightUI.db.profile.modules.actionbars then return end
     
     self.db = MidnightUI.db:RegisterNamespace("ActionBars", defaults)
     
@@ -91,7 +85,6 @@ function AB:OnDBReady()
         masqueGroup = Masque:Group("Midnight ActionBars")
     end
     
-    print("  Registering events...")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -102,7 +95,6 @@ function AB:OnDBReady()
     
     -- ADDED: Register for Move Mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    print("  ActionBars module ready!")
     
     -- CHANGED: Initialize bars immediately instead of waiting for PLAYER_ENTERING_WORLD
     -- This ensures bars are created even on /reload
@@ -112,7 +104,6 @@ function AB:OnDBReady()
 end
 
 function AB:PLAYER_ENTERING_WORLD()
-    print("ActionBars:PLAYER_ENTERING_WORLD called!")
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()
@@ -129,7 +120,6 @@ end
 -- ADDED: Handle Move Mode changes
 function AB:OnMoveModeChanged(event, enabled)
     -- Update all bars to show/hide drag frames and nudge controls
-    print("ActionBars:OnMoveModeChanged called! enabled=" .. tostring(enabled) .. " moveMode=" .. tostring(MidnightUI.moveMode))
     self:UpdateAllBars()
 end
 
@@ -171,20 +161,13 @@ end
 -- ============================================================================
 
 function AB:InitializeAllBars()
-    print("ActionBars:InitializeAllBars called")
     for barKey, config in pairs(BAR_CONFIGS) do
-        print("  Creating bar: " .. barKey)
         self:CreateBar(barKey, config)
     end
-    print("ActionBars: After init, bars count=" .. self:CountBars())
 end
 
 function AB:CreateBar(barKey, config)
-    print("  CreateBar called for: " .. barKey)
-    if bars[barKey] then 
-        print("    Bar already exists, skipping")
-        return 
-    end
+    if bars[barKey] then return end
     
     -- Create container frame (SecureHandlerStateTemplate for paging support)
     local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
@@ -429,33 +412,17 @@ end
 -- ============================================================================
 
 function AB:UpdateAllBars()
-    print("ActionBars:UpdateAllBars called, bars count=" .. tostring(self:CountBars()))
     for barKey, container in pairs(bars) do
-        print("  Updating bar: " .. tostring(barKey))
         self:UpdateBar(barKey)
     end
 end
 
-function AB:CountBars()
-    local count = 0
-    for _ in pairs(bars) do
-        count = count + 1
-    end
-    return count
-end
-
 function AB:UpdateBar(barKey)
     local container = bars[barKey]
-    if not container then 
-        print("UpdateBar: No container for " .. tostring(barKey))
-        return 
-    end
+    if not container then return end
     
     local db = self.db.profile.bars[barKey]
-    if not db then 
-        print("UpdateBar: No db for " .. tostring(barKey))
-        return 
-    end
+    if not db then return end
     
     -- Show/Hide based on settings
     if db.enabled then
@@ -479,12 +446,8 @@ function AB:UpdateBar(barKey)
     -- Update fading
     self:UpdateBarFading(barKey)
     
-    -- DEBUG
-    print("UpdateBar: " .. barKey .. " moveMode=" .. tostring(MidnightUI.moveMode) .. " dragFrame=" .. tostring(container.dragFrame ~= nil))
-    
-    -- CHANGED: Handle Move Mode display
+    -- Handle Move Mode display
     if MidnightUI.moveMode then
-        print("  -> Showing drag frame for " .. barKey)
         -- Show drag frame with green border
         if container.dragFrame then
             container.dragFrame:Show()
@@ -504,7 +467,6 @@ function AB:UpdateBar(barKey)
             Movable:ShowNudgeControls(container.nudgeFrame, container.dragFrame)
         end
     else
-        print("  -> Hiding drag frame for " .. barKey)
         -- Hide drag frame
         if container.dragFrame then
             container.dragFrame:Hide()
