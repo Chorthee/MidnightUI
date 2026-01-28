@@ -524,9 +524,12 @@ function AB:CreateBar(barKey, config)
             end
             container:ClearAllPoints()
             container:SetPoint(anchorPoint, relativeTo, relativePoint, finalX, finalY)
-            -- Debug: print SetPoint args for all other snaps
+            -- Debug: print SetPoint args and stack for all other snaps
             if DEFAULT_CHAT_FRAME then
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(finalX)..", "..tostring(finalY))
+                local p, relTo, relP, px, py = container:GetPoint()
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
             end
         end
         AB:SaveBarPosition(barKey)
@@ -552,7 +555,11 @@ function AB:CreateBar(barKey, config)
                 
                 container:ClearAllPoints()
                 container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
-                
+                if DEFAULT_CHAT_FRAME then
+                    local p, relTo, relP, px, py = container:GetPoint()
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint (restore): point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint (restore):\n"..debugstack(2, 10, 10))
+                end
                 -- Refresh move mode state after reset
                 if MidnightUI.moveMode then
                     AB:UpdateBar(barKey)
