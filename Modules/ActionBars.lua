@@ -1045,7 +1045,8 @@ function AB:UpdateEmptyButtons(barKey)
             if btn.RegisterForDrag then
                 btn:RegisterForDrag("LeftButton", "RightButton")
             end
-            if btn.RegisterForClicks then
+            -- Only call RegisterForClicks out of combat to avoid taint
+            if btn.RegisterForClicks and not InCombatLockdown() then
                 btn:RegisterForClicks("AnyUp")
             end
             if barKey == "StanceBar" then
