@@ -651,12 +651,11 @@ function AB:UpdateButtonElements(btn)
         btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -4)
     end
     
-    -- Fix checked texture
+    -- Hide checked texture (green equipped item border)
     local checked = btn:GetCheckedTexture()
     if checked then
-        checked:ClearAllPoints()
-        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -2)
-        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -4)
+        checked:SetAlpha(0)
+        checked:Hide()
     end
     
     -- Hide NormalTexture (the default button border/background)
