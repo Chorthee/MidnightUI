@@ -338,10 +338,13 @@ function AB:CreateBar(barKey, config)
             local selfWidth = selfRight - selfLeft
             local selfHeight = selfTop - selfBottom
             
-            local snapThreshold = 20 -- Distance to trigger snap (increased)
-            local alignmentTolerance = 20 -- How close bars need to be aligned (increased)
+            local snapThreshold = 30 -- Distance to trigger snap
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
+            
+            -- Debug info
+            print(string.format("Dragging %s: Left=%.1f Right=%.1f Top=%.1f Bottom=%.1f", 
+                barKey, selfLeft, selfRight, selfTop, selfBottom))
             
             -- Check snapping to other bars FIRST (higher priority)
             if AB.bars then
@@ -353,44 +356,45 @@ function AB:CreateBar(barKey, config)
                         local otherBottom = otherBar:GetBottom()
                         
                         if otherLeft then
-                            -- Horizontal snapping (left-right adjacency)
-                            -- Check if bars are roughly aligned vertically
-                            local verticalAligned = (selfBottom < otherTop + alignmentTolerance) and (selfTop > otherBottom - alignmentTolerance)
+                            print(string.format("  Checking %s: Left=%.1f Right=%.1f Top=%.1f Bottom=%.1f", 
+                                otherBarKey, otherLeft, otherRight, otherTop, otherBottom))
                             
-                            if verticalAligned then
-                                -- Snap right edge to left edge (bar on left)
-                                local dist = math.abs(selfRight - otherLeft)
-                                if dist < snapThreshold and dist < bestDistX then
-                                    bestSnapX = x + (otherLeft - selfRight)
-                                    bestDistX = dist
-                                end
-                                
-                                -- Snap left edge to right edge (bar on right)
-                                dist = math.abs(selfLeft - otherRight)
-                                if dist < snapThreshold and dist < bestDistX then
-                                    bestSnapX = x + (otherRight - selfLeft)
-                                    bestDistX = dist
-                                end
+                            -- Horizontal snapping (left-right adjacency)
+                            local rightToLeftDist = math.abs(selfRight - otherLeft)
+                            local leftToRightDist = math.abs(selfLeft - otherRight)
+                            
+                            print(string.format("    H-Snap: rightToLeft=%.1f leftToRight=%.1f", 
+                                rightToLeftDist, leftToRightDist))
+                            
+                            if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
+                                bestSnapX = x + (otherLeft - selfRight)
+                                bestDistX = rightToLeftDist
+                                print(string.format("    -> SNAP RIGHT to LEFT (dist=%.1f)", rightToLeftDist))
+                            end
+                            
+                            if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
+                                bestSnapX = x + (otherRight - selfLeft)
+                                bestDistX = leftToRightDist
+                                print(string.format("    -> SNAP LEFT to RIGHT (dist=%.1f)", leftToRightDist))
                             end
                             
                             -- Vertical snapping (top-bottom adjacency)
-                            -- Check if bars are roughly aligned horizontally
-                            local horizontalAligned = (selfLeft < otherRight + alignmentTolerance) and (selfRight > otherLeft - alignmentTolerance)
+                            local bottomToTopDist = math.abs(selfBottom - otherTop)
+                            local topToBottomDist = math.abs(selfTop - otherBottom)
                             
-                            if horizontalAligned then
-                                -- Snap bottom edge to top edge (bar below)
-                                local dist = math.abs(selfBottom - otherTop)
-                                if dist < snapThreshold and dist < bestDistY then
-                                    bestSnapY = y + (otherTop - selfBottom)
-                                    bestDistY = dist
-                                end
-                                
-                                -- Snap top edge to bottom edge (bar above)
-                                dist = math.abs(selfTop - otherBottom)
-                                if dist < snapThreshold and dist < bestDistY then
-                                    bestSnapY = y + (otherBottom - selfTop)
-                                    bestDistY = dist
-                                end
+                            print(string.format("    V-Snap: bottomToTop=%.1f topToBottom=%.1f", 
+                                bottomToTopDist, topToBottomDist))
+                            
+                            if bottomToTopDist < snapThreshold and bottomToTopDist < bestDistY then
+                                bestSnapY = y + (otherTop - selfBottom)
+                                bestDistY = bottomToTopDist
+                                print(string.format("    -> SNAP BOTTOM to TOP (dist=%.1f)", bottomToTopDist))
+                            end
+                            
+                            if topToBottomDist < snapThreshold and topToBottomDist < bestDistY then
+                                bestSnapY = y + (otherBottom - selfTop)
+                                bestDistY = topToBottomDist
+                                print(string.format("    -> SNAP TOP to BOTTOM (dist=%.1f)", topToBottomDist))
                             end
                         end
                     end
