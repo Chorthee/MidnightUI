@@ -442,7 +442,7 @@ function AB:CreateBar(barKey, config)
                 end
                 container:ClearAllPoints()
                 container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
-                -- Debug: print anchor info, scale, and parent after SetPoint
+                -- Debug: print anchor info, scale, parent, and red dot after SetPoint
                 if DEFAULT_CHAT_FRAME then
                     local uiLeft = UIParent:GetLeft()
                     local uiRight = UIParent:GetRight()
@@ -455,8 +455,12 @@ function AB:CreateBar(barKey, config)
                     local containerScale = container:GetEffectiveScale()
                     local parentScale = parent and parent.GetEffectiveScale and parent:GetEffectiveScale() or "nil"
                     local uiParentScale = UIParent:GetEffectiveScale()
+                    local barWidth = container:GetRight() and container:GetLeft() and (container:GetRight() - container:GetLeft()) or "nil"
+                    local dotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or "nil"
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container parent="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parentScale)..", UIParent scale="..tostring(uiParentScale))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Bar width after SetPoint: "..tostring(barWidth))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Red dot center X after SetPoint: "..tostring(dotX).." (should match realScreenCenterX="..tostring(realScreenCenterX)..")")
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
                 end
                 AB:SaveBarPosition(barKey)
