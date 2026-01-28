@@ -48,6 +48,11 @@ function UIButtons:OnDBReady()
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
     
     print("|cff00ff00MidnightUI:|r UIButtons module loaded")
+    
+    -- Manually call setup since PLAYER_ENTERING_WORLD already fired
+    C_Timer.After(0.1, function()
+        self:PLAYER_ENTERING_WORLD()
+    end)
 end
 
 function UIButtons:PLAYER_ENTERING_WORLD()
