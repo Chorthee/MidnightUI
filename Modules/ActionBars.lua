@@ -34,7 +34,7 @@ local DEFAULT_PAGING = "[possessbar] 16; [overridebar] 18; [shapeshift] 13; [veh
 
 local defaults = {
     profile = {
-        locked = false,
+        -- REMOVED: locked = false,
         skinButtons = true,
         hideGryphons = true,
         buttonSize = 36,
@@ -95,14 +95,20 @@ function AB:OnDBReady()
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
     
+    -- ADDED: Register for Move Mode changes
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+end
+
+function AB:PLAYER_ENTERING_WORLD()
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()
     self:SkinAllButtons()
 end
 
-function AB:PLAYER_ENTERING_WORLD()
-    -- Just update bars, no initialization here
+-- ADDED: Handle Move Mode changes
+function AB:OnMoveModeChanged(event, enabled)
+    -- Update all bars to show/hide drag frames and nudge controls
     self:UpdateAllBars()
 end
 
@@ -253,7 +259,8 @@ function AB:CreateBar(barKey, config)
     
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
-        if not AB.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
+        -- CHANGED: Only allow dragging with CTRL+ALT or Move Mode (removed lock check)
+        if (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
             container:StartMoving()
         end
     end)
@@ -269,7 +276,7 @@ function AB:CreateBar(barKey, config)
     
     -- Create nudge controls for this action bar
     local nudgeFrame = Movable:CreateNudgeControls(
-        container.dragFrame,  -- CHANGED: Use dragFrame as parent
+        container.dragFrame,
         { offsetX = 0, offsetY = 0 },
         function()
             local db = AB.db.profile.bars[barKey]
@@ -290,13 +297,13 @@ function AB:CreateBar(barKey, config)
     
     container.nudgeFrame = nudgeFrame
     
-    -- CHANGED: Register for Move Mode highlighting on dragFrame, not container
+    -- Register for Move Mode highlighting on dragFrame
     Movable:MakeFrameDraggable(
         container.dragFrame,
         function(point, x, y)
             AB:SaveBarPosition(barKey)
         end,
-        function() return not AB.db.profile.locked end
+        nil  -- CHANGED: No unlock check, always use CTRL+ALT or Move Mode
     )
     
     -- Register nudge frame with dragFrame as parent
@@ -433,22 +440,22 @@ function AB:UpdateBar(barKey)
     -- Update fading
     self:UpdateBarFading(barKey)
     
-    -- Update drag frame visibility and button alpha
-    if self.db.profile.locked then
-        container.dragFrame:Hide()
-        container.dragFrame:EnableMouse(false)
-        -- Restore button visibility when locked
-        self:SetButtonsAlpha(container, 1.0)
-    else
+    -- CHANGED: Drag frame visibility now controlled by Move Mode only
+    -- Show drag frame only in Move Mode, hide otherwise
+    if MidnightUI.moveMode then
         container.dragFrame:Show()
         container.dragFrame:EnableMouse(true)
-        -- Make buttons translucent when unlocked
+        -- Make buttons translucent in Move Mode
         self:SetButtonsAlpha(container, 0.2)
+    else
+        container.dragFrame:Hide()
+        container.dragFrame:EnableMouse(false)
+        -- Restore button visibility when not in Move Mode
+        self:SetButtonsAlpha(container, 1.0)
     end
     
     -- Special handling for MainMenuBar - ensure it stays contained
     if barKey == "MainMenuBar" and container.blizzBar then
-        -- Don't try to reposition - our hooks handle it
         container.blizzBar:Show()
     end
 end
@@ -725,17 +732,7 @@ function AB:GetOptions()
                 type = "group",
                 order = 1,
                 args = {
-                    locked = {
-                        name = "Lock Bars",
-                        desc = "Lock action bars in place (Hold CTRL+ALT to move when locked)",
-                        type = "toggle",
-                        order = 1,
-                        get = function() return self.db.profile.locked end,
-                        set = function(_, v)
-                            self.db.profile.locked = v
-                            self:UpdateAllBars()
-                        end
-                    },
+                    -- REMOVED: locked option
                     skinButtons = {
                         name = "Skin Buttons",
                         desc = "Apply custom button styling",
@@ -762,6 +759,12 @@ function AB:GetOptions()
                         end
                     },
                     spacer0 = { name = "", type = "header", order = 5 },
+                    moveNote = {
+                        name = "|cffaaaaaa(Use /muimove or click M button to enable Move Mode)\nThen hover over bars to see nudge controls|r",
+                        type = "description",
+                        order = 5.5,
+                        fontSize = "medium",
+                    },
                     resetAllPositions = {
                         name = "Reset All Bar Positions",
                         desc = "Reset all action bars to their default positions",
