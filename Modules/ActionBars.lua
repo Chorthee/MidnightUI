@@ -547,41 +547,25 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Aggressively hide all textures in TextOverlayContainer
+    -- Hide TextOverlayContainer completely - it's the source of rectangles
     if btn.TextOverlayContainer then
-        -- Hide all child textures recursively
-        local function HideTextures(frame)
-            for i = 1, frame:GetNumRegions() do
-                local region = select(i, frame:GetRegions())
-                if region and region:GetObjectType() == "Texture" then
-                    region:SetTexture(nil)
-                    region:SetAlpha(0)
-                    region:Hide()
-                end
-            end
-            
-            for i = 1, frame:GetNumChildren() do
-                local child = select(i, frame:GetChildren())
-                if child then
-                    HideTextures(child)
-                end
-            end
-        end
-        
-        HideTextures(btn.TextOverlayContainer)
+        btn.TextOverlayContainer:SetParent(nil)
+        btn.TextOverlayContainer:Hide()
+        btn.TextOverlayContainer:SetAlpha(0)
     end
     
-    -- Fix highlight to be around the icon, not inside
+    -- Fix highlight to match button borders properly
     local highlight = btn:GetHighlightTexture()
-    if highlight and btn.icon then
+    if highlight then
         highlight:ClearAllPoints()
-        highlight:SetAllPoints(btn)  -- Match the full button size, not just icon
+        highlight:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -1)
+        highlight:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -1, 1)
         highlight:SetDrawLayer("HIGHLIGHT")
     end
     
-    -- Style hotkey text
+    -- Style hotkey text (use the button's HotKey, not from TextOverlayContainer)
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
-    if hotkey then
+    if hotkey and hotkey:GetParent() ~= btn.TextOverlayContainer then
         if db.showHotkeys then
             hotkey:Show()
             hotkey:ClearAllPoints()
