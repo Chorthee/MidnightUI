@@ -289,8 +289,8 @@ function AB:CreateBar(barKey, config)
         end
     end)
     
-    -- Create nudge controls for this action bar
-    local nudgeFrame = Movable:CreateNudgeControls(
+    -- Create compact arrow nudge controls for this action bar
+    local nudgeFrame = Movable:CreateContainerArrows(
         container.dragFrame,
         { offsetX = 0, offsetY = 0 },
         function()
