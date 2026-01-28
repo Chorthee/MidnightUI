@@ -111,16 +111,19 @@ function UIButtons:CreateButtons()
             
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
-            btn:RegisterForClicks("AnyUp")
             btn:SetFrameStrata("TOOLTIP")
             btn:SetFrameLevel(200)            
             -- Set up secure attributes for logout/exit buttons
             if key == "logout" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/camp")
+                btn:RegisterForClicks("LeftButtonUp")
             elseif key == "exit" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/quit")
+                btn:RegisterForClicks("LeftButtonUp")
+            else
+                btn:RegisterForClicks("AnyUp")
             end            
             local bg = btn:CreateTexture(nil, "BACKGROUND")
             bg:SetAllPoints()
