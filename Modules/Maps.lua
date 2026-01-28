@@ -188,7 +188,19 @@ function Maps:SetupNudgeControls()
 end
 
 function Maps:OnMoveModeChanged(event, enabled)
-    -- Handled by Movable module
+    local Movable = MidnightUI:GetModule("Movable")
+    
+    if enabled then
+        -- CHANGED: Always show nudge controls immediately when Move Mode is enabled
+        if self.nudgeFrame then
+            Movable:ShowNudgeControls(self.nudgeFrame, Minimap)
+        end
+    else
+        -- Hide nudge controls when Move Mode is disabled
+        if self.nudgeFrame then
+            Movable:HideNudgeControls(self.nudgeFrame)
+        end
+    end
 end
 
 -- -----------------------------------------------------------------------------

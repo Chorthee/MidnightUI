@@ -358,10 +358,15 @@ function Movable:OnMoveModeChanged(event, enabled)
         end
     end
     
-    -- Hide all nudge frames when Move Mode is disabled
-    if not enabled then
-        for _, data in ipairs(self.registeredNudgeFrames) do
-            if data.nudge then
+    -- CHANGED: When Move Mode is enabled, show all nudge frames immediately
+    -- When disabled, hide all nudge frames
+    for _, data in ipairs(self.registeredNudgeFrames) do
+        if data.nudge and data.parent then
+            if enabled then
+                -- Show nudge controls for all registered frames
+                self:ShowNudgeControls(data.nudge, data.parent)
+            else
+                -- Hide when Move Mode is disabled
                 self:HideNudgeControls(data.nudge)
             end
         end

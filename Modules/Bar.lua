@@ -1355,10 +1355,47 @@ function Bar:CreateBarFrame(id)
     Movable:MakeFrameDraggable(
         f,
         function(point, x, y)
-            -- Save is handled by ApplyBarSettings
+            -- Position is saved by ApplyBarSettings
         end,
         function() return not Bar.db.profile.locked end
     )
+    
+    -- Create nudge controls for the bar
+    local nudgeFrame = Movable:CreateNudgeControls(
+        f,
+        { offsetX = 0, offsetY = 0 },
+        function()
+            local db = Bar.db.profile.bars[id]
+            local nudgeDB = nudgeFrame.db
+            
+            -- Apply nudge offset to saved position
+            db.x = (db.x or 0) + (nudgeDB.offsetX or 0)
+            db.y = (db.y or 0) + (nudgeDB.offsetY or 0)
+            
+            -- Reset nudge offset
+            nudgeDB.offsetX = 0
+            nudgeDB.offsetY = 0
+            
+            -- Update bar position
+            f:ClearAllPoints()
+            if db.fullWidth then
+                f:SetPoint("TOPLEFT", UIParent, "TOPLEFT", 0, db.y)
+                f:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", 0, db.y)
+            else
+                f:SetPoint(db.point or "CENTER", UIParent, db.point or "CENTER", db.x, db.y)
+            end
+            
+            Movable:UpdateNudgeDisplay(nudgeFrame, nudgeDB)
+        end,
+        nil
+    )
+    
+    f.nudgeFrame = nudgeFrame
+    
+    -- Register nudge frame
+    if nudgeFrame then
+        Movable:RegisterNudgeFrame(nudgeFrame, f)
+    end
     
     bars[id] = f
 end

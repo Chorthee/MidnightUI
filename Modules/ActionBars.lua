@@ -253,7 +253,7 @@ function AB:CreateBar(barKey, config)
     
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
-        if not AB.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then
+        if not AB.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
             container:StartMoving()
         end
     end)
@@ -269,20 +269,17 @@ function AB:CreateBar(barKey, config)
     
     -- Create nudge controls for this action bar
     local nudgeFrame = Movable:CreateNudgeControls(
-        container,
-        { offsetX = 0, offsetY = 0 },  -- Temporary DB structure
+        container.dragFrame,  -- CHANGED: Use dragFrame as parent
+        { offsetX = 0, offsetY = 0 },
         function()
-            -- Apply the nudge offset
             local db = AB.db.profile.bars[barKey]
             local nudgeDB = nudgeFrame.db
             db.x = (db.x or 0) + (nudgeDB.offsetX or 0)
             db.y = (db.y or 0) + (nudgeDB.offsetY or 0)
             
-            -- Reset the nudge offset
             nudgeDB.offsetX = 0
             nudgeDB.offsetY = 0
             
-            -- Update the bar position
             container:ClearAllPoints()
             container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
             
@@ -291,10 +288,9 @@ function AB:CreateBar(barKey, config)
         nil
     )
     
-    -- Store nudge frame reference
     container.nudgeFrame = nudgeFrame
     
-    -- Register for Move Mode highlighting
+    -- CHANGED: Register for Move Mode highlighting on dragFrame, not container
     Movable:MakeFrameDraggable(
         container.dragFrame,
         function(point, x, y)
@@ -303,9 +299,9 @@ function AB:CreateBar(barKey, config)
         function() return not AB.db.profile.locked end
     )
     
-    -- Register nudge frame
+    -- Register nudge frame with dragFrame as parent
     if nudgeFrame then
-        Movable:RegisterNudgeFrame(nudgeFrame, container)
+        Movable:RegisterNudgeFrame(nudgeFrame, container.dragFrame)
     end
     
     return container
