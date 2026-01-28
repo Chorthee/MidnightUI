@@ -36,6 +36,7 @@ Core.lua
 # ------------------------------------------------------------------------------
 # MODULES
 # ------------------------------------------------------------------------------
+Modules\Movable.lua
 Modules\Bar.lua
 Modules\UIButtons.lua
 Modules\Tweaks.lua
