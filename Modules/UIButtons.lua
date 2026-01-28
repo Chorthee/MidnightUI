@@ -154,9 +154,17 @@ function UIButtons:CreateButtons()
                 btn:SetAttribute("macrotext", "/quit")
                 btn:RegisterForClicks("AnyUp", "AnyDown")
             elseif key == "addons" then
-                btn:SetAttribute("type", "macro")
-                btn:SetAttribute("macrotext", "/addons")
-                btn:RegisterForClicks("AnyUp", "AnyDown")
+                -- For Addons button, use a regular button and OnClick script
+                btn:SetAttribute("type", nil)
+                btn:SetAttribute("macrotext", nil)
+                btn:RegisterForClicks("AnyUp")
+                btn:SetScript("OnClick", function()
+                    if ToggleAddOnManager then
+                        ToggleAddOnManager()
+                    elseif InterfaceOptionsFrame_OpenToCategory then
+                        InterfaceOptionsFrame_OpenToCategory("AddOns")
+                    end
+                end)
             else
                 btn:RegisterForClicks("AnyUp")
             end            
