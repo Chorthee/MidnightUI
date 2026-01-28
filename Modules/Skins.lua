@@ -915,7 +915,7 @@ function Skin:SkinButton(btn)
     btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
     btn.muiSkinBg:SetColorTexture(unpack(bgColor))
     
-    -- Get icon texture
+    -- Get icon texture - try ALL methods
     local icon = btn.icon or btn.Icon
     if not icon then
         local btnName = btn:GetName()
@@ -924,13 +924,27 @@ function Skin:SkinButton(btn)
         end
     end
     
-    -- Apply icon cropping
-    if icon and icon.SetTexCoord then
-        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    -- CRITICAL: Ensure icon is visible and properly layered
+    if icon then
+        -- Make sure icon is on ARTWORK layer, above our background
         icon:SetDrawLayer("ARTWORK", 1)
+        
+        -- Apply square cropping (removes rounded edges)
+        if icon.SetTexCoord then
+            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        end
+        
+        -- CRITICAL: Force the icon to show and be at full alpha
+        icon:Show()
+        icon:SetAlpha(1)
+        
+        -- Ensure icon is not being masked/clipped
+        if icon.SetVertexColor then
+            icon:SetVertexColor(1, 1, 1, 1)
+        end
     end
     
-    -- Hide Blizzard elements
+    -- Hide ONLY the border/decoration elements, NOT the icon
     self:HideBlizzardButtonElements(btn)
     
     btn.muiSkinned = true
@@ -939,34 +953,45 @@ end
 function Skin:MaintainButtonSkin(btn)
     if not btn or not btn.muiSkinned then return end
     
-    if btn.muiSkinBg then
-        btn.muiSkinBg:Show()
-    end
-    
-    self:HideBlizzardButtonElements(btn)
-end
-
-function Skin:MaintainButtonSkin(btn)
-    if not btn or not btn.muiSkinned then return end
-    
+    -- Ensure background stays visible
     if btn.muiSkinBg then
         btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
         btn.muiSkinBg:SetAlpha(1)
         btn.muiSkinBg:Show()
     end
     
+    -- Ensure icon stays visible
+    local icon = btn.icon or btn.Icon
+    if not icon then
+        local btnName = btn:GetName()
+        if btnName then
+            icon = _G[btnName.."Icon"]
+        end
+    end
+    
+    if icon then
+        icon:Show()
+        icon:SetAlpha(1)
+        icon:SetDrawLayer("ARTWORK", 1)
+    end
+    
+    -- Re-hide decoration elements
     self:HideBlizzardButtonElements(btn)
 end
 
 function Skin:HideBlizzardButtonElements(btn)
+    if not btn then return end
+    
+    -- ONLY hide decoration elements, NOT functional elements like icon/cooldown/count
     local elementsToHide = {
-        "Border",
-        "NormalTexture",
-        "SlotBackground",
-        "BorderSheen",
-        "FloatingBG",
-        "SlotArt",
-        "CheckedTexture"
+        "Border",              -- The action button border
+        "NormalTexture",       -- Normal state texture
+        "SlotBackground",      -- Empty slot background
+        "BorderSheen",         -- Shiny border effect
+        "FloatingBG",          -- Floating background
+        "SlotArt",             -- Slot artwork
+        "CheckedTexture",      -- Checked state texture
+        "Flash",               -- Flash animation texture (optional - remove if you want flash)
     }
     
     for _, elementName in ipairs(elementsToHide) do
@@ -977,11 +1002,19 @@ function Skin:HideBlizzardButtonElements(btn)
         end
     end
     
+    -- Hide the normal texture via GetNormalTexture
     local normalTexture = btn:GetNormalTexture()
     if normalTexture then
         normalTexture:SetAlpha(0)
         normalTexture:Hide()
     end
+    
+    -- CRITICAL: Do NOT hide these elements - they are functional
+    -- icon/Icon - The spell/item icon (we want to keep this!)
+    -- cooldown/Cooldown - The cooldown spiral
+    -- Count - The item count text
+    -- HotKey - The keybind text
+    -- Name - The macro name text
 end
 
 -- ============================================================================
