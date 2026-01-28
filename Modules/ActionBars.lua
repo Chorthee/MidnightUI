@@ -414,10 +414,13 @@ function AB:CreateBar(barKey, config)
             end
             -- Only snap to screen center if we didn't snap to another bar
             if not bestSnapX then
-                local screenCenterX = UIParent:GetWidth() / 2
+                local screenWidth = UIParent:GetWidth()
+                local screenCenterX = screenWidth / 2
+                local barWidth = selfRight - selfLeft
                 local selfCenterX = (selfLeft + selfRight) / 2
                 if math.abs(selfCenterX - screenCenterX) < snapThreshold * 2 then
-                    bestSnapX = 0
+                    -- Offset so bar is perfectly centered
+                    bestSnapX = (screenCenterX - barWidth / 2) - (selfLeft - x)
                 end
             end
             if not bestSnapY then
