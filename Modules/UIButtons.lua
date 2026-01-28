@@ -70,10 +70,16 @@ function UIButtons:CreateButtons()
             text = "A",
             tooltip = "Open Addons List",
             onClick = function() 
-                if not AddonList then 
-                    UIParentLoadAddOn("Blizzard_AddonManager") 
+                if AddonList then
+                    AddonList:Show()
+                else
+                    -- Modern WoW uses the Settings panel
+                    if SettingsPanel then
+                        SettingsPanel:Open()
+                    elseif Settings then
+                        Settings.OpenToCategory()
+                    end
                 end
-                AddonList_Show()
             end
         },
         move = {
