@@ -522,7 +522,9 @@ end
 -- ============================================================================
 -- BLIZZARD UI FRAMES SKINNING
 -- ============================================================================
-if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames then return end
+
+function Skin:SkinBlizzardFrames()
+    if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames then return end
     
     -- Use WoW 12.0 API to find frames
     local function TrySkinFrame(frameName)
