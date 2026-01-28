@@ -258,7 +258,7 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
         end)
         
         parentFrame:HookScript("OnLeave", function()
-            if nudge then
+            if nudge and not nudge.disableAutoHide then
                 -- Delay hiding to allow mouse to move to nudge buttons
                 nudge.hideTimer = C_Timer.NewTimer(0.3, function()
                     if nudge and not MouseIsOver(parentFrame) and not MouseIsOver(nudge) then
@@ -282,13 +282,15 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     end)
     
     nudge:SetScript("OnLeave", function(self)
-        -- Delay hiding to allow mouse movement
-        self.hideTimer = C_Timer.NewTimer(0.3, function()
-            if not MouseIsOver(parentFrame) and not MouseIsOver(self) then
-                self:Hide()
-            end
-            self.hideTimer = nil
-        end)
+        if not self.disableAutoHide then
+            -- Delay hiding to allow mouse movement
+            self.hideTimer = C_Timer.NewTimer(0.3, function()
+                if not MouseIsOver(parentFrame) and not MouseIsOver(self) then
+                    self:Hide()
+                end
+                self.hideTimer = nil
+            end)
+        end
     end)
     
     return nudge
@@ -346,16 +348,26 @@ end
 
 --[[
     Hides nudge controls
-    @param nudgeFrame - The nudge control frame
+    @param nudgeFrame - The nudge control frame or table of arrow buttons
 ]]
 function Movable:HideNudgeControls(nudgeFrame)
-    if nudgeFrame then
-        -- Cancel any pending hide timer
-        if nudgeFrame.hideTimer then
-            nudgeFrame.hideTimer:Cancel()
-            nudgeFrame.hideTimer = nil
-        end
+    if not nudgeFrame then return end
+    
+    -- Cancel any pending hide timer
+    if nudgeFrame.hideTimer then
+        nudgeFrame.hideTimer:Cancel()
+        nudgeFrame.hideTimer = nil
+    end
+    
+    -- Check if it's a frame with Hide method (CreateNudgeControls)
+    if nudgeFrame.Hide and type(nudgeFrame.Hide) == "function" then
         nudgeFrame:Hide()
+    -- Or if it's a table of arrow buttons (CreateContainerArrows)
+    elseif nudgeFrame.UP and nudgeFrame.DOWN and nudgeFrame.LEFT and nudgeFrame.RIGHT then
+        nudgeFrame.UP:Hide()
+        nudgeFrame.DOWN:Hide()
+        nudgeFrame.LEFT:Hide()
+        nudgeFrame.RIGHT:Hide()
     end
 end
 

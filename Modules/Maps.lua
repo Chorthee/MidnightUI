@@ -182,6 +182,16 @@ function Maps:SetupNudgeControls()
         "Move Minimap"  -- Custom title
     )
     
+    -- Disable auto-hide behavior for minimap - it should stay visible while move mode is on
+    if self.nudgeFrame then
+        self.nudgeFrame.disableAutoHide = true
+        
+        -- Override the nudge frame's OnLeave to not hide
+        self.nudgeFrame:SetScript("OnLeave", function(self)
+            -- Don't hide - minimap mover stays visible during move mode
+        end)
+    end
+    
     Movable:RegisterNudgeFrame(self.nudgeFrame, Minimap)
 end
 
