@@ -10,6 +10,92 @@ local Movable = MidnightUI:NewModule("Movable", "AceEvent-3.0")
 Movable.registeredFrames = {}
 Movable.registeredNudgeFrames = {}
 
+-- Grid settings
+local GRID_SIZE = 8
+local gridFrame = nil
+
+-- ============================================================================
+-- SNAP TO GRID HELPER
+-- ============================================================================
+
+function Movable:SnapToGrid(value)
+    return math.floor(value / GRID_SIZE + 0.5) * GRID_SIZE
+end
+
+-- ============================================================================
+-- ALIGNMENT GRID OVERLAY
+-- ============================================================================
+
+function Movable:CreateGrid()
+    if gridFrame then return gridFrame end
+    
+    gridFrame = CreateFrame("Frame", "MidnightUI_GridOverlay", UIParent)
+    gridFrame:SetAllPoints(UIParent)
+    gridFrame:SetFrameStrata("BACKGROUND")
+    gridFrame:SetFrameLevel(0)
+    gridFrame:Hide()
+    
+    -- Create vertical lines
+    local screenWidth = GetScreenWidth()
+    local screenHeight = GetScreenHeight()
+    
+    gridFrame.lines = {}
+    
+    -- Vertical lines
+    for x = 0, screenWidth, GRID_SIZE do
+        local line = gridFrame:CreateTexture(nil, "BACKGROUND")
+        line:SetTexture("Interface\\Buttons\\WHITE8X8")
+        line:SetVertexColor(0.3, 0.3, 0.3, 0.3)
+        line:SetWidth(1)
+        line:SetHeight(screenHeight)
+        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
+        table.insert(gridFrame.lines, line)
+    end
+    
+    -- Horizontal lines
+    for y = 0, screenHeight, GRID_SIZE do
+        local line = gridFrame:CreateTexture(nil, "BACKGROUND")
+        line:SetTexture("Interface\\Buttons\\WHITE8X8")
+        line:SetVertexColor(0.3, 0.3, 0.3, 0.3)
+        line:SetWidth(screenWidth)
+        line:SetHeight(1)
+        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
+        table.insert(gridFrame.lines, line)
+    end
+    
+    return gridFrame
+end
+
+function Movable:ShowGrid()
+    if not gridFrame then
+        self:CreateGrid()
+    end
+    gridFrame:Show()
+end
+
+function Movable:HideGrid()
+    if gridFrame then
+        gridFrame:Hide()
+    end
+end
+
+-- ============================================================================
+-- INITIALIZATION
+-- ============================================================================
+
+function Movable:OnEnable()
+    -- Listen for move mode changes
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+end
+
+function Movable:OnMoveModeChanged(event, enabled)
+    if enabled then
+        self:ShowGrid()
+    else
+        self:HideGrid()
+    end
+end
+
 -- ============================================================================
 -- 1. DRAG FUNCTIONALITY
 -- ============================================================================
@@ -51,6 +137,15 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
         
         self:StopMovingOrSizing()
         isDragging = false
+        
+        -- Snap to grid if move mode is active
+        if MidnightUI.moveMode then
+            local point, relativeTo, relativePoint, x, y = self:GetPoint()
+            x = Movable:SnapToGrid(x)
+            y = Movable:SnapToGrid(y)
+            self:ClearAllPoints()
+            self:SetPoint(point, relativeTo, relativePoint, x, y)
+        end
         
         -- Save position if callback provided
         if saveCallback then
@@ -469,7 +564,8 @@ function Movable:CreateContainerArrows(container, db, resetCallback)
         end)
         
         btn:SetScript("OnClick", function()
-            local step = IsShiftKeyDown() and 10 or 1
+            -- Use grid size for nudging when in move mode
+            local step = IsShiftKeyDown() and (GRID_SIZE * 5) or GRID_SIZE
             
             -- CRITICAL FIX: Get CURRENT position from container, not from DB
             local currentPoint, _, _, currentX, currentY = container:GetPoint()
