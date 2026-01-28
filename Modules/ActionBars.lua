@@ -792,6 +792,26 @@ function AB:UpdateButtonElements(btn)
         normalTex:SetAlpha(0)
     end
     
+    -- Create custom empty button background if it doesn't exist
+    if not btn.emptyBackground then
+        btn.emptyBackground = btn:CreateTexture(nil, "BACKGROUND")
+        btn.emptyBackground:SetAllPoints(btn)
+        btn.emptyBackground:SetColorTexture(0.1, 0.1, 0.1, 0.5)
+    end
+    
+    -- Create custom empty button border if it doesn't exist
+    if not btn.emptyBorder then
+        btn.emptyBorder = btn:CreateTexture(nil, "BORDER")
+        btn.emptyBorder:SetAllPoints(btn)
+        btn.emptyBorder:SetTexture("Interface\\Buttons\\WHITE8X8")
+        btn.emptyBorder:SetVertexColor(0.3, 0.3, 0.3, 0.8)
+        
+        -- Create border effect by inset
+        btn.emptyBorder:ClearAllPoints()
+        btn.emptyBorder:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        btn.emptyBorder:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+    end
+    
     -- Hide border textures that might show as rectangles
     if btn.Border then
         btn.Border:SetAlpha(0)
@@ -897,10 +917,20 @@ function AB:UpdateEmptyButtons(barKey)
                     if hasAction then
                         btn.icon:SetAlpha(1)
                         btn.icon:Show()
+                        -- Hide empty background when there's an action
+                        if btn.emptyBackground then btn.emptyBackground:Hide() end
+                        if btn.emptyBorder then btn.emptyBorder:Hide() end
                     else
                         btn.icon:SetAlpha(0)
                         btn.icon:Hide()
+                        -- Show empty background for empty buttons
+                        if btn.emptyBackground then btn.emptyBackground:Show() end
+                        if btn.emptyBorder then btn.emptyBorder:Show() end
                     end
+                else
+                    -- No icon property, show empty background
+                    if btn.emptyBackground then btn.emptyBackground:Show() end
+                    if btn.emptyBorder then btn.emptyBorder:Show() end
                 end
             else
                 -- Hide empty buttons
@@ -911,11 +941,15 @@ function AB:UpdateEmptyButtons(barKey)
                         btn.icon:SetAlpha(1)
                         btn.icon:Show()
                     end
+                    if btn.emptyBackground then btn.emptyBackground:Hide() end
+                    if btn.emptyBorder then btn.emptyBorder:Hide() end
                 else
                     btn:Hide()
                     if btn.customHotkey then
                         btn.customHotkey:Hide()
                     end
+                    if btn.emptyBackground then btn.emptyBackground:Hide() end
+                    if btn.emptyBorder then btn.emptyBorder:Hide() end
                 end
             end
         end
