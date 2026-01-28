@@ -102,13 +102,13 @@ function AB:PLAYER_ENTERING_WORLD()
     self:InitializeAllBars()
     self:UpdateAllBars()
     
-    -- Trigger Skins module to skin our buttons
-    C_Timer.After(0.5, function()
-        local Skin = MidnightUI:GetModule("Skin", true)
-        if Skin and Skin.SkinActionBarButtons then
-            Skin:SkinActionBarButtons()
-        end
-    end)
+    -- TEMPORARILY DISABLED - Skinning disabled for now
+    -- C_Timer.After(0.5, function()
+    --     local Skin = MidnightUI:GetModule("Skin", true)
+    --     if Skin and Skin.SkinActionBarButtons then
+    --         Skin:SkinActionBarButtons()
+    --     end
+    -- end)
 end
 
 -- ADDED: Handle Move Mode changes
