@@ -518,6 +518,17 @@ function AB:CollectButtons(container, barKey)
             if btn then 
                 btn:Show()
                 btn:SetAlpha(1)
+                -- Update the icon texture manually
+                local icon = btn.icon or _G[btn:GetName().."Icon"]
+                if icon then
+                    local texture, isActive, isCastable = GetShapeshiftFormInfo(i)
+                    if texture then
+                        icon:SetTexture(texture)
+                        icon:Show()
+                    else
+                        icon:Hide()
+                    end
+                end
                 -- Ensure the button updates its icon/state
                 if btn.Update then
                     btn:Update()
@@ -1131,15 +1142,39 @@ function AB:UPDATE_SHAPESHIFT_FORMS()
     -- Update when shapeshift forms are learned or changed
     local container = bars["StanceBar"]
     if container then
+        -- Update icons for all stance buttons
+        for i = 1, 10 do
+            local btn = _G["StanceButton"..i]
+            if btn then
+                local icon = btn.icon or _G[btn:GetName().."Icon"]
+                if icon then
+                    local texture, isActive, isCastable = GetShapeshiftFormInfo(i)
+                    if texture then
+                        icon:SetTexture(texture)
+                        icon:Show()
+                        btn:Show()
+                    else
+                        icon:Hide()
+                        btn:Hide()
+                    end
+                end
+            end
+        end
         self:UpdateBar("StanceBar")
         self:UpdateEmptyButtons("StanceBar")
     end
 end
 
 function AB:UPDATE_SHAPESHIFT_FORM()
-    -- Update when player changes form
+    -- Update when player changes form (just update active state)
     local container = bars["StanceBar"]
     if container then
+        for i = 1, 10 do
+            local btn = _G["StanceButton"..i]
+            if btn and btn.Update then
+                btn:Update()
+            end
+        end
         self:UpdateEmptyButtons("StanceBar")
     end
 end
