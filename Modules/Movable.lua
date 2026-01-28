@@ -426,7 +426,7 @@ end
     @param db - Database table with position = {point, x, y}
     @return arrows table with UP, DOWN, LEFT, RIGHT keys
 ]]
-function Movable:CreateContainerArrows(container, db)
+function Movable:CreateContainerArrows(container, db, resetCallback)
     if not container or not db then return end
     
     container.arrows = {}
@@ -501,6 +501,48 @@ function Movable:CreateContainerArrows(container, db)
         btn:Hide()
         container.arrows[direction] = btn
     end
+    
+    -- Create RESET button in the center
+    local resetBtn = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+    resetBtn:SetSize(24, 24)
+    resetBtn:SetFrameStrata("TOOLTIP")
+    resetBtn:SetFrameLevel(300)
+    
+    resetBtn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    resetBtn:SetBackdropColor(0.3, 0.1, 0.1, 0.8)
+    resetBtn:SetBackdropBorderColor(1, 0, 0, 1)
+    
+    -- Reset text
+    local resetText = resetBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    resetText:SetPoint("CENTER")
+    resetText:SetText("R")
+    resetText:SetTextColor(1, 0, 0, 1)
+    
+    resetBtn:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.5, 0.2, 0.2, 1)
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:SetText("Reset Position", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    
+    resetBtn:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.3, 0.1, 0.1, 0.8)
+        GameTooltip:Hide()
+    end)
+    
+    resetBtn:SetScript("OnClick", function()
+        if resetCallback then
+            resetCallback()
+        end
+    end)
+    
+    resetBtn:Hide()
+    container.arrows.RESET = resetBtn
     
     -- Setup mouseover for container arrows
     if not container.movableArrowsHooked then
@@ -599,20 +641,23 @@ function Movable:UpdateContainerArrows(container)
     
     container.arrows.LEFT:ClearAllPoints()
     container.arrows.UP:ClearAllPoints()
+    container.arrows.RESET:ClearAllPoints()
     container.arrows.DOWN:ClearAllPoints()
     container.arrows.RIGHT:ClearAllPoints()
     
     if onTop then
-        -- Container on top, arrows below: < ^ v >
+        -- Container on top, arrows below: < ^ R v >
         container.arrows.LEFT:SetPoint("TOP", container, "BOTTOM", 0, -offset)
         container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
-        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RESET:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.RESET, "RIGHT", spacing, 0)
         container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
     else
-        -- Container on bottom, arrows above: < ^ v >
+        -- Container on bottom, arrows above: < ^ R v >
         container.arrows.LEFT:SetPoint("BOTTOM", container, "TOP", 0, offset)
         container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
-        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RESET:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.RESET, "RIGHT", spacing, 0)
         container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
     end
     

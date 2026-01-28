@@ -294,20 +294,18 @@ function AB:CreateBar(barKey, config)
         container.dragFrame,
         { offsetX = 0, offsetY = 0 },
         function()
-            local db = AB.db.profile.bars[barKey]
-            local nudgeDB = container.nudgeFrame.db
-            db.x = (db.x or 0) + (nudgeDB.offsetX or 0)
-            db.y = (db.y or 0) + (nudgeDB.offsetY or 0)
-            
-            nudgeDB.offsetX = 0
-            nudgeDB.offsetY = 0
-            
-            container:ClearAllPoints()
-            container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
-            
-            Movable:UpdateNudgeDisplay(container.nudgeFrame, nudgeDB)
-        end,
-        nil
+            -- Reset callback
+            local config = BAR_CONFIGS[barKey]
+            if config and config.default then
+                local db = AB.db.profile.bars[barKey]
+                db.point = config.default.point
+                db.x = config.default.x
+                db.y = config.default.y
+                
+                container:ClearAllPoints()
+                container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
+            end
+        end
     )
     
     container.nudgeFrame = nudgeFrame
@@ -469,6 +467,7 @@ function AB:UpdateBar(barKey)
             if container.nudgeFrame.DOWN then container.nudgeFrame.DOWN:Show() end
             if container.nudgeFrame.LEFT then container.nudgeFrame.LEFT:Show() end
             if container.nudgeFrame.RIGHT then container.nudgeFrame.RIGHT:Show() end
+            if container.nudgeFrame.RESET then container.nudgeFrame.RESET:Show() end
         end
     else
         -- Hide drag frame
@@ -490,6 +489,7 @@ function AB:UpdateBar(barKey)
             if container.nudgeFrame.DOWN then container.nudgeFrame.DOWN:Hide() end
             if container.nudgeFrame.LEFT then container.nudgeFrame.LEFT:Hide() end
             if container.nudgeFrame.RIGHT then container.nudgeFrame.RIGHT:Hide() end
+            if container.nudgeFrame.RESET then container.nudgeFrame.RESET:Hide() end
         end
     end
     
