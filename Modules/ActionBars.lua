@@ -563,7 +563,20 @@ function AB:UpdateButtonElements(btn)
     end
     
     -- Update custom hotkey text from the button's action binding
-    if db.showHotkeys and btn:IsVisible() and btn:GetParent():IsVisible() then
+    -- Check if button, its parent container, and the original Blizzard bar are all visible
+    local parentBar = btn.bar or btn:GetParent()
+    local shouldShow = db.showHotkeys and btn:IsVisible()
+    
+    -- Additional check: if this is a StanceBar or PetActionBar, check if Blizzard is showing the bar
+    if shouldShow and parentBar then
+        local parentName = parentBar:GetName()
+        if parentName == "StanceBar" or parentName == "PetActionBar" then
+            -- These bars are hidden by Blizzard for classes without stances/pets
+            shouldShow = parentBar:IsVisible() and parentBar:IsShown()
+        end
+    end
+    
+    if shouldShow then
         local key = GetBindingKey(btn.commandName or btn.bindingAction)
         if key then
             local text = GetBindingText(key, "KEY_", 1)
