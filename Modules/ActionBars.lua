@@ -156,13 +156,20 @@ end
 -- ============================================================================
 
 function AB:InitializeAllBars()
+    print("ActionBars:InitializeAllBars called")
     for barKey, config in pairs(BAR_CONFIGS) do
+        print("  Creating bar: " .. barKey)
         self:CreateBar(barKey, config)
     end
+    print("ActionBars: After init, bars count=" .. self:CountBars())
 end
 
 function AB:CreateBar(barKey, config)
-    if bars[barKey] then return end
+    print("  CreateBar called for: " .. barKey)
+    if bars[barKey] then 
+        print("    Bar already exists, skipping")
+        return 
+    end
     
     -- Create container frame (SecureHandlerStateTemplate for paging support)
     local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
