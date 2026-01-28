@@ -268,29 +268,8 @@ function Skin:StripBlizzardTextures(frame)
     end
     
     -- Hide NineSlice (WoW 12.0 border system)
-    if frame.NineSlice then
-        frame.NineSlice:SetAlpha(0)
-        frame.NineSlice:Hide()
-        -- Hide all NineSlice pieces
-        if frame.NineSlice.TopEdge then frame.NineSlice.TopEdge:Hide() end
-        if frame.NineSlice.BottomEdge then frame.NineSlice.BottomEdge:Hide() end
-        if frame.NineSlice.LeftEdge then frame.NineSlice.LeftEdge:Hide() end
-        if frame.NineSlice.RightEdge then frame.NineSlice.RightEdge:Hide() end
-        if frame.NineSlice.TopLeftCorner then frame.NineSlice.TopLeftCorner:Hide() end
-        if frame.NineSlice.TopRightCorner then frame.NineSlice.TopRightCorner:Hide() end
-        if frame.NineSlice.BottomLeftCorner then frame.NineSlice.BottomLeftCorner:Hide() end
-        if frame.NineSlice.BottomRightCorner then frame.NineSlice.BottomRightCorner:Hide() end
-        if frame.NineSlice.Center then frame.NineSlice.Center:Hide() end
-    end
     -- Blizzard art restoration: do nothing
     -- All Blizzard art and textures are preserved
-            if tab then
-                self:SkinTab(tab)
-            else
-                break
-            end
-        end
-    end
 end
 
 --[[
