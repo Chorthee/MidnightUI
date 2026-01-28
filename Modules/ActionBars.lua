@@ -128,8 +128,11 @@ end
 -- ============================================================================
 
 function AB:HideBlizzardElements()
-    -- Hide MainActionBar page controls
+    -- Hide MainActionBar page controls and disable mouse blocking
     if MainActionBar then
+        MainActionBar:EnableMouse(false)
+        MainActionBar:SetAlpha(0)
+        
         if MainActionBar.ActionBarPageNumber then
             MainActionBar.ActionBarPageNumber:Hide()
             MainActionBar.ActionBarPageNumber:SetAlpha(0)
