@@ -892,24 +892,18 @@ function AB:UpdateButtonElements(btn)
         normalTex:SetAlpha(0)
     end
     
-    -- Create custom empty button background if it doesn't exist
+    -- Create Blizzard-style empty button border if it doesn't exist
     if not btn.emptyBackground then
         btn.emptyBackground = btn:CreateTexture(nil, "BACKGROUND")
+        btn.emptyBackground:SetTexture("Interface\\Buttons\\UI-Quickslot2")
+        btn.emptyBackground:SetTexCoord(0, 1, 0, 1)
+        btn.emptyBackground:SetDrawLayer("BACKGROUND", 0)
         btn.emptyBackground:SetAllPoints(btn)
-        btn.emptyBackground:SetColorTexture(0.1, 0.1, 0.1, 0.5)
+        btn.emptyBackground:SetAlpha(1)
     end
-    
-    -- Create custom empty button border if it doesn't exist
-    if not btn.emptyBorder then
-        btn.emptyBorder = btn:CreateTexture(nil, "BORDER")
-        btn.emptyBorder:SetAllPoints(btn)
-        btn.emptyBorder:SetTexture("Interface\\Buttons\\WHITE8X8")
-        btn.emptyBorder:SetVertexColor(0.3, 0.3, 0.3, 0.8)
-        
-        -- Create border effect by inset
-        btn.emptyBorder:ClearAllPoints()
-        btn.emptyBorder:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
-        btn.emptyBorder:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+    -- Remove custom empty border (not needed with Blizzard border)
+    if btn.emptyBorder then
+        btn.emptyBorder:Hide()
     end
     
     -- Hide border textures that might show as rectangles
