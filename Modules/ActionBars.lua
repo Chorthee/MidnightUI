@@ -840,27 +840,49 @@ function AB:UpdateEmptyButtons(barKey)
     
     if not container or not container.buttons or not db then return end
     
+    -- Override Blizzard's empty button hiding if we want to show empty buttons
+    if barKey ~= "PetActionBar" and barKey ~= "StanceBar" then
+        local settings = Settings.GetCategory("ActionBars")
+        if settings then
+            -- Try to find and set the "Always Show Action Bars" setting
+            for _, setting in pairs(settings:GetSettings()) do
+                if setting.name == "alwaysShowActionBars" then
+                    Settings.SetValue(setting, db.showEmpty)
+                    break
+                end
+            end
+        end
+    end
+    
     for _, btn in ipairs(container.buttons) do
         if btn then
-            -- Get action ID - different methods for different button types
-            local actionID = btn.action
-            if not actionID and btn.GetPagedID then
-                actionID = btn:GetPagedID()
-            elseif not actionID and btn.GetActionID then
-                actionID = btn:GetActionID()
-            end
-            
-            local hasAction = actionID and HasAction(actionID)
-            
+            -- Force button to be visible if showEmpty is enabled
             if db.showEmpty then
-                -- Show all buttons
+                -- Show all buttons regardless of action
                 btn:SetAlpha(1)
                 btn:Show()
+                
+                -- Ensure icon is visible even if empty
+                if btn.icon then
+                    btn.icon:SetAlpha(0.5) -- Show greyed out if no action
+                end
             else
-                -- Hide empty buttons
+                -- Use default Blizzard behavior - check if button has action
+                local actionID = btn.action
+                if not actionID and btn.GetPagedID then
+                    actionID = btn:GetPagedID()
+                elseif not actionID and btn.GetActionID then
+                    actionID = btn:GetActionID()
+                end
+                
+                local hasAction = actionID and HasAction(actionID)
+                
                 if hasAction then
                     btn:SetAlpha(1)
                     btn:Show()
+                    if btn.icon then
+                        btn.icon:SetAlpha(1)
+                    end
                 else
                     btn:Hide()
                 end
