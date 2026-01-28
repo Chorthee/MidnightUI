@@ -125,9 +125,9 @@ function MidnightUI:GetOptions()
                     bar = { name = "Data Brokers", type = "toggle", order = 3, width = "full",
                         get = function() return self.db.profile.modules.bar end,
                         set = function(_, v) self.db.profile.modules.bar = v; C_UI.Reload() end },
-                    UIButtons = { name = "UI Buttons", type = "toggle", order = 4, width = "full",  -- Changed from buttons
-                        get = function() return self.db.profile.modules.UIButtons end,  -- Changed
-                        set = function(_, v) self.db.profile.modules.UIButtons = v; C_UI.Reload() end },  -- Changed
+                    UIButtons = { name = "UI Buttons", type = "toggle", order = 4, width = "full",
+                        get = function() return self.db.profile.modules.UIButtons end,
+                        set = function(_, v) self.db.profile.modules.UIButtons = v; C_UI.Reload() end },
                     maps = { name = "Maps", type = "toggle", order = 5, width = "full",
 
                     actionbars = { name = "Action Bars", type = "toggle", order = 6, width = "full",
@@ -141,12 +141,12 @@ function MidnightUI:GetOptions()
                         set = function(_, v) self.db.profile.modules.cooldowns = v; C_UI.Reload() end },
                     tweaks = { name = "Tweaks", type = "toggle", order = 9, width = "full",
                         get = function() return self.db.profile.modules.tweaks end,
-                        set = function(_, v) self.db.profile.modules.tweaks = v; C_UI.Reload() end },
-                }
-            },  -- This closes the 'general' group
+                        set = function(_, v) self.db.profile.modules.tweaks = v; C_UI.Reload() end }
+                }  -- closes args table for general
+            },  -- closes general group
             profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-        }  -- This closes the main 'args' table
-    }  -- This closes the options table
+        }  -- closes main args table
+    }  -- closes options table
     
     options.args.profiles.order = 100
     
