@@ -223,17 +223,36 @@ function Skin:ApplyFrameSkin(frame, skinName)
         return
     end
     
-    -- Apply clean modern backdrop with higher draw layer
-    frame:SetBackdrop(skin.backdrop)
-    frame:SetBackdropColor(unpack(skin.bgColor))
-    
-    if skin.borderAlpha and skin.borderAlpha > 0 then
-        frame:SetBackdropBorderColor(unpack(skin.borderColor))
-    end
-    
-    -- Force backdrop to show
-    if frame.SetBackdropColor then
+    -- Only apply custom backdrop if not a Blizzard frame with its own art
+    local blizzardFrames = {
+        ["GameMenuFrame"] = true,
+        ["CharacterFrame"] = true,
+        ["SpellBookFrame"] = true,
+        ["ProfessionsFrame"] = true,
+        ["AchievementFrame"] = true,
+        ["CollectionsJournal"] = true,
+        ["EncounterJournal"] = true,
+        ["PVPUIFrame"] = true,
+        ["GossipFrame"] = true,
+        ["QuestFrame"] = true,
+        ["MerchantFrame"] = true,
+        ["MailFrame"] = true,
+        ["TradeFrame"] = true,
+        ["AuctionHouseFrame"] = true,
+        ["FriendsFrame"] = true,
+        ["CommunitiesFrame"] = true,
+        ["PlayerChoiceFrame"] = true,
+        ["WorldMapFrame"] = true,
+    }
+    if not (frame.GetName and blizzardFrames[frame:GetName() or ""]) then
+        frame:SetBackdrop(skin.backdrop)
         frame:SetBackdropColor(unpack(skin.bgColor))
+        if skin.borderAlpha and skin.borderAlpha > 0 then
+            frame:SetBackdropBorderColor(unpack(skin.borderColor))
+        end
+        if frame.SetBackdropColor then
+            frame:SetBackdropColor(unpack(skin.bgColor))
+        end
     end
     
     -- Do not override Blizzard close button art
