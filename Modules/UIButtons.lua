@@ -240,20 +240,7 @@ function UIButtons:CreateButtons()
         addons = {
             name = "Addons",
             text = "A",
-            tooltip = "Toggle Addon Settings",
-            onClick = function()
-                if AddonList and AddonList:IsShown() then
-                    AddonList:Hide()
-                elseif SettingsPanel then
-                    if SettingsPanel:IsShown() then
-                        SettingsPanel:Close()
-                    else
-                        SettingsPanel:Open()
-                    end
-                elseif Settings then
-                    Settings.OpenToCategory()
-                end
-            end
+            tooltip = "Open Addon List"
         },
         move = {
             name = "Move",
@@ -284,7 +271,7 @@ function UIButtons:CreateButtons()
             btn:SetFrameLevel(201)
             btn:EnableMouse(true)
             
-            -- Set up secure attributes for logout/exit buttons FIRST
+            -- Set up secure attributes for logout/exit/addons buttons FIRST
             if key == "logout" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/logout")
@@ -292,6 +279,10 @@ function UIButtons:CreateButtons()
             elseif key == "exit" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/quit")
+                btn:RegisterForClicks("AnyUp", "AnyDown")
+            elseif key == "addons" then
+                btn:SetAttribute("type", "macro")
+                btn:SetAttribute("macrotext", "/addons")
                 btn:RegisterForClicks("AnyUp", "AnyDown")
             else
                 btn:RegisterForClicks("AnyUp")
@@ -327,7 +318,7 @@ function UIButtons:CreateButtons()
             end)
             
             -- Click handler (only for non-secure buttons)
-            if key ~= "logout" and key ~= "exit" then
+            if key ~= "logout" and key ~= "exit" and key ~= "addons" then
                 btn:SetScript("OnClick", data.onClick)
             end
             
