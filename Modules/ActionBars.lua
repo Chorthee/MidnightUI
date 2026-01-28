@@ -538,31 +538,21 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hotkey text
+    -- Completely hide hotkey frame for now to debug rectangles
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
-        if db.showHotkeys then
-            -- Check if there's valid keybind text
-            local text = hotkey:GetText()
-            if text and text ~= "" and text ~= "?" then
-                hotkey:Show()
-                hotkey:ClearAllPoints()
-                hotkey:SetPoint("TOPRIGHT", 2, -2)
-                hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-                hotkey:SetTextColor(1, 1, 1)
-                hotkey:SetDrawLayer("OVERLAY", 7)
-            else
-                -- Hide if no valid keybind
-                hotkey:Hide()
-            end
-        else
-            hotkey:Hide()
-        end
-        
-        -- Hide all possible hotkey backgrounds
+        hotkey:Hide()
+        hotkey:SetAlpha(0)
         if hotkey.Background then
             hotkey.Background:SetAlpha(0)
             hotkey.Background:Hide()
+        end
+        -- Hide all textures on the hotkey frame
+        for i = 1, hotkey:GetNumRegions() do
+            local region = select(i, hotkey:GetRegions())
+            if region and region.SetAlpha then
+                region:SetAlpha(0)
+            end
         end
     end
     
