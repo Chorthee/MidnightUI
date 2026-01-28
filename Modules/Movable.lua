@@ -89,13 +89,13 @@ end
 
 function Movable:OnInitialize()
     print("Movable:OnInitialize called")
-    -- Listen for move mode changes
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    print("Movable: Registered for MIDNIGHTUI_MOVEMODE_CHANGED")
 end
 
 function Movable:OnEnable()
     print("Movable:OnEnable - Module enabled")
+    -- Listen for move mode changes
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    print("Movable:OnEnable - Registered for MIDNIGHTUI_MOVEMODE_CHANGED")
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
