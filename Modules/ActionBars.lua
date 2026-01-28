@@ -418,8 +418,8 @@ function AB:CreateBar(barKey, config)
                 local screenCenterX = screenWidth / 2
                 local barWidth = selfRight - selfLeft
                 local selfCenterX = (selfLeft + selfRight) / 2
-                -- Only snap to center if bar is very close to center
-                if math.abs(selfCenterX - screenCenterX) < 10 then
+                -- Only snap to center if bar is within 60px of center
+                if math.abs(selfCenterX - screenCenterX) < 60 then
                     anchorPoint = "BOTTOM"
                     relativeTo = UIParent
                     relativePoint = "BOTTOM"
