@@ -1,7 +1,8 @@
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UIButtons = MidnightUI:NewModule("UIButtons", "AceEvent-3.0")
 
-local uiButtons = {}  -- Changed variable name to avoid conflict with module name
+local uiButtons = {}
+local container
 
 function UIButtons:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
@@ -12,7 +13,7 @@ function UIButtons:OnDBReady()
         return
     end
     
-    if not MidnightUI.db.profile.modules.UIButtons then  -- Changed from buttons
+    if not MidnightUI.db.profile.modules.UIButtons then
         return 
     end
     
@@ -21,7 +22,10 @@ function UIButtons:OnDBReady()
             enabled = true,
             scale = 1.0,
             spacing = 2,
-            UIButtons = {  -- Changed from buttons
+            locked = false,
+            position = { point = "BOTTOMRIGHT", x = -10, y = 10 },
+            backgroundColor = { 0.1, 0.1, 0.1, 0.8 },
+            UIButtons = {
                 reload = { enabled = true, order = 1 },
                 exit = { enabled = true, order = 2 },
                 logout = { enabled = true, order = 3 },
@@ -41,8 +45,50 @@ function UIButtons:OnDBReady()
 end
 
 function UIButtons:PLAYER_ENTERING_WORLD()
+    self:CreateContainer()
     self:CreateButtons()
     self:UpdateLayout()
+end
+
+function UIButtons:CreateContainer()
+    if container then return end
+    
+    container = CreateFrame("Frame", "MidnightUI_UIButtonsContainer", UIParent, "BackdropTemplate")
+    container:SetSize(200, 36)  -- Will be resized based on buttons
+    
+    local pos = self.db.profile.position
+    container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
+    container:SetScale(self.db.profile.scale)
+    container:SetFrameStrata("TOOLTIP")
+    container:SetFrameLevel(200)
+    container:EnableMouse(true)
+    container:SetMovable(true)
+    container:SetClampedToScreen(true)
+    
+    -- Background
+    container:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    container:SetBackdropColor(unpack(self.db.profile.backgroundColor))
+    container:SetBackdropBorderColor(0, 0, 0, 1)
+    
+    -- Drag functionality
+    container:RegisterForDrag("LeftButton")
+    container:SetScript("OnDragStart", function(self)
+        if not UIButtons.db.profile.locked and not InCombatLockdown() then
+            self:StartMoving()
+        end
+    end)
+    container:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        local point, _, _, x, y = self:GetPoint()
+        UIButtons.db.profile.position = { point = point, x = x, y = y }
+    end)
+    
+    container:Show()
 end
 
 function UIButtons:CreateButtons()
@@ -64,13 +110,13 @@ function UIButtons:CreateButtons()
             text = "L",
             tooltip = "Logout to Character Select",
             onClick = function() Logout() end
-        },
-        addons = {
-            name = "Addons",
-            text = "A",
-            tooltip = "Open Addons List",
-            onClick = function() 
-                if AddonList then
+        
+        if config and config.enabled then
+            
+            local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, "SecureActionButtonTemplate")
+            btn:SetSize(32, 32)
+            btn:SetFrameStrata("TOOLTIP")
+            btn:SetFrameLevel(201
                     -- Legacy addon list
                     if AddonList:IsShown() then
                         AddonList:Hide()
@@ -217,16 +263,53 @@ function UIButtons:GetOptions()
         order = 10,
         args = {
             header = { type = "header", name = "Quick Access Buttons", order = 1 },
-            desc = { type = "description", name = "Buttons appear in the bottom-right corner for quick access to common UI panels.", order = 2 },
+            desc = { type = "description", name = "Buttons appear in a container that can be moved and customized.", order = 2 },
+            locked = {
+                name = "Lock Position",
+                type = "toggle",
+                order = 3,
+                get = function() return self.db.profile.locked end,
+                set = function(_, v) self.db.profile.locked = v end
+            },
             scale = {
-                name = "Scale", type = "range", order = 3, min = 0.5, max = 2.0, step = 0.1,
+                name = "Scale",
+                type = "range",
+                order = 4,
+                min = 0.5,
+                max = 2.0,
+                step = 0.1,
                 get = function() return self.db.profile.scale end,
-                set = function(_, v) self.db.profile.scale = v; self:UpdateLayout() end
+                set = function(_, v)
+                    self.db.profile.scale = v
+                    self:UpdateLayout()
+                end
             },
             spacing = {
-                name = "Spacing", type = "range", order = 4, min = 0, max = 20, step = 1,
+                name = "Spacing",
+                type = "range",
+                order = 5,
+                min = 0,
+                max = 20,
+                step = 1,
                 get = function() return self.db.profile.spacing end,
-                set = function(_, v) self.db.profile.spacing = v; self:UpdateLayout() end
+                set = function(_, v)
+                    self.db.profile.spacing = v
+                    self:UpdateLayout()
+                end
+            },
+            backgroundColor = {
+                name = "Background Color",
+                type = "color",
+                order = 6,
+                hasAlpha = true,
+                get = function()
+                    local c = self.db.profile.backgroundColor
+                    return c[1], c[2], c[3], c[4]
+                end,
+                set = function(_, r, g, b, a)
+                    self.db.profile.backgroundColor = {r, g, b, a}
+                    self:UpdateLayout()
+                end
             },
             buttonsHeader = { type = "header", name = "Individual Buttons", order = 10 },
             reload = {
