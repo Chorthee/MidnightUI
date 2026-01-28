@@ -189,6 +189,70 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
         -- Snap to grid if move mode is active
         if MidnightUI.moveMode then
             local point, relativeTo, relativePoint, x, y = self:GetPoint()
+            
+            -- Snap to center of screen if within 40px
+            local screenWidth = UIParent:GetWidth()
+            local screenHeight = UIParent:GetHeight()
+            local centerX = screenWidth / 2
+            local centerY = screenHeight / 2
+            
+            if math.abs(x) < 40 then
+                x = 0
+            end
+            if math.abs(y) < 40 then
+                y = 0
+            end
+            
+            -- Snap to other action bars if within 16px (one grid square)
+            if self.barKey then
+                local AB = MidnightUI:GetModule("ActionBars")
+                if AB and AB.bars then
+                    for otherBarKey, otherBar in pairs(AB.bars) do
+                        if otherBarKey ~= self.barKey and otherBar:IsShown() then
+                            local otherX, otherY = otherBar:GetCenter()
+                            local selfX, selfY = self:GetCenter()
+                            
+                            if otherX and selfX then
+                                -- Check horizontal alignment (same Y, adjacent X)
+                                if math.abs(selfY - otherY) < 16 then
+                                    local otherLeft = otherBar:GetLeft()
+                                    local otherRight = otherBar:GetRight()
+                                    local selfLeft = self:GetLeft()
+                                    local selfRight = self:GetRight()
+                                    
+                                    -- Snap right edge to left edge
+                                    if math.abs(selfRight - otherLeft) < 16 then
+                                        x = x + (otherLeft - selfRight)
+                                    end
+                                    -- Snap left edge to right edge
+                                    if math.abs(selfLeft - otherRight) < 16 then
+                                        x = x + (otherRight - selfLeft)
+                                    end
+                                end
+                                
+                                -- Check vertical alignment (same X, adjacent Y)
+                                if math.abs(selfX - otherX) < 16 then
+                                    local otherTop = otherBar:GetTop()
+                                    local otherBottom = otherBar:GetBottom()
+                                    local selfTop = self:GetTop()
+                                    local selfBottom = self:GetBottom()
+                                    
+                                    -- Snap bottom edge to top edge
+                                    if math.abs(selfTop - otherBottom) < 16 then
+                                        y = y + (otherBottom - selfTop)
+                                    end
+                                    -- Snap top edge to bottom edge
+                                    if math.abs(selfBottom - otherTop) < 16 then
+                                        y = y + (otherTop - selfBottom)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            
+            -- Finally snap to grid
             x = Movable:SnapToGrid(x)
             y = Movable:SnapToGrid(y)
             self:ClearAllPoints()

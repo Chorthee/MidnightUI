@@ -299,6 +299,9 @@ function AB:CreateBar(barKey, config)
     -- Drag handlers using Movable module
     local Movable = MidnightUI:GetModule("Movable")
     
+    -- Store barKey on container so Movable can identify it
+    container.barKey = barKey
+    
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
         -- Only allow dragging with CTRL+ALT or Move Mode
@@ -308,6 +311,70 @@ function AB:CreateBar(barKey, config)
     end)
     container.dragFrame:SetScript("OnDragStop", function(self)
         container:StopMovingOrSizing()
+        
+        -- Snap to grid, center, and other bars if move mode active
+        if MidnightUI.moveMode then
+            local point, relativeTo, relativePoint, x, y = container:GetPoint()
+            
+            -- Snap to center of screen if within 40px
+            if math.abs(x) < 40 then
+                x = 0
+            end
+            if math.abs(y) < 40 then
+                y = 0
+            end
+            
+            -- Snap to other action bars if within 16px (one grid square)
+            for otherBarKey, otherBar in pairs(AB.bars) do
+                if otherBarKey ~= barKey and otherBar:IsShown() then
+                    local otherX, otherY = otherBar:GetCenter()
+                    local selfX, selfY = container:GetCenter()
+                    
+                    if otherX and selfX then
+                        -- Check horizontal alignment (same Y, adjacent X)
+                        if math.abs(selfY - otherY) < 16 then
+                            local otherLeft = otherBar:GetLeft()
+                            local otherRight = otherBar:GetRight()
+                            local selfLeft = container:GetLeft()
+                            local selfRight = container:GetRight()
+                            
+                            -- Snap right edge to left edge
+                            if math.abs(selfRight - otherLeft) < 16 then
+                                x = x + (otherLeft - selfRight)
+                            end
+                            -- Snap left edge to right edge
+                            if math.abs(selfLeft - otherRight) < 16 then
+                                x = x + (otherRight - selfLeft)
+                            end
+                        end
+                        
+                        -- Check vertical alignment (same X, adjacent Y)
+                        if math.abs(selfX - otherX) < 16 then
+                            local otherTop = otherBar:GetTop()
+                            local otherBottom = otherBar:GetBottom()
+                            local selfTop = container:GetTop()
+                            local selfBottom = container:GetBottom()
+                            
+                            -- Snap bottom edge to top edge
+                            if math.abs(selfTop - otherBottom) < 16 then
+                                y = y + (otherBottom - selfTop)
+                            end
+                            -- Snap top edge to bottom edge
+                            if math.abs(selfBottom - otherTop) < 16 then
+                                y = y + (otherTop - selfBottom)
+                            end
+                        end
+                    end
+                end
+            end
+            
+            -- Finally snap to grid
+            x = Movable:SnapToGrid(x)
+            y = Movable:SnapToGrid(y)
+            container:ClearAllPoints()
+            container:SetPoint(point, relativeTo, relativePoint, x, y)
+        end
+        
         AB:SaveBarPosition(barKey)
     end)
     container.dragFrame:SetScript("OnMouseUp", function(self, button)
