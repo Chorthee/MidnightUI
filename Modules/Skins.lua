@@ -415,21 +415,15 @@ function Skin:SkinTooltips()
         ShoppingTooltip1,
         ShoppingTooltip2,
         EmbeddedItemTooltip,
-        RewardSmallTooltip
     }
     
     for _, tooltip in ipairs(tooltips) do
-        if tooltip then
+        if tooltip and not tooltip.muiSkinned then
             self:ApplyFrameSkin(tooltip)
+            tooltip.muiSkinned = true
         end
     end
-    
-    -- Hook tooltip show to apply skin
-    GameTooltip:HookScript("OnShow", function(self)
-        Skin:ApplyFrameSkin(self)
-    end)
 end
-
 
 -- ============================================================================
 -- UNIT FRAME SKINNING
