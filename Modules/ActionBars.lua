@@ -370,6 +370,7 @@ function AB:CreateBar(barKey, config)
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
             local alignX = nil
+            local alignTo = nil
             -- Check snapping to other bars FIRST (higher priority)
             if bars then
                 for otherBarKey, otherBar in pairs(bars) do
@@ -385,14 +386,16 @@ function AB:CreateBar(barKey, config)
                             if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
                                 bestSnapX = x + (otherLeft - selfRight)
                                 bestDistX = rightToLeftDist
-                                -- Force left edge alignment
-                                alignX = x + (otherLeft - selfLeft)
+                                -- Align left edge to other bar's left edge
+                                alignX = otherLeft
+                                alignTo = "left"
                             end
                             if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
                                 bestSnapX = x + (otherRight - selfLeft)
                                 bestDistX = leftToRightDist
-                                -- Force right edge alignment
-                                alignX = x + (otherRight - selfRight)
+                                -- Align right edge to other bar's right edge
+                                alignX = otherRight - selfWidth
+                                alignTo = "right"
                             end
                             -- Vertical snapping (top-bottom adjacency)
                             local bottomToTopDist = math.abs(selfBottom - otherTop)
@@ -424,11 +427,16 @@ function AB:CreateBar(barKey, config)
                     bestSnapY = 0
                 end
             end
-            -- If alignX is set, use it to align left/right edges
-            local finalX = alignX or bestSnapX or x
+            -- If alignX is set, use it to align left/right edges (pixel-perfect)
+            local finalX = bestSnapX or x
+            if alignX then
+                -- Convert alignX (screen) to offset from UIParent center
+                local parentLeft = UIParent:GetLeft() or 0
+                finalX = alignX - parentLeft
+            end
             local finalY = bestSnapY or y
             container:ClearAllPoints()
-            container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
+            container:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", finalX, finalY)
         end
         
         AB:SaveBarPosition(barKey)
