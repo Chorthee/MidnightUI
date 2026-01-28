@@ -41,15 +41,15 @@ function Movable:CreateGrid()
     
     gridFrame.lines = {}
     
-    -- Vertical lines
+    -- Vertical lines - every 8 pixels with emphasis every 40 pixels
     for x = 0, screenWidth, GRID_SIZE do
         local line = gridFrame:CreateTexture(nil, "BACKGROUND")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
         
-        -- Every 5th line (40 pixels) is a thicker green emphasis line
-        local isEmphasis = (x % (GRID_SIZE * 5)) == 0
+        -- Every 40 pixels (5 grid squares) is a thicker green emphasis line
+        local isEmphasis = (x % 40) == 0
         if isEmphasis then
-            line:SetVertexColor(0, 0.5, 0, 0.7) -- Dark green
+            line:SetVertexColor(0, 0.6, 0, 0.8) -- Medium-dark green
             line:SetWidth(2)
         else
             line:SetVertexColor(0.4, 0.4, 0.4, 0.5) -- Light gray
@@ -61,15 +61,15 @@ function Movable:CreateGrid()
         table.insert(gridFrame.lines, line)
     end
     
-    -- Horizontal lines
+    -- Horizontal lines - every 8 pixels with emphasis every 40 pixels
     for y = 0, screenHeight, GRID_SIZE do
         local line = gridFrame:CreateTexture(nil, "BACKGROUND")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
         
-        -- Every 5th line (40 pixels) is a thicker green emphasis line
-        local isEmphasis = (y % (GRID_SIZE * 5)) == 0
+        -- Every 40 pixels (5 grid squares) is a thicker green emphasis line
+        local isEmphasis = (y % 40) == 0
         if isEmphasis then
-            line:SetVertexColor(0, 0.5, 0, 0.7) -- Dark green
+            line:SetVertexColor(0, 0.6, 0, 0.8) -- Medium-dark green
             line:SetHeight(2)
         else
             line:SetVertexColor(0.4, 0.4, 0.4, 0.5) -- Light gray
