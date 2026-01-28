@@ -313,15 +313,18 @@ function Skin:SkinChildFrames(frame)
     -- Skin all child buttons
     local children = {frame:GetChildren()}
     for _, child in ipairs(children) do
-        if child and child.GetObjectType then
-            local objType = child:GetObjectType()
-            if objType == "Button" then
-                self:SkinFrameButton(child)
-            elseif objType == "CheckButton" then
-                self:SkinCheckButton(child)
-            elseif objType == "Frame" and child.GetScrollChild then
-                -- Scrollframe
-                self:SkinScrollFrame(child)
+        if child then
+            -- Use pcall to safely get object type (some virtual frames don't have this method)
+            local success, objType = pcall(function() return child:GetObjectType() end)
+            if success and objType then
+                if objType == "Button" then
+                    self:SkinFrameButton(child)
+                elseif objType == "CheckButton" then
+                    self:SkinCheckButton(child)
+                elseif objType == "Frame" and child.GetScrollChild then
+                    -- Scrollframe
+                    self:SkinScrollFrame(child)
+                end
             end
         end
     end
