@@ -389,6 +389,11 @@ function AB:CreateBar(barKey, config)
             local realScreenCenterY = realScreenHeight / 2
             local barWidth = selfRight - selfLeft
             local selfCenterX = (selfLeft + selfRight) / 2
+            -- Use red dot center X for snap logic if available
+            local redDotX = nil
+            if container.centerDot and container.centerDot:GetLeft() then
+                redDotX = container.centerDot:GetLeft() + container.centerDot:GetWidth()/2
+            end
             if DEFAULT_CHAT_FRAME then
                 local cursorX, cursorY = GetCursorPosition()
                 local uiScale = UIParent:GetEffectiveScale()
@@ -425,13 +430,14 @@ function AB:CreateBar(barKey, config)
             if math.abs(scaledCursorX - realScreenCenterX) < 60 then
                 -- (do nothing, revert to bar center logic below)
             end
-            if math.abs(selfCenterX - realScreenCenterX) < 60 then
+            local snapReferenceX = redDotX or selfCenterX
+            if math.abs(snapReferenceX - realScreenCenterX) < 60 then
                 anchorPoint = "BOTTOM"
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
-                bestSnapX = realScreenCenterX - selfCenterX
+                bestSnapX = realScreenCenterX - snapReferenceX
                 bestSnapY = y -- preserve Y unless center Y snap is also triggered
-                snapDebug = "snap: center to REAL screen (exclusive, bar center, FIXED)"
+                snapDebug = "snap: center to REAL screen (exclusive, RED DOT)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
