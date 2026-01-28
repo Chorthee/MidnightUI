@@ -236,15 +236,19 @@ function Maps:SetupNudgeControls()
         btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
         btn:SetBackdropBorderColor(0, 1, 0, 1)
         
-        -- Arrow texture
+        -- Arrow text using simple ASCII characters
         local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
         arrow:SetPoint("CENTER")
         
-        if direction == "UP" then arrow:SetText("▲")
-        elseif direction == "DOWN" then arrow:SetText("▼")
-        elseif direction == "LEFT" then arrow:SetText("◄")
-        elseif direction == "RIGHT" then arrow:SetText("►")
+        -- CHANGED: Use simple ASCII characters instead of Unicode
+        if direction == "UP" then arrow:SetText("^")
+        elseif direction == "DOWN" then arrow:SetText("v")
+        elseif direction == "LEFT" then arrow:SetText("<")
+        elseif direction == "RIGHT" then arrow:SetText(">")
         end
+        
+        -- Make the symbols green and visible
+        arrow:SetTextColor(0, 1, 0, 1)
         
         -- Button behavior
         btn:SetScript("OnEnter", function(self)
