@@ -381,7 +381,13 @@ function AB:CreateBar(barKey, config)
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
                 bestSnapX = 0
+                bestSnapY = y -- preserve Y unless center Y snap is also triggered
                 snapDebug = "snap: center to screen (exclusive)"
+                -- Debug: print SetPoint args
+                if DEFAULT_CHAT_FRAME then
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
+                end
+            else
             else
                 -- Only check snapping to other bars if NOT snapping to center
                 if bars then
@@ -460,6 +466,10 @@ function AB:CreateBar(barKey, config)
             end
             container:ClearAllPoints()
             container:SetPoint(anchorPoint, relativeTo, relativePoint, finalX, finalY)
+            -- Debug: print SetPoint args for all other snaps
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(finalX)..", "..tostring(finalY))
+            end
         end
         AB:SaveBarPosition(barKey)
     end)
