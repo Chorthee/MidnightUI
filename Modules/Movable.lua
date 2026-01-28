@@ -102,14 +102,25 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
-    print("Movable:OnMoveModeChanged - enabled=" .. tostring(enabled))
-    if enabled then
-        self:ShowGrid()
-        print("  Grid should be showing")
-    else
-        self:HideGrid()
-        print("  Grid should be hidden")
+    print("Movable:OnMoveModeChanged START - enabled=" .. tostring(enabled))
+    
+    local success, err = pcall(function()
+        if enabled then
+            print("  Calling ShowGrid...")
+            self:ShowGrid()
+            print("  ShowGrid completed")
+        else
+            print("  Calling HideGrid...")
+            self:HideGrid()
+            print("  HideGrid completed")
+        end
+    end)
+    
+    if not success then
+        print("ERROR in OnMoveModeChanged: " .. tostring(err))
     end
+    
+    print("Movable:OnMoveModeChanged END")
 end
 
 -- ============================================================================
