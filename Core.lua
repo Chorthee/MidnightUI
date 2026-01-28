@@ -158,6 +158,8 @@ function MidnightUI:GetOptions()
         local dbKey = name
         if name == "UIButtons" then 
             dbKey = "UIButtons"
+        elseif name == "Skin" then
+            dbKey = "skins"
         elseif name == "Bar" then
             dbKey = "bar"
         elseif name == "Maps" then
@@ -180,6 +182,8 @@ function MidnightUI:GetOptions()
             -- RENAME LOGIC FOR DISPLAY
             if name == "UIButtons" then 
                 displayName = "UI Buttons"
+            elseif name == "Skin" then
+                displayName = "Skinning"
             elseif name == "Bar" then 
                 displayName = "Data Brokers"
             end

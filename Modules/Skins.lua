@@ -57,10 +57,12 @@ local SKINS = {
 -- ============================================================================
 
 function Skin:OnInitialize()
+    print("|cff00ff00[Skins]|r OnInitialize called")
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
 end
 
 function Skin:OnDBReady()
+    print("|cff00ff00[Skins]|r OnDBReady called")
     self.db = MidnightUI.db:RegisterNamespace("Skin", {
         profile = {
             globalSkin = "Midnight",
@@ -75,10 +77,15 @@ function Skin:OnDBReady()
         }
     })
     
+    print("|cff00ff00[Skins]|r Database initialized")
+    print("|cff00ff00[Skins]|r skinActionBars setting:", self.db.profile.skinActionBars)
+    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    print("|cff00ff00[Skins]|r Registered for PLAYER_ENTERING_WORLD")
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
+    print("|cff00ff00[Skins]|r PLAYER_ENTERING_WORLD fired")
     -- Wait longer to ensure ActionBars module has created all buttons
     C_Timer.After(1.5, function()
         if self.db.profile.skinActionBars then
