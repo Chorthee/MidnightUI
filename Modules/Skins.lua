@@ -612,8 +612,6 @@ if not self.db or not self.db.profile or not self.db.profile.skinBlizzardFrames 
     for i = 1, 4 do
         TrySkinFrame("StaticPopup"..i)
     end
-    -- Hook into frame show events to skin dynamically created frames
-    self:HookDynamicFrames()
 end
 
 -- ============================================================================
