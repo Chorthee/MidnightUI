@@ -552,6 +552,13 @@ function AB:UpdateButtonElements(btn)
         end
     end
     
+    -- Hide hotkey background texture
+    local hotkeyBg = btn.HotKeyBackground or _G[btn:GetName().."HotKey"].Background
+    if hotkeyBg then
+        hotkeyBg:SetAlpha(0)
+        hotkeyBg:Hide()
+    end
+    
     -- Macro name
     local name = btn.Name or _G[btn:GetName().."Name"]
     if name then
