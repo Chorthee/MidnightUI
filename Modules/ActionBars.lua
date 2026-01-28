@@ -376,6 +376,9 @@ function AB:CreateBar(barKey, config)
             local screenCenterX = screenWidth / 2
             local barWidth = selfRight - selfLeft
             local selfCenterX = (selfLeft + selfRight) / 2
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] selfCenterX="..tostring(selfCenterX).." screenCenterX="..tostring(screenCenterX).." diff="..tostring(math.abs(selfCenterX - screenCenterX)))
+            end
             if math.abs(selfCenterX - screenCenterX) < 60 then
                 anchorPoint = "BOTTOM"
                 relativeTo = UIParent
