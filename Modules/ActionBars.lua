@@ -433,6 +433,11 @@ function AB:CreateBar(barKey, config)
                 end
                 container:ClearAllPoints()
                 container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
+                -- Debug: print anchor info after SetPoint
+                if DEFAULT_CHAT_FRAME then
+                    local p, relTo, relP, px, py = container:GetPoint()
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
+                end
                 AB:SaveBarPosition(barKey)
                 return
             else
