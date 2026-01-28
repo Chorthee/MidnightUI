@@ -186,11 +186,9 @@ function AB:CreateBar(barKey, config)
             -- Completely detach from Blizzard's management
             blizzBar:SetMovable(true)
             blizzBar:SetUserPlaced(true)
+            blizzBar:SetParent(container)
             blizzBar.ignoreFramePositionManager = true
             blizzBar:EnableMouse(false)
-            
-            -- REMOVED: Don't unregister from EditMode - this was causing the Minimap error
-            -- The EditModeManagerFrame affects both MainMenuBar AND Minimap
             
             -- Stop ALL scripts that could interfere
             blizzBar:SetScript("OnUpdate", nil)
@@ -238,33 +236,39 @@ function AB:CreateBar(barKey, config)
         self:CollectButtons(container, barKey)
     end
     
-    -- Create drag frame for unlocked mode
+    -- CHANGED: Create drag frame for Move Mode with enhanced styling
     container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
     container.dragFrame:SetAllPoints()
     container.dragFrame:EnableMouse(false)
     container.dragFrame:SetFrameStrata("DIALOG")
+    container.dragFrame:SetFrameLevel(100) -- Ensure it's above buttons
+    
+    -- Green border and semi-transparent background
     container.dragFrame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
-        tile = false, edgeSize = 2,
+        tile = false, 
+        edgeSize = 2,
         insets = { left = 0, right = 0, top = 0, bottom = 0 }
     })
-    container.dragFrame:SetBackdropColor(0, 0.5, 0, 0.3)
-    container.dragFrame:SetBackdropBorderColor(0, 1, 0, 1)
+    container.dragFrame:SetBackdropColor(0, 0.5, 0, 0.2)  -- Semi-transparent green
+    container.dragFrame:SetBackdropBorderColor(0, 1, 0, 1) -- Bright green border
     container.dragFrame:Hide()
     
-    -- Create label
-    container.label = container.dragFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    -- CHANGED: Create label with larger, more visible text
+    container.label = container.dragFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
     container.label:SetPoint("CENTER")
     container.label:SetText(config.name)
     container.label:SetTextColor(1, 1, 1, 1)
+    container.label:SetShadowOffset(2, -2)
+    container.label:SetShadowColor(0, 0, 0, 1)
     
     -- Drag handlers using Movable module
     local Movable = MidnightUI:GetModule("Movable")
     
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
-        -- CHANGED: Only allow dragging with CTRL+ALT or Move Mode (removed lock check)
+        -- Only allow dragging with CTRL+ALT or Move Mode
         if (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
             container:StartMoving()
         end
@@ -301,15 +305,6 @@ function AB:CreateBar(barKey, config)
     )
     
     container.nudgeFrame = nudgeFrame
-    
-    -- Register for Move Mode highlighting on dragFrame
-    Movable:MakeFrameDraggable(
-        container.dragFrame,
-        function(point, x, y)
-            AB:SaveBarPosition(barKey)
-        end,
-        nil  -- CHANGED: No unlock check, always use CTRL+ALT or Move Mode
-    )
     
     -- Register nudge frame with dragFrame as parent
     if nudgeFrame then
@@ -442,15 +437,21 @@ function AB:UpdateBar(barKey)
     -- Layout buttons
     self:LayoutButtons(container, barKey)
     
-    -- Note: Button skinning is handled by the Skins module
-    
     -- Update fading
     self:UpdateBarFading(barKey)
     
-    -- Drag frame visibility controlled by Move Mode
+    -- CHANGED: Handle Move Mode display
     if MidnightUI.moveMode then
+        -- Show drag frame with green border
         container.dragFrame:Show()
         container.dragFrame:EnableMouse(true)
+        
+        -- Fade the actual action buttons to 30% opacity
+        for _, btn in ipairs(container.buttons) do
+            if btn then
+                btn:SetAlpha(0.3)
+            end
+        end
         
         -- Show nudge controls
         local Movable = MidnightUI:GetModule("Movable")
@@ -458,8 +459,16 @@ function AB:UpdateBar(barKey)
             Movable:ShowNudgeControls(container.nudgeFrame, container.dragFrame)
         end
     else
+        -- Hide drag frame
         container.dragFrame:Hide()
         container.dragFrame:EnableMouse(false)
+        
+        -- Restore button opacity to 100%
+        for _, btn in ipairs(container.buttons) do
+            if btn then
+                btn:SetAlpha(1.0)
+            end
+        end
         
         -- Hide nudge controls
         local Movable = MidnightUI:GetModule("Movable")
