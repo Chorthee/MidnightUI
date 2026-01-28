@@ -638,20 +638,23 @@ function AB:UpdateButtonElements(btn)
     local pushed = btn:GetPushedTexture()
     if pushed then
         pushed:ClearAllPoints()
-        pushed:SetAllPoints(btn)
+        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
     end
     
     -- Fix flash texture to match button size
     if btn.Flash then
         btn.Flash:ClearAllPoints()
-        btn.Flash:SetAllPoints(btn)
+        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
     end
     
     -- Fix checked texture to match button size
     local checked = btn:GetCheckedTexture()
     if checked then
         checked:ClearAllPoints()
-        checked:SetAllPoints(btn)
+        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
     end
     
     -- Hide NormalTexture (the default button border/background)
