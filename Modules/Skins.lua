@@ -61,7 +61,6 @@ function Skin:OnInitialize()
 end
 
 function Skin:OnDBReady()
-    print("|cff00ff00[Skins]|r OnDBReady called")
     self.db = MidnightUI.db:RegisterNamespace("Skin", {
         profile = {
             globalSkin = "Midnight",
@@ -71,6 +70,9 @@ function Skin:OnDBReady()
             skinMinimap = true,
             skinTooltips = true,
             skinChatFrames = false,
+            skinUnitFrames = true,
+            skinBags = true,
+            skinBlizzardFrames = true,
             buttonBackgroundColor = {0.1, 0.1, 0.1, 0.8},
             buttonBorderColor = {0, 0, 0, 1}
         }
@@ -85,7 +87,7 @@ function Skin:OnDBReady()
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
-    -- Wait longer to ensure ActionBars module has created all buttons
+    -- Wait longer to ensure all UI elements are loaded
     C_Timer.After(1.5, function()
         if self.db.profile.skinActionBars then
             self:SkinActionBarButtons()
@@ -97,6 +99,18 @@ function Skin:PLAYER_ENTERING_WORLD()
         
         if self.db.profile.skinChatFrames then
             self:SkinChatFrames()
+        end
+        
+        if self.db.profile.skinUnitFrames then
+            self:SkinUnitFrames()
+        end
+        
+        if self.db.profile.skinBags then
+            self:SkinBags()
+        end
+        
+        if self.db.profile.skinBlizzardFrames then
+            self:SkinBlizzardFrames()
         end
     end)
 end
@@ -383,6 +397,309 @@ function Skin:SkinTooltips()
     end)
 end
 
+
+-- ============================================================================
+-- UNIT FRAME SKINNING
+-- ============================================================================
+
+function Skin:SkinUnitFrames()
+    local unitFrames = {
+        -- Player and target
+        PlayerFrame,
+        TargetFrame,
+        TargetFrameToT,
+        FocusFrame,
+        FocusFrameToT,
+        
+        -- Pet frames
+        PetFrame,
+        
+        -- Boss frames
+        Boss1TargetFrame,
+        Boss2TargetFrame,
+        Boss3TargetFrame,
+        Boss4TargetFrame,
+        Boss5TargetFrame,
+        
+        -- Arena frames
+        ArenaEnemyMatchFramesFrame,
+    }
+    
+    for _, frame in ipairs(unitFrames) do
+        if frame then
+            self:ApplyFrameSkin(frame)
+            
+            -- Also skin the health and power bars if they exist
+            if frame.healthBar then
+                self:ApplyFrameSkin(frame.healthBar)
+            end
+            if frame.manabar then
+                self:ApplyFrameSkin(frame.manabar)
+            end
+        end
+    end
+    
+    -- Party frames
+    if PartyFrame then
+        for i = 1, 4 do
+            local partyFrame = _G["PartyMemberFrame"..i]
+            if partyFrame then
+                self:ApplyFrameSkin(partyFrame)
+            end
+        end
+    end
+    
+    -- Compact raid frames
+    if CompactRaidFrameContainer then
+        self:ApplyFrameSkin(CompactRaidFrameContainer)
+    end
+end
+
+-- ============================================================================
+-- BAG SKINNING
+-- ============================================================================
+
+function Skin:SkinBags()
+    -- Container framlse
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinUnitFrames = {
+                name = "Skin Unit Frames",
+                desc = "Apply skin to player, target, party, and raid frames",
+                type = "toggle",
+                order = 12,
+                width = "full",
+                get = function() return self.db.profile.skinUnitFrames end,
+                set = function(_, v)
+                    self.db.profile.skinUnitFrames = v
+                    if v then
+                        self:SkinUnitFrames()
+                    else
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinBags = {6
+                name = "Skin Bags",
+                desc = "Apply skin to bags and bank frames",
+                type = "toggle",
+                order = 13,
+                width = "full",
+                get = function() return self.db.profile.skinBags end,
+                set = function(_, v)
+                    self.db.profile.skinBags = v
+                    if v then
+                        self:SkinBags()
+                    else
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinBlizzardFrames = {
+                name = "Skin Blizzard UI Frames",
+                desc = "Apply skin to character panel, spellbook, talents, collections, etc.",
+                type = "toggle",
+                order = 14,
+                width = "full",
+                get = function() return self.db.profile.skinBlizzardFrames end,
+                set = function(_, v)
+                    self.db.profile.skinBlizzardFrames = v
+                    if v then
+                        self:SkinBlizzardFrames()
+                    else
+                        C_UI.Reload()
+                    end
+                end
+            },
+            skinTooltips = {
+                name = "Skin Tooltips",
+                desc = "Apply skin to game tooltips",
+                type = "toggle",
+                order = 15.size or 0 do
+                local button = _G["ContainerFrame"..i.."Item"..j]
+                if button then
+                    self:SkinButton(button)
+                end
+            end
+        end
+    end
+    
+    -- Bank frame
+    if BankFrame then
+        self:ApplyFrameSkin(BankFrame)
+    end
+    
+    -- Combined bags (if using Blizzard combined bags)
+    if ContainerFrameCombinedBags then
+        self:ApplyFrameSkin(ContainerFrameCombinedBags)
+    end
+end
+
+-- ============================================================================
+-- BLIZZARD UI FRAMES SKINNING
+-- ============================================================================
+
+function Skin:SkinBlizzardFrames()
+    -- Major UI frames
+    local majorFrames = {
+        -- Character panels
+        CharacterFrame,
+        PaperDollFrame,
+        ReputationFrame,
+        TokenFrame,
+        
+        -- Spellbook
+        SpellBookFrame,
+        
+        -- Talents
+        PlayerTalentFrame,
+        ClassTalentFrame,
+        
+        -- Collections
+        CollectionsJournal,
+        MountJournal,
+        PetJournal,
+        ToyBox,
+        HeirloomsJournal,
+        WardrobeFrame,
+        
+        -- Adventure Guide
+        EncounterJournal,
+        
+        -- Achievements
+        AchievementFrame,
+        
+        -- Quest Log
+        QuestLogFrame,
+        QuestFrame,
+        
+        -- Friends/Social
+        FriendsFrame,
+        
+        -- Guild
+        GuildFrame,
+        CommunitiesFrame,
+        
+        -- PvP
+        PVPUIFrame,
+        
+        -- LFG
+        LFGDungeonReadyDialog,
+        PVEFrame,
+        
+        -- Mailbox
+        MailFrame,
+        
+        -- Merchant
+        MerchantFrame,
+        
+        -- Trainer
+        ClassTrainerFrame,
+        
+        -- Profession
+        ProfessionsFrame,
+        
+        -- Auction House
+        AuctionHouseFrame,
+        
+        -- Game Menu
+        GameMenuFrame,
+        
+        -- Video Options
+        VideoOptionsFrame,
+        
+        -- Interface Options
+        SettingsPanel,
+        
+        -- Help
+        HelpFrame,
+        
+        -- Calendar
+        CalendarFrame,
+        
+        -- Gossip
+        GossipFrame,
+        
+        -- Quest Detail
+        QuestFrame,
+        
+        -- Loot Frame
+        LootFrame,
+        GroupLootFrame1,
+        
+        -- Ready Check
+        ReadyCheckFrame,
+        
+        -- Role Poll
+        RolePollPopup,
+        
+        -- Stack Split
+        StackSplitFrame,
+        
+        -- Dropdown menus
+        DropDownList1,
+        DropDownList2,
+    }
+    
+    for _, frame in ipairs(majorFrames) do
+        if frame then
+            self:ApplyFrameSkin(frame)
+        end
+    end
+    
+    -- Skin popups
+    for i = 1, 4 do
+        local popup = _G["StaticPopup"..i]
+        if popup then
+            self:ApplyFrameSkin(popup)
+        end
+    end
+    
+    -- Hook into frame show events to skin dynamically created frames
+    self:HookDynamicFrames()
+end
+
+-- ============================================================================
+-- DYNAMIC FRAME HOOKING
+-- ============================================================================
+
+function Skin:HookDynamicFrames()
+    -- Hook tooltip creation
+    local function hookTooltip(tooltip)
+        if tooltip and not tooltip.muiSkinned then
+            Skin:ApplyFrameSkin(tooltip)
+            tooltip.muiSkinned = true
+        end
+    end
+    
+    -- Hook GameTooltip
+    if GameTooltip then
+        GameTooltip:HookScript("OnShow", function(self)
+            hookTooltip(self)
+        end)
+    end
+    
+    -- Hook addon compartment frame
+    if AddonCompartmentFrame then
+        self:ApplyFrameSkin(AddonCompartmentFrame)
+    end
+    
+    -- Hook encounter journal
+    hooksecurefunc("EncounterJournal_DisplayInstance", function()
+        if EncounterJournal then
+            Skin:ApplyFrameSkin(EncounterJournal)
+        end
+    end)
+    
+    -- Hook merchant frame
+    hooksecurefunc("MerchantFrame_Update", function()
+        if MerchantFrame then
+            Skin:ApplyFrameSkin(MerchantFrame)
+        end
+    end)
+end
 -- ============================================================================
 -- CHAT FRAME SKINNING
 -- ============================================================================
