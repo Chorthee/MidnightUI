@@ -113,8 +113,15 @@ function UIButtons:CreateButtons()
             btn:SetSize(32, 32)
             btn:RegisterForClicks("AnyUp")
             btn:SetFrameStrata("TOOLTIP")
-            btn:SetFrameLevel(200)
-            
+            btn:SetFrameLevel(200)            
+            -- Set up secure attributes for logout/exit buttons
+            if key == "logout" then
+                btn:SetAttribute("type", "macro")
+                btn:SetAttribute("macrotext", "/camp")
+            elseif key == "exit" then
+                btn:SetAttribute("type", "macro")
+                btn:SetAttribute("macrotext", "/quit")
+            end            
             local bg = btn:CreateTexture(nil, "BACKGROUND")
             bg:SetAllPoints()
             bg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
@@ -145,7 +152,11 @@ function UIButtons:CreateButtons()
                 GameTooltip:Hide()
             end)
             
-            btn:SetScript("OnClick", data.onClick)
+            -- Click handler (only for non-secure buttons)
+            if key ~= "logout" and key ~= "exit" then
+                btn:SetScript("OnClick", data.onClick)
+            end
+            
             btn.key = key
             btn.getData = data.getColor
             btn:Show()
