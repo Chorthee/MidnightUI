@@ -1037,6 +1037,7 @@ function AB:UpdateEmptyButtons(barKey)
                     btn:SetAlpha(1)
                     btn:Show()
                     btn:Enable()
+                    -- Stance buttons do not use action type
                     if btn.SetAttribute then
                         btn:SetAttribute("type", nil)
                         btn:SetAttribute("action", nil)
@@ -1070,14 +1071,15 @@ function AB:UpdateEmptyButtons(barKey)
                     actionID = btn:GetActionID()
                 end
                 local hasAction = actionID and HasAction(actionID)
+                -- Always set type/action for secure drops
+                if btn.SetAttribute and actionID then
+                    btn:SetAttribute("type", "action")
+                    btn:SetAttribute("action", actionID)
+                end
                 if ShouldShowEmpty(db) then
                     btn:SetAlpha(1)
                     btn:Show()
                     btn:Enable()
-                    if btn.SetAttribute and actionID then
-                        btn:SetAttribute("type", "action")
-                        btn:SetAttribute("action", actionID)
-                    end
                     if btn.icon then
                         if hasAction then
                             btn.icon:SetAlpha(1)
@@ -1099,10 +1101,6 @@ function AB:UpdateEmptyButtons(barKey)
                         btn:SetAlpha(1)
                         btn:Show()
                         btn:Enable()
-                        if btn.SetAttribute and actionID then
-                            btn:SetAttribute("type", "action")
-                            btn:SetAttribute("action", actionID)
-                        end
                         if btn.icon then
                             btn.icon:SetAlpha(1)
                             btn.icon:Show()
@@ -1112,10 +1110,6 @@ function AB:UpdateEmptyButtons(barKey)
                     else
                         btn:Hide()
                         btn:Disable()
-                        if btn.SetAttribute then
-                            btn:SetAttribute("type", nil)
-                            btn:SetAttribute("action", nil)
-                        end
                         if btn.customHotkey then
                             btn.customHotkey:Hide()
                         end
