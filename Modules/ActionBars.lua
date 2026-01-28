@@ -1629,4 +1629,3 @@ function AB:GetOptions()
     end
     
     return options
-end
