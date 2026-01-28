@@ -87,6 +87,9 @@ function Skin:OnDBReady()
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
+    -- TEMPORARILY DISABLED - Will revisit skins after other functionality is complete
+    return
+    
     -- Wait for UI to fully load
     C_Timer.After(2, function()
         if not self.db or not self.db.profile then return end
