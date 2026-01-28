@@ -460,64 +460,14 @@ end
 -- ============================================================================
 
 function Skin:SkinBags()
-    -- Container framlse
-                        C_UI.Reload()
-                    end
-                end
-            },
-            skinUnitFrames = {
-                name = "Skin Unit Frames",
-                desc = "Apply skin to player, target, party, and raid frames",
-                type = "toggle",
-                order = 12,
-                width = "full",
-                get = function() return self.db.profile.skinUnitFrames end,
-                set = function(_, v)
-                    self.db.profile.skinUnitFrames = v
-                    if v then
-                        self:SkinUnitFrames()
-                    else
-                        C_UI.Reload()
-                    end
-                end
-            },
-            skinBags = {6
-                name = "Skin Bags",
-                desc = "Apply skin to bags and bank frames",
-                type = "toggle",
-                order = 13,
-                width = "full",
-                get = function() return self.db.profile.skinBags end,
-                set = function(_, v)
-                    self.db.profile.skinBags = v
-                    if v then
-                        self:SkinBags()
-                    else
-                        C_UI.Reload()
-                    end
-                end
-            },
-            skinBlizzardFrames = {
-                name = "Skin Blizzard UI Frames",
-                desc = "Apply skin to character panel, spellbook, talents, collections, etc.",
-                type = "toggle",
-                order = 14,
-                width = "full",
-                get = function() return self.db.profile.skinBlizzardFrames end,
-                set = function(_, v)
-                    self.db.profile.skinBlizzardFrames = v
-                    if v then
-                        self:SkinBlizzardFrames()
-                    else
-                        C_UI.Reload()
-                    end
-                end
-            },
-            skinTooltips = {
-                name = "Skin Tooltips",
-                desc = "Apply skin to game tooltips",
-                type = "toggle",
-                order = 15.size or 0 do
+    -- Container frames (bags)
+    for i = 0, NUM_CONTAINER_FRAMES do
+        local bag = _G["ContainerFrame"..i]
+        if bag then
+            self:ApplyFrameSkin(bag)
+            
+            -- Skin individual bag slots
+            for j = 1, bag.size or 0 do
                 local button = _G["ContainerFrame"..i.."Item"..j]
                 if button then
                     self:SkinButton(button)
