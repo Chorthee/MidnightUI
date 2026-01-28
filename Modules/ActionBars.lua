@@ -430,9 +430,15 @@ function AB:CreateBar(barKey, config)
             -- If alignX is set, use it to align left/right edges (pixel-perfect)
             local finalX = bestSnapX or x
             local anchorPoint, relativeTo, relativePoint, origX, origY = container:GetPoint()
-            if alignX then
+            if alignX and alignTo then
                 local parentLeft = (relativeTo and relativeTo.GetLeft) and relativeTo:GetLeft() or (UIParent:GetLeft() or 0)
-                finalX = alignX - parentLeft
+                if alignTo == "left" and math.abs(selfRight - alignX) < snapThreshold then
+                    -- Snap right edge to other bar's left edge, no overlap
+                    finalX = alignX - parentLeft - selfWidth
+                elseif alignTo == "right" and math.abs(selfLeft - (alignX + selfWidth)) < snapThreshold then
+                    -- Snap left edge to other bar's right edge, no overlap
+                    finalX = (alignX + selfWidth) - parentLeft
+                end
             end
             local finalY = bestSnapY or y
             container:ClearAllPoints()
