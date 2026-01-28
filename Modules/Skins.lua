@@ -331,9 +331,19 @@ function Skin:MaintainButtonSkin(btn)
     self:HideBlizzardButtonElements(btn)
 end
 
-function Skin:HideBlizzetDrawLayer("BACKGROUND", -8)
+function Skin:MaintainButtonSkin(btn)
+    if not btn or not btn.muiSkinned then return end
+    
+    if btn.muiSkinBg then
+        btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
         btn.muiSkinBg:SetAlpha(1)
-        btn.muiSkinBg:SardButtonElements(btn)
+        btn.muiSkinBg:Show()
+    end
+    
+    self:HideBlizzardButtonElements(btn)
+end
+
+function Skin:HideBlizzardButtonElements(btn)
     local elementsToHide = {
         "Border",
         "NormalTexture",
