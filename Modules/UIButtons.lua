@@ -71,14 +71,21 @@ function UIButtons:CreateButtons()
             tooltip = "Open Addons List",
             onClick = function() 
                 if AddonList then
-                    AddonList:Show()
-                else
-                    -- Modern WoW uses the Settings panel
-                    if SettingsPanel then
-                        SettingsPanel:Open()
-                    elseif Settings then
-                        Settings.OpenToCategory()
+                    -- Legacy addon list
+                    if AddonList:IsShown() then
+                        AddonList:Hide()
+                    else
+                        AddonList:Show()
                     end
+                elseif SettingsPanel then
+                    -- Modern WoW - toggle Settings panel
+                    if SettingsPanel:IsShown() then
+                        SettingsPanel:Close()
+                    else
+                        SettingsPanel:Open()
+                    end
+                elseif Settings then
+                    Settings.OpenToCategory()
                 end
             end
         },
