@@ -547,29 +547,33 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hook TextOverlayContainer to prevent background textures from showing
-    if btn.TextOverlayContainer and not btn.TextOverlayContainer.hooked then
-        btn.TextOverlayContainer:HookScript("OnShow", function(self)
-            for i = 1, select('#', self:GetRegions()) do
-                local region = select(i, self:GetRegions())
-                if region and region:GetObjectType() == "Texture" then
-                    region:SetTexture("")
-                    region:SetAlpha(0)
-                end
-            end
-        end)
-        btn.TextOverlayContainer.hooked = true
+    -- Completely hide TextOverlayContainer - we'll create our own keybind display
+    if btn.TextOverlayContainer then
+        btn.TextOverlayContainer:Hide()
+        btn.TextOverlayContainer:SetAlpha(0)
     end
     
-    -- Hide textures now
-    if btn.TextOverlayContainer then
-        for i = 1, select('#', btn.TextOverlayContainer:GetRegions()) do
-            local region = select(i, btn.TextOverlayContainer:GetRegions())
-            if region and region:GetObjectType() == "Texture" then
-                region:SetTexture("")
-                region:SetAlpha(0)
-            end
+    -- Create our own custom hotkey fontstring if it doesn't exist
+    if not btn.customHotkey then
+        btn.customHotkey = btn:CreateFontString(nil, "OVERLAY")
+        btn.customHotkey:SetPoint("TOPRIGHT", btn, "TOPRIGHT", -2, -2)
+        btn.customHotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+        btn.customHotkey:SetTextColor(1, 1, 1)
+        btn.customHotkey:SetJustifyH("RIGHT")
+    end
+    
+    -- Update custom hotkey text from the button's action binding
+    if db.showHotkeys then
+        local key = GetBindingKey(btn.commandName or btn.bindingAction)
+        if key then
+            local text = GetBindingText(key, "KEY_", 1)
+            btn.customHotkey:SetText(text)
+            btn.customHotkey:Show()
+        else
+            btn.customHotkey:Hide()
         end
+    else
+        btn.customHotkey:Hide()
     end
     
     -- Ensure icon matches button size exactly
@@ -586,19 +590,6 @@ function AB:UpdateButtonElements(btn)
         highlight:SetAllPoints(btn)
         highlight:SetDrawLayer("HIGHLIGHT")
         highlight:SetBlendMode("ADD")
-    end
-    
-    -- Style hotkey text
-    local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
-    if hotkey then
-        if db.showHotkeys then
-            hotkey:Show()
-            hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-            hotkey:SetTextColor(1, 1, 1)
-            hotkey:SetDrawLayer("OVERLAY", 7)
-        else
-            hotkey:Hide()
-        end
     end
     
     -- Hide NormalTexture (the default button border/background)
