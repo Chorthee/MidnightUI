@@ -35,7 +35,7 @@ function Movable:CreateGrid()
     gridFrame:SetFrameLevel(0)
     gridFrame:Hide()
     
-    -- Create vertical lines
+    -- Create vertical and horizontal lines
     local screenWidth = GetScreenWidth()
     local screenHeight = GetScreenHeight()
     
@@ -45,8 +45,17 @@ function Movable:CreateGrid()
     for x = 0, screenWidth, GRID_SIZE do
         local line = gridFrame:CreateTexture(nil, "BACKGROUND")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0.3, 0.3, 0.3, 0.3)
-        line:SetWidth(1)
+        
+        -- Every 5th line (40 pixels) is a thicker green emphasis line
+        local isEmphasis = (x % (GRID_SIZE * 5)) == 0
+        if isEmphasis then
+            line:SetVertexColor(0, 0.5, 0, 0.7) -- Dark green
+            line:SetWidth(2)
+        else
+            line:SetVertexColor(0.4, 0.4, 0.4, 0.5) -- Light gray
+            line:SetWidth(1)
+        end
+        
         line:SetHeight(screenHeight)
         line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
         table.insert(gridFrame.lines, line)
@@ -56,9 +65,18 @@ function Movable:CreateGrid()
     for y = 0, screenHeight, GRID_SIZE do
         local line = gridFrame:CreateTexture(nil, "BACKGROUND")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0.3, 0.3, 0.3, 0.3)
+        
+        -- Every 5th line (40 pixels) is a thicker green emphasis line
+        local isEmphasis = (y % (GRID_SIZE * 5)) == 0
+        if isEmphasis then
+            line:SetVertexColor(0, 0.5, 0, 0.7) -- Dark green
+            line:SetHeight(2)
+        else
+            line:SetVertexColor(0.4, 0.4, 0.4, 0.5) -- Light gray
+            line:SetHeight(1)
+        end
+        
         line:SetWidth(screenWidth)
-        line:SetHeight(1)
         line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
         table.insert(gridFrame.lines, line)
     end
