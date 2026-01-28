@@ -128,31 +128,51 @@ end
 -- ============================================================================
 
 function AB:HideBlizzardElements()
-    if not self.db.profile.hideGryphons then return end
-    
-    -- Hide gryphons and main bar art
+    -- Hide MainMenuBar art and arrows
     if MainMenuBar then
+        MainMenuBar:Hide()
+        MainMenuBar:SetAlpha(0)
+        
         if MainMenuBar.ArtFrame then
+            MainMenuBar.ArtFrame:Hide()
             MainMenuBar.ArtFrame:SetAlpha(0)
             if MainMenuBar.ArtFrame.LeftEndCap then MainMenuBar.ArtFrame.LeftEndCap:Hide() end
             if MainMenuBar.ArtFrame.RightEndCap then MainMenuBar.ArtFrame.RightEndCap:Hide() end
             if MainMenuBar.ArtFrame.Background then MainMenuBar.ArtFrame.Background:Hide() end
         end
         
-        -- Hide the background textures
         if MainMenuBar.Background then
+            MainMenuBar.Background:Hide()
             MainMenuBar.Background:SetAlpha(0)
-        end
-        
-        -- Hide any page number display
-        if MainMenuBarPageNumber then
-            MainMenuBarPageNumber:Hide()
         end
     end
     
-    -- Skin status tracking bars (XP/Rep)
-    if StatusTrackingBarManager then
-        MidnightUI:SkinFrame(StatusTrackingBarManager)
+    -- Hide the action bar controller (arrows for switching pages)
+    if ActionBarController then
+        ActionBarController:Hide()
+        ActionBarController:SetAlpha(0)
+    end
+    
+    -- Hide MainMenuBarArtFrame if it exists separately
+    if MainMenuBarArtFrame then
+        MainMenuBarArtFrame:Hide()
+        MainMenuBarArtFrame:SetAlpha(0)
+    end
+    
+    -- Hide page arrows
+    if ActionBarUpButton then ActionBarUpButton:Hide() end
+    if ActionBarDownButton then ActionBarDownButton:Hide() end
+    
+    -- Hide any page number display
+    if MainMenuBarPageNumber then
+        MainMenuBarPageNumber:Hide()
+    end
+    
+    if self.db.profile.hideGryphons then
+        -- Skin status tracking bars (XP/Rep)
+        if StatusTrackingBarManager then
+            MidnightUI:SkinFrame(StatusTrackingBarManager)
+        end
     end
 end
 
