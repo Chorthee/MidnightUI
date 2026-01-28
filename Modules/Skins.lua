@@ -317,7 +317,7 @@ function Skin:StripBlizzardTextures(frame)
         if region and region.GetObjectType then
             local success, objType = pcall(function() return region:GetObjectType() end)
             if success and objType == "Texture" then
-                local texturePath = region:GetTexture and region:GetTexture()
+                local texturePath = region.GetTexture and region:GetTexture()
                 if texturePath then
                     local path = tostring(texturePath):lower()
                     -- Hide interface art textures
