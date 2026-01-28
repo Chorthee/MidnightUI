@@ -816,7 +816,15 @@ function AB:UpdateEmptyButtons(barKey)
     
     for _, btn in ipairs(container.buttons) do
         if btn then
-            local hasAction = HasAction(btn.action)
+            -- Get action ID - different methods for different button types
+            local actionID = btn.action
+            if not actionID and btn.GetPagedID then
+                actionID = btn:GetPagedID()
+            elseif not actionID and btn.GetActionID then
+                actionID = btn:GetActionID()
+            end
+            
+            local hasAction = actionID and HasAction(actionID)
             
             if db.showEmpty then
                 -- Show all buttons
