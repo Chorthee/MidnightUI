@@ -123,8 +123,10 @@ function UIButtons:CreateButtons()
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
             btn:RegisterForClicks("AnyUp")
-            btn:SetFrameStrata("HIGH")
-            btn:SetFrameLevel(100)
+            
+            -- CRITICAL FIX: Set VERY HIGH frame strata and level
+            btn:SetFrameStrata("TOOLTIP")  -- Changed from "HIGH" to "TOOLTIP" (highest)
+            btn:SetFrameLevel(200)  -- Changed from 100 to 200
             
             -- Background
             local bg = btn:CreateTexture(nil, "BACKGROUND")
@@ -167,11 +169,15 @@ function UIButtons:CreateButtons()
             btn.key = key
             btn.getData = data.getColor
             
-            -- FORCE SHOW
+            -- FORCE VISIBILITY AND MOUSE INTERACTION
             btn:Show()
+            btn:SetAlpha(1)
+            btn:EnableMouse(true)
             
             buttons[key] = btn
-            print("|cff00ff00MidnightUI:|r Button '"..key.."' created successfully")
+            
+            -- DEBUG: Print button position after creation
+            print("|cff00ff00MidnightUI:|r Button '"..key.."' created - shown="..tostring(btn:IsShown())..", alpha="..btn:GetAlpha()..", strata="..btn:GetFrameStrata())
         end
     end
     
