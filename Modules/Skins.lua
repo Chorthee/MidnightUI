@@ -168,38 +168,15 @@ function Skin:SkinActionBarButtons()
     local bgColor = self.db.profile.buttonBackgroundColor
     local borderColor = self.db.profile.buttonBorderColor
     
-    -- Hook ActionButton creation/update FIRST
+    -- Setup hooks only once - removed old hooks that don't exist in WoW 12.0
     if not self.hooksSetup then
-        hooksecurefunc("ActionButton_Update", function(button)
-            if Skin.db and Skin.db.profile.skinActionBars then
-                Skin:SkinButton(button)
-            end
-        end)
+        print("|cff00ff00[Skins]|r Setting up button update detection...")
         
-        hooksecurefunc("ActionButton_UpdateUsable", function(button)
-            if Skin.db and Skin.db.profile.skinActionBars then
-                Skin:MaintainButtonSkin(button)
-            end
-        end)
-        
-        hooksecurefunc("ActionButton_UpdateCooldown", function(button)
-            if Skin.db and Skin.db.profile.skinActionBars then
-                Skin:MaintainButtonSkin(button)
-            end
-        end)
-        
-        -- ADDED: Hook the layout function from ActionBars module
-        hooksecurefunc("ActionButton_OnEvent", function(button)
-            if Skin.db and Skin.db.profile.skinActionBars then
-                C_Timer.After(0, function()
-                    print("|cffff9900[Skins Debug]|r ActionButton_OnEvent hook fired for:", button:GetName())
-                    Skin:SkinButton(button)
-                end)
-            end
-        end)
+        -- Instead of hooking non-existent functions, we'll just periodically check buttons
+        -- This is less elegant but more reliable across WoW versions
         
         self.hooksSetup = true
-        print("|cff00ff00[Skins]|r Hooks setup complete")
+        print("|cff00ff00[Skins]|r Hooks setup complete (using periodic check)")
     end
     
     -- Skin ALL existing action buttons with multiple attempts
@@ -276,6 +253,33 @@ function Skin:SkinActionBarButtons()
         print("|cffff9900[Skins Debug]|r Attempting skin after 3 seconds")
         SkinAllButtons()
     end)
+    
+    -- Set up a periodic check to maintain skins (every 5 seconds)
+    if not self.skinMaintenanceTimer then
+        self.skinMaintenanceTimer = C_Timer.NewTicker(5, function()
+            if Skin.db and Skin.db.profile.skinActionBars then
+                -- Silently maintain button skins
+                for i = 1, 12 do
+                    local buttons = {
+                        _G["ActionButton"..i],
+                        _G["MultiBarBottomLeftButton"..i],
+                        _G["MultiBarBottomRightButton"..i],
+                        _G["MultiBarRightButton"..i],
+                        _G["MultiBarLeftButton"..i],
+                        _G["MultiBar5Button"..i],
+                        _G["MultiBar6Button"..i],
+                        _G["MultiBar7Button"..i]
+                    }
+                    
+                    for _, btn in ipairs(buttons) do
+                        if btn and btn.muiSkinned then
+                            Skin:MaintainButtonSkin(btn)
+                        end
+                    end
+                end
+            end
+        end)
+    end
 end
 
 function Skin:SkinButton(btn)
