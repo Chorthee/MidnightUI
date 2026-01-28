@@ -176,8 +176,6 @@ function AB:InitializeAllBars()
     end
     print("=== InitializeAllBars END ===")
 end
-    end
-end
 
 function AB:CreateBar(barKey, config)
     if bars[barKey] then return end
