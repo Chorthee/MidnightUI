@@ -87,6 +87,10 @@ end
 -- INITIALIZATION
 -- ============================================================================
 
+function Movable:OnInitialize()
+    print("Movable:OnInitialize called")
+end
+
 function Movable:OnEnable()
     -- Listen for move mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
