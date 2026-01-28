@@ -88,9 +88,10 @@ end
     @param db - Database table containing offsetX and offsetY
     @param applyCallback - Function() called when offset changes
     @param updateCallback - Optional function() called after nudge display updates
+    @param titleText - Optional string to use as the title (defaults to "Move Frame")
     @return nudgeFrame - The created control frame
 ]]
-function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallback)
+function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallback, titleText)
     if not parentFrame or not db or not applyCallback then return end
     
     -- Create main nudge frame
@@ -120,8 +121,9 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     -- Title
     local title = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("TOP", 0, -5)
-    title:SetText("Move Frame")
+    title:SetText(titleText or "Move Frame")
     title:SetTextColor(0, 1, 0)
+    nudge.title = title
     
     -- Current offset display
     local offsetText = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")

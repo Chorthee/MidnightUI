@@ -178,16 +178,9 @@ function Maps:SetupNudgeControls()
             if Maps.nudgeFrame and Maps.nudgeFrame:IsShown() then
                 Movable:ShowNudgeControls(Maps.nudgeFrame, Minimap)
             end
-        end
+        end,
+        "Move Minimap"  -- Custom title
     )
-    
-    -- Set custom title
-    if self.nudgeFrame then
-        local title = self.nudgeFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        title:SetPoint("TOP", 0, -5)
-        title:SetText("Move Minimap")
-        title:SetTextColor(0, 1, 0)
-    end
     
     Movable:RegisterNudgeFrame(self.nudgeFrame, Minimap)
 end
