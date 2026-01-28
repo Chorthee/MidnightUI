@@ -31,10 +31,10 @@ function UIButtons:OnDBReady()
             scale = 1.0,
             spacing = 2,
             buttons = {
-                character = { enabled = true, order = 1 },
-                spellbook = { enabled = true, order = 2 },
-                talents = { enabled = true, order = 3 },
-                achievements = { enabled = true, order = 4 },
+                reload = { enabled = true, order = 1 },
+                exit = { enabled = true, order = 2 },
+                logout = { enabled = true, order = 3 },
+                addons = { enabled = true, order = 4 },
                 move = { enabled = true, order = 5 }
             }
         }
@@ -66,39 +66,38 @@ function UIButtons:CreateButtons()
     print("|cff00ff00MidnightUI:|r UIButtons:CreateButtons() starting...")
     
     local buttonData = {
-        character = {
-            name = "Character",
-            icon = "Interface\\PaperDollInfoFrame\\UI-CharacterFrame-Portrait",
-            tooltip = "Character Info (C)",
-            onClick = function() ToggleCharacter("PaperDollFrame") end
+        reload = {
+            name = "Reload",
+            text = "R",
+            tooltip = "Reload UI",
+            onClick = function() ReloadUI() end
         },
-        spellbook = {
-            name = "Spellbook",
-            icon = "Interface\\MINIMAP\\TRACKING\\Class",
-            tooltip = "Spellbook & Abilities (P)",
-            onClick = function() if not PlayerSpellsFrame then UIParentLoadAddOn("Blizzard_PlayerSpells") end PlayerSpellsFrame:ToggleFrame() end
+        exit = {
+            name = "Exit",
+            text = "E",
+            tooltip = "Exit Game",
+            onClick = function() Quit() end
         },
-        talents = {
-            name = "Talents",
-            icon = "Interface\\MINIMAP\\TRACKING\\Profession",
-            tooltip = "Talents (N)",
-            onClick = function()
-                if not PlayerSpellsFrame then UIParentLoadAddOn("Blizzard_PlayerSpells") end
-                PlayerSpellsFrame:ToggleFrame()
-                if PlayerSpellsFrame:IsShown() then
-                    PlayerSpellsFrame.TalentsFrame:SetTab(PlayerSpellsFrame.TalentsFrame.tabID)
+        logout = {
+            name = "Logout",
+            text = "L",
+            tooltip = "Logout to Character Select",
+            onClick = function() Logout() end
+        },
+        addons = {
+            name = "Addons",
+            text = "A",
+            tooltip = "Open Addons List",
+            onClick = function() 
+                if not AddonList then 
+                    UIParentLoadAddOn("Blizzard_AddonManager") 
                 end
+                AddonList_Show()
             end
-        },
-        achievements = {
-            name = "Achievements",
-            icon = "Interface\\ACHIEVEMENTFRAME\\UI-ACHIEVEMENT-SHIELD",
-            tooltip = "Achievements (Y)",
-            onClick = function() ToggleAchievementFrame() end
         },
         move = {
             name = "Move",
-            icon = "Interface\\CURSOR\\UI-Cursor-Move",
+            text = "M",
             tooltip = "Toggle Move Mode\n|cffaaaaaa(Hover over elements to reposition)|r",
             onClick = function() MidnightUI:ToggleMoveMode() end,
             getColor = function()
@@ -134,13 +133,13 @@ function UIButtons:CreateButtons()
             bg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
             btn.bg = bg
             
-            -- Icon
-            local icon = btn:CreateTexture(nil, "ARTWORK")
-            icon:SetPoint("CENTER")
-            icon:SetSize(24, 24)
-            icon:SetTexture(data.icon)
-            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-            btn.icon = icon
+            -- Text label
+            local text = btn:CreateFontString(nil, "OVERLAY")
+            text:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+            text:SetPoint("CENTER")
+            text:SetText(data.text)
+            text:SetTextColor(1, 1, 1, 1)
+            btn.text = text
             
             -- Border
             local border = btn:CreateTexture(nil, "OVERLAY")
@@ -189,9 +188,9 @@ end
 
 function UIButtons:OnMoveModeChanged(event, enabled)
     local moveBtn = buttons.move
-    if moveBtn and moveBtn.icon then
+    if moveBtn and moveBtn.text then
         local color = enabled and {0, 1, 0} or {1, 1, 1}
-        moveBtn.icon:SetVertexColor(unpack(color))
+        moveBtn.text:SetTextColor(unpack(color))
     end
 end
 
