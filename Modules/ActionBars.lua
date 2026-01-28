@@ -1020,6 +1020,13 @@ function AB:UpdateEmptyButtons(barKey)
     
     for i, btn in ipairs(container.buttons) do
         if btn then
+            -- Always set up button for drag-and-drop
+            if btn.RegisterForDrag then
+                btn:RegisterForDrag("LeftButton", "RightButton")
+            end
+            if btn.RegisterForClicks then
+                btn:RegisterForClicks("AnyUp")
+            end
             if barKey == "StanceBar" then
                 local icon = btn.Icon or btn.icon or _G[btn:GetName().."Icon"]
                 local texture = nil
@@ -1029,6 +1036,11 @@ function AB:UpdateEmptyButtons(barKey)
                 if icon and texture then
                     btn:SetAlpha(1)
                     btn:Show()
+                    btn:Enable()
+                    if btn.SetAttribute then
+                        btn:SetAttribute("type", nil)
+                        btn:SetAttribute("action", nil)
+                    end
                     icon:SetTexture(texture)
                     icon:SetAlpha(1)
                     icon:Show()
@@ -1037,6 +1049,11 @@ function AB:UpdateEmptyButtons(barKey)
                     if btn.customHotkey then btn.customHotkey:Show() end
                 else
                     btn:Hide()
+                    btn:Disable()
+                    if btn.SetAttribute then
+                        btn:SetAttribute("type", nil)
+                        btn:SetAttribute("action", nil)
+                    end
                     if icon then
                         icon:SetAlpha(0)
                         icon:Hide()
@@ -1046,7 +1063,6 @@ function AB:UpdateEmptyButtons(barKey)
                     if btn.customHotkey then btn.customHotkey:Hide() end
                 end
             else
-                -- ...existing code for other bars...
                 local actionID = btn.action
                 if not actionID and btn.GetPagedID then
                     actionID = btn:GetPagedID()
@@ -1057,7 +1073,11 @@ function AB:UpdateEmptyButtons(barKey)
                 if ShouldShowEmpty(db) then
                     btn:SetAlpha(1)
                     btn:Show()
-                    btn:Enable() -- ensure button is enabled for dropping
+                    btn:Enable()
+                    if btn.SetAttribute and actionID then
+                        btn:SetAttribute("type", "action")
+                        btn:SetAttribute("action", actionID)
+                    end
                     if btn.icon then
                         if hasAction then
                             btn.icon:SetAlpha(1)
@@ -1079,6 +1099,10 @@ function AB:UpdateEmptyButtons(barKey)
                         btn:SetAlpha(1)
                         btn:Show()
                         btn:Enable()
+                        if btn.SetAttribute and actionID then
+                            btn:SetAttribute("type", "action")
+                            btn:SetAttribute("action", actionID)
+                        end
                         if btn.icon then
                             btn.icon:SetAlpha(1)
                             btn.icon:Show()
@@ -1087,7 +1111,11 @@ function AB:UpdateEmptyButtons(barKey)
                         if btn.emptyBorder then btn.emptyBorder:Hide() end
                     else
                         btn:Hide()
-                        btn:Disable() -- prevent interaction when hidden
+                        btn:Disable()
+                        if btn.SetAttribute then
+                            btn:SetAttribute("type", nil)
+                            btn:SetAttribute("action", nil)
+                        end
                         if btn.customHotkey then
                             btn.customHotkey:Hide()
                         end
