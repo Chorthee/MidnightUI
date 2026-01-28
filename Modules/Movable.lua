@@ -246,16 +246,23 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
     if parentFrame and not parentFrame.movableNudgeHooked then
         parentFrame:HookScript("OnEnter", function()
             if MidnightUI.moveMode and nudge then
+                -- Cancel any pending hide timer
+                if nudge.hideTimer then
+                    nudge.hideTimer:Cancel()
+                    nudge.hideTimer = nil
+                end
                 Movable:ShowNudgeControls(nudge, parentFrame)
             end
         end)
         
         parentFrame:HookScript("OnLeave", function()
-            if nudge and not MouseIsOver(nudge) then
-                C_Timer.After(0.1, function()
+            if nudge then
+                -- Delay hiding to allow mouse to move to nudge buttons
+                nudge.hideTimer = C_Timer.NewTimer(0.3, function()
                     if nudge and not MouseIsOver(parentFrame) and not MouseIsOver(nudge) then
                         nudge:Hide()
                     end
+                    nudge.hideTimer = nil
                 end)
             end
         end)
@@ -263,12 +270,22 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
         parentFrame.movableNudgeHooked = true
     end
     
-    -- Hide nudge when mouse leaves nudge frame
+    -- Hide nudge when mouse leaves nudge frame (with delay)
+    nudge:SetScript("OnEnter", function(self)
+        -- Cancel any pending hide timer when entering nudge frame
+        if self.hideTimer then
+            self.hideTimer:Cancel()
+            self.hideTimer = nil
+        end
+    end)
+    
     nudge:SetScript("OnLeave", function(self)
-        C_Timer.After(0.1, function()
+        -- Delay hiding to allow mouse movement
+        self.hideTimer = C_Timer.NewTimer(0.3, function()
             if not MouseIsOver(parentFrame) and not MouseIsOver(self) then
                 self:Hide()
             end
+            self.hideTimer = nil
         end)
     end)
     
@@ -296,9 +313,15 @@ end
 function Movable:ShowNudgeControls(nudgeFrame, parentFrame)
     if not nudgeFrame or not parentFrame or not MidnightUI.moveMode then return end
     
+    -- Cancel any pending hide timer
+    if nudgeFrame.hideTimer then
+        nudgeFrame.hideTimer:Cancel()
+        nudgeFrame.hideTimer = nil
+    end
+    
     nudgeFrame:ClearAllPoints()
     
-    -- Position nudge frame to the right of parent
+    -- Position nudge frame relative to parent's CURRENT position
     local parentX, parentY = parentFrame:GetCenter()
     if parentX and parentY then
         -- If parent is on right half of screen, put nudge on left
@@ -320,6 +343,11 @@ end
 ]]
 function Movable:HideNudgeControls(nudgeFrame)
     if nudgeFrame then
+        -- Cancel any pending hide timer
+        if nudgeFrame.hideTimer then
+            nudgeFrame.hideTimer:Cancel()
+            nudgeFrame.hideTimer = nil
+        end
         nudgeFrame:Hide()
     end
 end
@@ -358,19 +386,15 @@ function Movable:OnMoveModeChanged(event, enabled)
         end
     end
     
-    -- CHANGED: When Move Mode is enabled, show all nudge frames immediately
-    -- When disabled, hide all nudge frames
-    for _, data in ipairs(self.registeredNudgeFrames) do
-        if data.nudge and data.parent then
-            if enabled then
-                -- Show nudge controls for all registered frames
-                self:ShowNudgeControls(data.nudge, data.parent)
-            else
-                -- Hide when Move Mode is disabled
+    -- When Move Mode is disabled, hide all nudge frames
+    if not enabled then
+        for _, data in ipairs(self.registeredNudgeFrames) do
+            if data.nudge then
                 self:HideNudgeControls(data.nudge)
             end
         end
     end
+    -- NOTE: When enabled, nudge frames only show on mouseover (except Minimap which shows immediately)
 end
 
 -- ============================================================================
@@ -463,17 +487,64 @@ function Movable:CreateContainerArrows(container, db)
     if not container.movableArrowsHooked then
         container:HookScript("OnEnter", function()
             if MidnightUI.moveMode and container.arrows then
+                -- Cancel any pending hide timer
+                if container.arrowHideTimer then
+                    container.arrowHideTimer:Cancel()
+                    container.arrowHideTimer = nil
+                end
                 Movable:UpdateContainerArrows(container)
             end
         end)
         
         container:HookScript("OnLeave", function()
-            C_Timer.After(0.1, function()
+            -- Delay hiding to allow mouse to move to arrows
+            container.arrowHideTimer = C_Timer.NewTimer(0.3, function()
                 if not MouseIsOver(container) then
-                    Movable:HideContainerArrows(container)
+                    -- Check if mouse is over any arrow button
+                    local overArrow = false
+                    for _, arrow in pairs(container.arrows or {}) do
+                        if MouseIsOver(arrow) then
+                            overArrow = true
+                            break
+                        end
+                    end
+                    
+                    if not overArrow then
+                        Movable:HideContainerArrows(container)
+                    end
                 end
+                container.arrowHideTimer = nil
             end)
         end)
+        
+        -- Add hover detection for arrow buttons themselves
+        for _, arrow in pairs(container.arrows or {}) do
+            arrow:HookScript("OnEnter", function()
+                if container.arrowHideTimer then
+                    container.arrowHideTimer:Cancel()
+                    container.arrowHideTimer = nil
+                end
+            end)
+            
+            arrow:HookScript("OnLeave", function()
+                container.arrowHideTimer = C_Timer.NewTimer(0.3, function()
+                    if not MouseIsOver(container) then
+                        local overArrow = false
+                        for _, btn in pairs(container.arrows or {}) do
+                            if MouseIsOver(btn) then
+                                overArrow = true
+                                break
+                            end
+                        end
+                        
+                        if not overArrow then
+                            Movable:HideContainerArrows(container)
+                        end
+                    end
+                    container.arrowHideTimer = nil
+                end)
+            end)
+        end
         
         container.movableArrowsHooked = true
     end

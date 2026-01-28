@@ -173,7 +173,12 @@ function Maps:SetupNudgeControls()
         Minimap,
         self.db.profile,
         function() Maps:ApplyMinimapOffset() end,
-        nil
+        function()
+            -- Update nudge frame position to stay centered on minimap after offset change
+            if Maps.nudgeFrame and Maps.nudgeFrame:IsShown() then
+                Movable:ShowNudgeControls(Maps.nudgeFrame, Minimap)
+            end
+        end
     )
     
     -- Set custom title
@@ -187,11 +192,22 @@ function Maps:SetupNudgeControls()
     Movable:RegisterNudgeFrame(self.nudgeFrame, Minimap)
 end
 
+function Maps:UpdateNudgeDisplay()
+    local Movable = MidnightUI:GetModule("Movable")
+    if self.nudgeFrame then
+        Movable:UpdateNudgeDisplay(self.nudgeFrame, self.db.profile)
+        -- Also reposition it to stay centered on minimap
+        if self.nudgeFrame:IsShown() then
+            Movable:ShowNudgeControls(self.nudgeFrame, Minimap)
+        end
+    end
+end
+
 function Maps:OnMoveModeChanged(event, enabled)
     local Movable = MidnightUI:GetModule("Movable")
     
     if enabled then
-        -- CHANGED: Always show nudge controls immediately when Move Mode is enabled
+        -- Always show nudge controls immediately when Move Mode is enabled
         if self.nudgeFrame then
             Movable:ShowNudgeControls(self.nudgeFrame, Minimap)
         end
@@ -406,21 +422,6 @@ function Maps:GetOptions()
             },
             
             headerPosition = { type = "header", name = "Position Fine-Tuning", order = 6 },
-            showNudgeControls = {
-                name = "Show Nudge Controls",
-                desc = "Manually show/hide pixel adjustment arrows",
-                type = "execute",
-                order = 6.5,
-                func = function()
-                    if self.nudgeFrame then
-                        if self.nudgeFrame:IsShown() then
-                            self.nudgeFrame:Hide()
-                        else
-                            self.nudgeFrame:Show()
-                        end
-                    end
-                end
-            },
             offsetX = {
                 name = "Horizontal Offset",
                 desc = "Manual horizontal offset (or drag minimap with CTRL+ALT / Move Mode)",
