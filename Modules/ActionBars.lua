@@ -385,18 +385,14 @@ function AB:CreateBar(barKey, config)
                             if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
                                 bestSnapX = x + (otherLeft - selfRight)
                                 bestDistX = rightToLeftDist
-                                -- Align left edges if close
-                                if math.abs(selfLeft - otherLeft) < snapThreshold then
-                                    alignX = x + (otherLeft - selfLeft)
-                                end
+                                -- Force left edge alignment
+                                alignX = x + (otherLeft - selfLeft)
                             end
                             if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
                                 bestSnapX = x + (otherRight - selfLeft)
                                 bestDistX = leftToRightDist
-                                -- Align right edges if close
-                                if math.abs(selfRight - otherRight) < snapThreshold then
-                                    alignX = x + (otherRight - selfRight)
-                                end
+                                -- Force right edge alignment
+                                alignX = x + (otherRight - selfRight)
                             end
                             -- Vertical snapping (top-bottom adjacency)
                             local bottomToTopDist = math.abs(selfBottom - otherTop)
