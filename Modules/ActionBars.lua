@@ -429,14 +429,18 @@ function AB:CreateBar(barKey, config)
             end
             -- If alignX is set, use it to align left/right edges (pixel-perfect)
             local finalX = bestSnapX or x
+            local anchorPoint, relativeTo, relativePoint, origX, origY = container:GetPoint()
             if alignX then
-                -- Convert alignX (screen) to offset from UIParent center
-                local parentLeft = UIParent:GetLeft() or 0
+                local parentLeft = (relativeTo and relativeTo.GetLeft) and relativeTo:GetLeft() or (UIParent:GetLeft() or 0)
                 finalX = alignX - parentLeft
             end
             local finalY = bestSnapY or y
             container:ClearAllPoints()
-            container:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", finalX, finalY)
+            -- Ensure relativeTo is never nil
+            if not relativeTo then relativeTo = UIParent end
+            if not anchorPoint then anchorPoint = "CENTER" end
+            if not relativePoint then relativePoint = anchorPoint end
+            container:SetPoint(anchorPoint, relativeTo, relativePoint, finalX, finalY)
         end
         
         AB:SaveBarPosition(barKey)
