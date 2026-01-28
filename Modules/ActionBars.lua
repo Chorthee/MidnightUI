@@ -563,11 +563,20 @@ function AB:UpdateButtonElements(btn)
     end
     
     -- Update custom hotkey text from the button's action binding
-    if db.showHotkeys then
+    if db.showHotkeys and btn:IsVisible() and btn:GetParent():IsVisible() then
         local key = GetBindingKey(btn.commandName or btn.bindingAction)
         if key then
             local text = GetBindingText(key, "KEY_", 1)
-            text = string.upper(text) -- Convert to uppercase
+            text = string.upper(text)
+            
+            -- Abbreviate common patterns
+            text = text:gsub("MOUSEWHEELUP", "MWU")
+            text = text:gsub("MOUSEWHEELDOWN", "MWD")
+            text = text:gsub("CTRL%-", "C")
+            text = text:gsub("SHIFT%-", "S")
+            text = text:gsub("ALT%-", "A")
+            text = text:gsub("BUTTON", "M")
+            
             text = string.sub(text, 1, 4) -- Limit to 4 characters
             btn.customHotkey:SetText(text)
             btn.customHotkey:Show()
