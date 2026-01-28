@@ -547,24 +547,19 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Keep TextOverlayContainer but hide ONLY the background texture atlas
+    -- Hide background textures in TextOverlayContainer but keep the text
     if btn.TextOverlayContainer then
-        -- The container uses an atlas for the background - disable it
-        btn.TextOverlayContainer:SetBackdrop(nil)
-        
-        -- Try to access and disable the background directly
-        local bg = btn.TextOverlayContainer:GetRegions()
-        if bg and bg:GetObjectType() == "Texture" then
-            bg:SetTexture(nil)
-            bg:SetAlpha(0)
+        -- Loop through all textures and hide them
+        for i = 1, select('#', btn.TextOverlayContainer:GetRegions()) do
+            local region = select(i, btn.TextOverlayContainer:GetRegions())
+            if region and region:GetObjectType() == "Texture" then
+                region:SetTexture("")
+                region:SetAlpha(0)
+            end
         end
-        
-        -- Keep the container and its text visible
-        btn.TextOverlayContainer:Show()
-        btn.TextOverlayContainer:SetAlpha(1)
     end
     
-    -- Fix highlight to match full button area (no insets)
+    -- Fix highlight to match full button area
     local highlight = btn:GetHighlightTexture()
     if highlight then
         highlight:ClearAllPoints()
