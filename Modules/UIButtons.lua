@@ -137,14 +137,17 @@ function UIButtons:CreateButtons()
         local config = self.db.profile.UIButtons[key]
         
         if config and config.enabled then
-            
-            local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, "SecureActionButtonTemplate")
+            local template = nil
+            if key == "logout" or key == "exit" then
+                template = "SecureActionButtonTemplate"
+            end
+            local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, template)
             btn:SetSize(32, 32)
             btn:SetFrameStrata("TOOLTIP")
             btn:SetFrameLevel(201)
             btn:EnableMouse(true)
-            
-            -- Set up secure attributes for logout/exit/addons buttons FIRST
+
+            -- Set up secure attributes for logout/exit buttons ONLY
             if key == "logout" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/logout")
@@ -154,9 +157,6 @@ function UIButtons:CreateButtons()
                 btn:SetAttribute("macrotext", "/quit")
                 btn:RegisterForClicks("AnyUp", "AnyDown")
             elseif key == "addons" then
-                -- For Addons button, use a regular button and OnClick script
-                btn:SetAttribute("type", nil)
-                btn:SetAttribute("macrotext", nil)
                 btn:RegisterForClicks("AnyUp")
                 btn:SetScript("OnClick", function()
                     if ToggleAddOnManager then
@@ -167,7 +167,7 @@ function UIButtons:CreateButtons()
                 end)
             else
                 btn:RegisterForClicks("AnyUp")
-            end            
+            end
             local bg = btn:CreateTexture(nil, "BACKGROUND")
             bg:SetAllPoints()
             bg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
