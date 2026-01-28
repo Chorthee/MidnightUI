@@ -103,6 +103,12 @@ function AB:OnDBReady()
     -- ADDED: Register for Move Mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
     print("  ActionBars module ready!")
+    
+    -- CHANGED: Initialize bars immediately instead of waiting for PLAYER_ENTERING_WORLD
+    -- This ensures bars are created even on /reload
+    self:HideBlizzardElements()
+    self:InitializeAllBars()
+    self:UpdateAllBars()
 end
 
 function AB:PLAYER_ENTERING_WORLD()
