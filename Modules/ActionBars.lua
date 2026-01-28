@@ -439,24 +439,40 @@ function AB:CollectButtons(container, barKey)
     if barKey == "MainMenuBar" then
         for i = 1, 12 do
             local btn = _G["ActionButton"..i]
-            if btn then table.insert(buttons, btn) end
+            if btn then 
+                btn:Show()
+                btn:SetAlpha(1)
+                table.insert(buttons, btn) 
+            end
         end
     elseif barKey == "PetActionBar" then
         for i = 1, 10 do
             local btn = _G["PetActionButton"..i]
-            if btn then table.insert(buttons, btn) end
+            if btn then 
+                btn:Show()
+                btn:SetAlpha(1)
+                table.insert(buttons, btn) 
+            end
         end
     elseif barKey == "StanceBar" then
         for i = 1, 10 do
             local btn = _G["StanceButton"..i]
-            if btn then table.insert(buttons, btn) end
+            if btn then 
+                btn:Show()
+                btn:SetAlpha(1)
+                table.insert(buttons, btn) 
+            end
         end
     else
         -- Standard action bars
         local barName = barKey
         for i = 1, 12 do
             local btn = _G[barName.."Button"..i]
-            if btn then table.insert(buttons, btn) end
+            if btn then 
+                btn:Show()
+                btn:SetAlpha(1)
+                table.insert(buttons, btn) 
+            end
         end
     end
     
