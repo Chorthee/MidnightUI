@@ -53,19 +53,19 @@ end
 function UIButtons:CreateContainer()
     if container then return end
     
+    local Movable = MidnightUI:GetModule("Movable")
+    
     container = CreateFrame("Frame", "MidnightUI_UIButtonsContainer", UIParent, "BackdropTemplate")
-    container:SetSize(200, 36)  -- Will be resized based on buttons
+    container:SetSize(200, 36)
     
     local pos = self.db.profile.position
     container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
     container:SetScale(self.db.profile.scale)
     container:SetFrameStrata("TOOLTIP")
     container:SetFrameLevel(200)
-    container:EnableMouse(true)
     container:SetMovable(true)
     container:SetClampedToScreen(true)
     
-    -- Background
     container:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -75,141 +75,20 @@ function UIButtons:CreateContainer()
     container:SetBackdropColor(unpack(self.db.profile.backgroundColor))
     container:SetBackdropBorderColor(0, 0, 0, 1)
     
-    -- Drag functionality
-    container:RegisterForDrag("LeftButton")
-    container:SetScript("OnDragStart", function(self)
-        if not InCombatLockdown() then
-            local ctrlAlt = IsControlKeyDown() and IsAltKeyDown()
-            local moveMode = MidnightUI and MidnightUI.moveMode
-            if ctrlAlt or moveMode then
-                self:StartMoving()
-            end
-        end
-    end)
-    container:SetScript("OnDragStop", function(self)
-        self:StopMovingOrSizing()
-        local point, _, _, x, y = self:GetPoint()
-        UIButtons.db.profile.position = { point = point, x = x, y = y }
-        UIButtons:UpdateNudgeArrows()
-    end)
+    -- Use Movable for drag functionality
+    Movable:MakeFrameDraggable(
+        container,
+        function(point, x, y)
+            UIButtons.db.profile.position = { point = point, x = x, y = y }
+            Movable:UpdateContainerArrows(container)
+        end,
+        function() return not UIButtons.db.profile.locked end
+    )
     
     container:Show()
-    self:CreateNudgeArrows()
-end
-
-function UIButtons:CreateNudgeArrows()
-    if not container then return end
     
-    container.arrows = {}
-    
-    local directions = {"UP", "DOWN", "LEFT", "RIGHT"}
-    
-    for _, direction in ipairs(directions) do
-        local btn = CreateFrame("Button", "MidnightUI_UIButtonsNudge_"..direction, UIParent, "BackdropTemplate")
-        btn:SetSize(24, 24)
-        btn:SetFrameStrata("TOOLTIP")
-        btn:SetFrameLevel(300)
-        
-        btn:SetBackdrop({
-            bgFile = "Interface\\Buttons\\WHITE8X8",
-            edgeFile = "Interface\\Buttons\\WHITE8X8",
-            tile = false, edgeSize = 1,
-            insets = { left = 0, right = 0, top = 0, bottom = 0 }
-        })
-        btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
-        btn:SetBackdropBorderColor(0, 1, 0, 1)
-        
-        local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-        arrow:SetPoint("CENTER")
-        
-        if direction == "UP" then arrow:SetText("^")
-        elseif direction == "DOWN" then arrow:SetText("v")
-        elseif direction == "LEFT" then arrow:SetText("<")
-        elseif direction == "RIGHT" then arrow:SetText(">")
-        end
-        
-        arrow:SetTextColor(0, 1, 0, 1)
-        
-        btn:SetScript("OnEnter", function(self)
-            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
-        end)
-        
-        btn:SetScript("OnLeave", function(self)
-            self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
-        end)
-        
-        btn:SetScript("OnClick", function()
-            local step = IsShiftKeyDown() and 10 or 1
-            local pos = UIButtons.db.profile.position
-            
-            if direction == "UP" then
-                pos.y = pos.y + step
-            elseif direction == "DOWN" then
-                pos.y = pos.y - step
-            elseif direction == "LEFT" then
-                pos.x = pos.x - step
-            elseif direction == "RIGHT" then
-                pos.x = pos.x + step
-            end
-            
-            container:ClearAllPoints()
-            container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
-            UIButtons:UpdateNudgeArrows()
-        end)
-        
-        btn:Hide()
-        container.arrows[direction] = btn
-    end
-    
-    self:UpdateNudgeArrows()
-end
-
-function UIButtons:UpdateNudgeArrows()
-    if not container or not container.arrows then return end
-    
-    local showArrows = MidnightUI and MidnightUI.moveMode
-    
-    if not showArrows then
-        for _, arrow in pairs(container.arrows) do
-            arrow:Hide()
-        end
-        return
-    end
-    
-    -- Get container position
-    local containerY = select(2, container:GetCenter())
-    local screenHeight = UIParent:GetHeight()
-    
-    -- Determine if container is on top or bottom half of screen
-    local onTop = containerY > screenHeight / 2
-    
-    -- Position all 4 arrows in a single horizontal row: < ^ v >
-    local spacing = 2  -- Spacing between arrows
-    local offset = 5   -- Distance from container
-    
-    container.arrows.LEFT:ClearAllPoints()
-    container.arrows.UP:ClearAllPoints()
-    container.arrows.DOWN:ClearAllPoints()
-    container.arrows.RIGHT:ClearAllPoints()
-    
-    if onTop then
-        -- Container is on top, put arrow row below
-        container.arrows.LEFT:SetPoint("TOP", container, "BOTTOM", 0, -offset)
-        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
-        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
-        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
-    else
-        -- Container is on bottom, put arrow row above
-        container.arrows.LEFT:SetPoint("BOTTOM", container, "TOP", 0, offset)
-        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
-        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
-        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
-    end
-    
-    -- Show all arrows
-    for _, arrow in pairs(container.arrows) do
-        arrow:Show()
-    end
+    -- Create nudge arrows using Movable
+    Movable:CreateContainerArrows(container, self.db)
 end
 
 function UIButtons:CreateButtons()
@@ -330,10 +209,18 @@ function UIButtons:CreateButtons()
 end
 
 function UIButtons:OnMoveModeChanged(event, enabled)
-    local moveBtn = uiButtons.move  -- Changed variable name
+    local Movable = MidnightUI:GetModule("Movable")
+    
+    -- Update move button color
+    local moveBtn = uiButtons.move
     if moveBtn and moveBtn.text then
         local color = enabled and {0, 1, 0} or {1, 1, 1}
         moveBtn.text:SetTextColor(unpack(color))
+    end
+    
+    -- Update container arrows
+    if container then
+        Movable:UpdateContainerArrows(container)
     end
 end
 

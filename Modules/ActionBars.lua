@@ -248,7 +248,9 @@ function AB:CreateBar(barKey, config)
     container.label:SetText(config.name)
     container.label:SetTextColor(1, 1, 1, 1)
     
-    -- Drag handlers (allow CTRL+ALT override when locked)
+    -- Drag handlers using Movable module
+    local Movable = MidnightUI:GetModule("Movable")
+    
     container.dragFrame:RegisterForDrag("LeftButton")
     container.dragFrame:SetScript("OnDragStart", function(self)
         if not AB.db.profile.locked or (IsControlKeyDown() and IsAltKeyDown()) then

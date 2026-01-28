@@ -1,0 +1,448 @@
+local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
+local Movable = MidnightUI:NewModule("Movable", "AceEvent-3.0")
+
+-- ============================================================================
+-- MOVABLE FRAME SYSTEM
+-- Centralized drag and nudge functionality for all MidnightUI modules
+-- ============================================================================
+
+-- ============================================================================
+-- 1. DRAG FUNCTIONALITY
+-- ============================================================================
+
+--[[
+    Makes a frame draggable with CTRL+ALT or Move Mode
+    @param frame - The frame to make draggable
+    @param saveCallback - Optional function(point, x, y) called when drag stops
+    @param unlockCheck - Optional function() that returns true if frame should be movable
+]]
+function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
+    if not frame then return end
+    
+    frame:SetMovable(true)
+    frame:EnableMouse(true)
+    frame:RegisterForDrag("LeftButton")
+    frame:SetClampedToScreen(true)
+    
+    local isDragging = false
+    
+    frame:SetScript("OnDragStart", function(self)
+        -- Check if unlocked (if unlockCheck provided) OR CTRL+ALT held OR Move Mode active
+        local canMove = true
+        if unlockCheck then
+            canMove = unlockCheck() or (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode
+        else
+            canMove = (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode
+        end
+        
+        if canMove then
+            isDragging = true
+            self:StartMoving()
+        end
+    end)
+    
+    frame:SetScript("OnDragStop", function(self)
+        if not isDragging then return end
+        
+        self:StopMovingOrSizing()
+        isDragging = false
+        
+        -- Save position if callback provided
+        if saveCallback then
+            local point, _, _, x, y = self:GetPoint()
+            saveCallback(point, math.floor(x + 0.5), math.floor(y + 0.5))
+        end
+    end)
+    
+    -- Right-click to open config
+    frame:SetScript("OnMouseUp", function(self, button)
+        if button == "RightButton" then
+            MidnightUI:OpenConfig()
+        end
+    end)
+end
+
+-- ============================================================================
+-- 2. NUDGE CONTROLS (Arrow Buttons)
+-- ============================================================================
+
+--[[
+    Creates a nudge control frame with arrow buttons
+    @param parentFrame - The frame to attach nudge controls to
+    @param db - Database table containing offsetX and offsetY
+    @param applyCallback - Function() called when offset changes
+    @param updateCallback - Optional function() called after nudge display updates
+    @return nudgeFrame - The created control frame
+]]
+function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallback)
+    if not parentFrame or not db or not applyCallback then return end
+    
+    -- Create main nudge frame
+    local nudge = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    nudge:SetSize(140, 140)
+    nudge:SetFrameStrata("DIALOG")
+    nudge:SetFrameLevel(1000)
+    nudge:EnableMouse(true)
+    nudge:SetMovable(true)
+    nudge:RegisterForDrag("LeftButton")
+    nudge:SetClampedToScreen(true)
+    nudge:Hide()
+    
+    nudge:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 2,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    nudge:SetBackdropColor(0, 0, 0, 0.5)
+    nudge:SetBackdropBorderColor(0, 1, 0, 1)
+    
+    -- Make the nudge frame itself draggable
+    nudge:SetScript("OnDragStart", function(self) self:StartMoving() end)
+    nudge:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
+    
+    -- Title
+    local title = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOP", 0, -5)
+    title:SetText("Move Frame")
+    title:SetTextColor(0, 1, 0)
+    
+    -- Current offset display
+    local offsetText = nudge:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    offsetText:SetPoint("CENTER", 0, 0)
+    offsetText:SetTextColor(1, 1, 1)
+    nudge.offsetText = offsetText
+    
+    -- Create arrow buttons
+    local function CreateArrow(direction, point, x, y)
+        local btn = CreateFrame("Button", nil, nudge, "BackdropTemplate")
+        btn:SetSize(24, 24)
+        btn:SetPoint(point, nudge, point, x, y)
+        
+        btn:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 0, right = 0, top = 0, bottom = 0 }
+        })
+        btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        btn:SetBackdropBorderColor(0, 1, 0, 1)
+        
+        -- Arrow text using simple ASCII characters
+        local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        arrow:SetPoint("CENTER")
+        
+        if direction == "UP" then arrow:SetText("^")
+        elseif direction == "DOWN" then arrow:SetText("v")
+        elseif direction == "LEFT" then arrow:SetText("<")
+        elseif direction == "RIGHT" then arrow:SetText(">")
+        end
+        
+        arrow:SetTextColor(0, 1, 0, 1)
+        
+        -- Button hover
+        btn:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine("Nudge "..direction)
+            GameTooltip:AddLine("|cffaaaaaa(Hold Shift for 10px)|r", 1, 1, 1)
+            GameTooltip:Show()
+        end)
+        
+        btn:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+            GameTooltip:Hide()
+        end)
+        
+        -- Click handler
+        btn:SetScript("OnClick", function()
+            local step = IsShiftKeyDown() and 10 or 1
+            
+            if direction == "UP" then
+                db.offsetY = (db.offsetY or 0) + step
+            elseif direction == "DOWN" then
+                db.offsetY = (db.offsetY or 0) - step
+            elseif direction == "LEFT" then
+                db.offsetX = (db.offsetX or 0) - step
+            elseif direction == "RIGHT" then
+                db.offsetX = (db.offsetX or 0) + step
+            end
+            
+            applyCallback()
+            Movable:UpdateNudgeDisplay(nudge, db)
+            if updateCallback then updateCallback() end
+        end)
+    end
+    
+    -- Create 4 arrow buttons
+    CreateArrow("UP", "TOP", 0, 10)
+    CreateArrow("DOWN", "BOTTOM", 0, -10)
+    CreateArrow("LEFT", "LEFT", -10, 0)
+    CreateArrow("RIGHT", "RIGHT", 10, 0)
+    
+    -- Reset button
+    local reset = CreateFrame("Button", nil, nudge, "BackdropTemplate")
+    reset:SetSize(50, 20)
+    reset:SetPoint("BOTTOM", 0, 5)
+    reset:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    reset:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+    reset:SetBackdropBorderColor(1, 0, 0, 1)
+    
+    local resetText = reset:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    resetText:SetPoint("CENTER")
+    resetText:SetText("Reset")
+    resetText:SetTextColor(1, 0, 0)
+    
+    reset:SetScript("OnClick", function()
+        db.offsetX = 0
+        db.offsetY = 0
+        applyCallback()
+        Movable:UpdateNudgeDisplay(nudge, db)
+        if updateCallback then updateCallback() end
+    end)
+    
+    reset:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.3, 0.2, 0.2, 1)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Reset to Center")
+        GameTooltip:Show()
+    end)
+    
+    reset:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        GameTooltip:Hide()
+    end)
+    
+    -- Store reference to parent and callbacks
+    nudge.parentFrame = parentFrame
+    nudge.db = db
+    nudge.applyCallback = applyCallback
+    
+    -- Initial display update
+    self:UpdateNudgeDisplay(nudge, db)
+    
+    return nudge
+end
+
+--[[
+    Updates the offset display text on a nudge frame
+    @param nudgeFrame - The nudge control frame
+    @param db - Database table containing offsetX and offsetY
+]]
+function Movable:UpdateNudgeDisplay(nudgeFrame, db)
+    if nudgeFrame and nudgeFrame.offsetText and db then
+        local x = db.offsetX or 0
+        local y = db.offsetY or 0
+        nudgeFrame.offsetText:SetText(string.format("X: %d  Y: %d", x, y))
+    end
+end
+
+--[[
+    Shows nudge controls anchored near a parent frame
+    @param nudgeFrame - The nudge control frame
+    @param parentFrame - The frame to anchor near
+]]
+function Movable:ShowNudgeControls(nudgeFrame, parentFrame)
+    if not nudgeFrame or not parentFrame then return end
+    
+    nudgeFrame:ClearAllPoints()
+    
+    -- Position nudge frame to the right of parent
+    local parentX, parentY = parentFrame:GetCenter()
+    if parentX and parentY then
+        local screenHeight = UIParent:GetHeight()
+        
+        -- If parent is on right half of screen, put nudge on left
+        if parentX > UIParent:GetWidth() / 2 then
+            nudgeFrame:SetPoint("RIGHT", parentFrame, "LEFT", -10, 0)
+        else
+            nudgeFrame:SetPoint("LEFT", parentFrame, "RIGHT", 10, 0)
+        end
+    else
+        nudgeFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    end
+    
+    nudgeFrame:Show()
+end
+
+--[[
+    Hides nudge controls
+    @param nudgeFrame - The nudge control frame
+]]
+function Movable:HideNudgeControls(nudgeFrame)
+    if nudgeFrame then
+        nudgeFrame:Hide()
+    end
+end
+
+-- ============================================================================
+-- 3. MOVE MODE INTEGRATION
+-- ============================================================================
+
+function Movable:OnInitialize()
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    self.registeredNudgeFrames = {}
+end
+
+--[[
+    Registers a nudge frame to respond to Move Mode changes
+    @param nudgeFrame - The nudge control frame
+    @param parentFrame - The parent frame (for hover detection)
+]]
+function Movable:RegisterNudgeFrame(nudgeFrame, parentFrame)
+    if not nudgeFrame or not parentFrame then return end
+    
+    table.insert(self.registeredNudgeFrames, {
+        nudge = nudgeFrame,
+        parent = parentFrame
+    })
+end
+
+function Movable:OnMoveModeChanged(event, enabled)
+    -- Show/hide all registered nudge frames based on Move Mode
+    for _, data in ipairs(self.registeredNudgeFrames) do
+        if enabled then
+            -- Only show if mouse is over parent
+            if MouseIsOver(data.parent) then
+                self:ShowNudgeControls(data.nudge, data.parent)
+            end
+        else
+            self:HideNudgeControls(data.nudge)
+        end
+    end
+end
+
+-- ============================================================================
+-- 4. CONTAINER WITH ARROWS (UIButtons style)
+-- ============================================================================
+
+--[[
+    Creates nudge arrows positioned around a container (UIButtons style)
+    @param container - The container frame
+    @param db - Database table with position = {point, x, y}
+    @return arrows table with UP, DOWN, LEFT, RIGHT keys
+]]
+function Movable:CreateContainerArrows(container, db)
+    if not container or not db then return end
+    
+    container.arrows = {}
+    
+    local directions = {"UP", "DOWN", "LEFT", "RIGHT"}
+    
+    for _, direction in ipairs(directions) do
+        local btn = CreateFrame("Button", nil, UIParent, "BackdropTemplate")
+        btn:SetSize(24, 24)
+        btn:SetFrameStrata("TOOLTIP")
+        btn:SetFrameLevel(300)
+        
+        btn:SetBackdrop({
+            bgFile = "Interface\\Buttons\\WHITE8X8",
+            edgeFile = "Interface\\Buttons\\WHITE8X8",
+            tile = false, edgeSize = 1,
+            insets = { left = 0, right = 0, top = 0, bottom = 0 }
+        })
+        btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        btn:SetBackdropBorderColor(0, 1, 0, 1)
+        
+        -- Arrow text
+        local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        arrow:SetPoint("CENTER")
+        
+        if direction == "UP" then arrow:SetText("^")
+        elseif direction == "DOWN" then arrow:SetText("v")
+        elseif direction == "LEFT" then arrow:SetText("<")
+        elseif direction == "RIGHT" then arrow:SetText(">")
+        end
+        
+        arrow:SetTextColor(0, 1, 0, 1)
+        
+        btn:SetScript("OnEnter", function(self)
+            self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+        end)
+        
+        btn:SetScript("OnLeave", function(self)
+            self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        end)
+        
+        btn:SetScript("OnClick", function()
+            local step = IsShiftKeyDown() and 10 or 1
+            local pos = db.position or {point = "CENTER", x = 0, y = 0}
+            
+            if direction == "UP" then
+                pos.y = pos.y + step
+            elseif direction == "DOWN" then
+                pos.y = pos.y - step
+            elseif direction == "LEFT" then
+                pos.x = pos.x - step
+            elseif direction == "RIGHT" then
+                pos.x = pos.x + step
+            end
+            
+            container:ClearAllPoints()
+            container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
+        end)
+        
+        btn:Hide()
+        container.arrows[direction] = btn
+    end
+    
+    return container.arrows
+end
+
+--[[
+    Updates container arrow positions based on container location
+    @param container - The container with .arrows table
+]]
+function Movable:UpdateContainerArrows(container)
+    if not container or not container.arrows then return end
+    
+    local showArrows = MidnightUI and MidnightUI.moveMode
+    
+    if not showArrows then
+        for _, arrow in pairs(container.arrows) do
+            arrow:Hide()
+        end
+        return
+    end
+    
+    -- Get container position
+    local containerY = select(2, container:GetCenter())
+    local screenHeight = UIParent:GetHeight()
+    
+    -- Determine if container is on top or bottom half
+    local onTop = containerY > screenHeight / 2
+    
+    local spacing = 2
+    local offset = 5
+    
+    container.arrows.LEFT:ClearAllPoints()
+    container.arrows.UP:ClearAllPoints()
+    container.arrows.DOWN:ClearAllPoints()
+    container.arrows.RIGHT:ClearAllPoints()
+    
+    if onTop then
+        -- Container on top, arrows below: < ^ v >
+        container.arrows.LEFT:SetPoint("TOP", container, "BOTTOM", 0, -offset)
+        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
+    else
+        -- Container on bottom, arrows above: < ^ v >
+        container.arrows.LEFT:SetPoint("BOTTOM", container, "TOP", 0, offset)
+        container.arrows.UP:SetPoint("LEFT", container.arrows.LEFT, "RIGHT", spacing, 0)
+        container.arrows.DOWN:SetPoint("LEFT", container.arrows.UP, "RIGHT", spacing, 0)
+        container.arrows.RIGHT:SetPoint("LEFT", container.arrows.DOWN, "RIGHT", spacing, 0)
+    end
+    
+    -- Show all arrows
+    for _, arrow in pairs(container.arrows) do
+        arrow:Show()
+    end
+end
+
+return Movable

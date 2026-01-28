@@ -324,32 +324,17 @@ function Cooldowns:SetupDragging()
     local frame = self.cooldownFrame
     if not frame then return end
     
-    frame:RegisterForDrag("LeftButton")
+    local Movable = MidnightUI:GetModule("Movable")
     
-    local isDragging = false
-    
-    frame:SetScript("OnDragStart", function(self)
-        -- Allow dragging with CTRL+ALT OR when Move Mode is active
-        if (IsControlKeyDown() and IsAltKeyDown()) or MidnightUI.moveMode then
-            isDragging = true
-            frame:EnableMouse(true)
-            self:StartMoving()
-        end
-    end)
-    
-    frame:SetScript("OnDragStop", function(self)
-        if not isDragging then return end
-        
-        self:StopMovingOrSizing()
-        isDragging = false
-        frame:EnableMouse(false)
-        
-        -- Save position
-        local point, _, _, x, y = self:GetPoint()
-        Cooldowns.db.profile.point = point
-        Cooldowns.db.profile.x = math.floor(x + 0.5)
-        Cooldowns.db.profile.y = math.floor(y + 0.5)
-    end)
+    Movable:MakeFrameDraggable(
+        frame,
+        function(point, x, y)
+            Cooldowns.db.profile.point = point
+            Cooldowns.db.profile.x = x
+            Cooldowns.db.profile.y = y
+        end,
+        nil  -- No unlock check, always use CTRL+ALT or Move Mode
+    )
 end
 
 function Cooldowns:OnMoveModeChanged(event, enabled)
