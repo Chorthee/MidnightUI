@@ -786,10 +786,14 @@ function AB:UpdateButtonElements(btn)
         end)
     end
     
-    -- Hide NormalTexture (the default button border/background)
+    -- Handle NormalTexture (the default button border/background)
     local normalTex = btn:GetNormalTexture()
     if normalTex then
-        normalTex:SetAlpha(0)
+        -- Size it to match the button
+        normalTex:ClearAllPoints()
+        normalTex:SetAllPoints(btn)
+        normalTex:SetTexCoord(0, 1, 0, 1)
+        -- We'll control visibility in UpdateEmptyButtons
     end
     
     -- Hide border textures that might show as rectangles
@@ -871,21 +875,27 @@ function AB:UpdateEmptyButtons(barKey)
                 btn:Show()
                 btn:SetAlpha(1)
                 
-                -- Make sure the button background/border is visible
-                local normalTexture = btn:GetNormalTexture()
-                if normalTexture then
-                    normalTexture:SetAlpha(1)
-                    normalTexture:Show()
-                end
-                
-                -- Show icon if it exists, otherwise ensure empty appearance
+                -- Show/hide icon based on whether there's an action
                 if btn.icon then
                     if hasAction then
                         btn.icon:SetAlpha(1)
                         btn.icon:Show()
                     else
-                        -- Empty button - hide icon but keep button visible
                         btn.icon:SetAlpha(0)
+                        btn.icon:Hide()
+                    end
+                end
+                
+                -- Show normal texture for empty buttons
+                local normalTexture = btn:GetNormalTexture()
+                if normalTexture then
+                    if hasAction then
+                        -- Hide normal texture when there's an icon
+                        normalTexture:SetAlpha(0)
+                    else
+                        -- Show normal texture for empty buttons
+                        normalTexture:SetAlpha(0.5)
+                        normalTexture:Show()
                     end
                 end
             else
@@ -896,6 +906,10 @@ function AB:UpdateEmptyButtons(barKey)
                     if btn.icon then
                         btn.icon:SetAlpha(1)
                         btn.icon:Show()
+                    end
+                    local normalTexture = btn:GetNormalTexture()
+                    if normalTexture then
+                        normalTexture:SetAlpha(0)
                     end
                 else
                     btn:Hide()
