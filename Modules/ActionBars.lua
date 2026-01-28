@@ -346,23 +346,23 @@ function AB:CreateBar(barKey, config)
             print(string.format("Dragging %s: Left=%.1f Right=%.1f Top=%.1f Bottom=%.1f", 
                 barKey, selfLeft, selfRight, selfTop, selfBottom))
             
-            -- Debug: Check what bars exist
-            if AB.bars then
+            -- Debug: Check what bars exist (use local bars variable, not AB.bars)
+            if bars then
                 local count = 0
-                for k, v in pairs(AB.bars) do
+                for k, v in pairs(bars) do
                     count = count + 1
                 end
-                print(string.format("  AB.bars has %d entries", count))
-                for k, v in pairs(AB.bars) do
+                print(string.format("  bars has %d entries", count))
+                for k, v in pairs(bars) do
                     print(string.format("    Bar: %s (shown=%s)", k, tostring(v:IsShown())))
                 end
             else
-                print("  ERROR: AB.bars is nil!")
+                print("  ERROR: bars is nil!")
             end
             
             -- Check snapping to other bars FIRST (higher priority)
-            if AB.bars then
-                for otherBarKey, otherBar in pairs(AB.bars) do
+            if bars then
+                for otherBarKey, otherBar in pairs(bars) do
                     if otherBarKey ~= barKey and otherBar:IsShown() then
                         local otherLeft = otherBar:GetLeft()
                         local otherRight = otherBar:GetRight()
