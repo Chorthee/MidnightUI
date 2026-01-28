@@ -548,7 +548,7 @@ function AB:CollectButtons(container, barKey)
                     texture = select(1, GetShapeshiftFormInfo(i))
                 end
                 if icon then
-                    icon:SetDrawLayer("ARTWORK", 1)
+                    icon:SetDrawLayer("OVERLAY", 1)
                     if texture then
                         icon:SetTexture(texture)
                         icon:Show()
