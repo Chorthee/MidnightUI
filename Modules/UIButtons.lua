@@ -122,7 +122,6 @@ function UIButtons:CreateButtons()
             tooltip = "Toggle Move Mode\n|cffaaaaaa(Hover over elements to reposition)|r",
             onClick = function() 
                 MidnightUI:ToggleMoveMode()
-                UIButtons:UpdateNudgeArrows()
             end,
             getColor = function()
                 if MidnightUI.moveMode then
