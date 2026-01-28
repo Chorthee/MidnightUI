@@ -101,7 +101,14 @@ function AB:PLAYER_ENTERING_WORLD()
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()
-    -- Skinning now handled by Skins module
+    
+    -- ADDED: Trigger Skins module to skin our buttons
+    C_Timer.After(0.5, function()
+        local Skin = MidnightUI:GetModule("Skin", true)
+        if Skin and Skin.SkinActionBarButtons then
+            Skin:SkinActionBarButtons()
+        end
+    end)
 end
 
 -- ADDED: Handle Move Mode changes

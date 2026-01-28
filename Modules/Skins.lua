@@ -79,7 +79,8 @@ function Skin:OnDBReady()
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
-    C_Timer.After(0.5, function()
+    -- Wait longer to ensure ActionBars module has created all buttons
+    C_Timer.After(1.5, function()
         if self.db.profile.skinActionBars then
             self:SkinActionBarButtons()
         end
@@ -142,54 +143,88 @@ function Skin:SkinActionBarButtons()
     local bgColor = self.db.profile.buttonBackgroundColor
     local borderColor = self.db.profile.buttonBorderColor
     
-    -- Hook ActionButton creation/update
-    hooksecurefunc("ActionButton_Update", function(button)
-        Skin:SkinButton(button)
-    end)
-    
-    hooksecurefunc("ActionButton_UpdateUsable", function(button)
-        Skin:MaintainButtonSkin(button)
-    end)
-    
-    hooksecurefunc("ActionButton_UpdateCooldown", function(button)
-        Skin:MaintainButtonSkin(button)
-    end)
-    
-    -- Skin existing action buttons
-    for i = 1, 12 do
-        local btn = _G["ActionButton"..i]
-        if btn then self:SkinButton(btn) end
+    -- Hook ActionButton creation/update FIRST
+    if not self.hooksSetup then
+        hooksecurefunc("ActionButton_Update", function(button)
+            if Skin.db and Skin.db.profile.skinActionBars then
+                Skin:SkinButton(button)
+            end
+        end)
         
-        btn = _G["MultiBarBottomLeftButton"..i]
-        if btn then self:SkinButton(btn) end
+        hooksecurefunc("ActionButton_UpdateUsable", function(button)
+            if Skin.db and Skin.db.profile.skinActionBars then
+                Skin:MaintainButtonSkin(button)
+            end
+        end)
         
-        btn = _G["MultiBarBottomRightButton"..i]
-        if btn then self:SkinButton(btn) end
+        hooksecurefunc("ActionButton_UpdateCooldown", function(button)
+            if Skin.db and Skin.db.profile.skinActionBars then
+                Skin:MaintainButtonSkin(button)
+            end
+        end)
         
-        btn = _G["MultiBarRightButton"..i]
-        if btn then self:SkinButton(btn) end
+        -- ADDED: Hook the layout function from ActionBars module
+        hooksecurefunc("ActionButton_OnEvent", function(button)
+            if Skin.db and Skin.db.profile.skinActionBars then
+                C_Timer.After(0, function()
+                    Skin:SkinButton(button)
+                end)
+            end
+        end)
         
-        btn = _G["MultiBarLeftButton"..i]
-        if btn then self:SkinButton(btn) end
-        
-        btn = _G["MultiBar5Button"..i]
-        if btn then self:SkinButton(btn) end
-        
-        btn = _G["MultiBar6Button"..i]
-        if btn then self:SkinButton(btn) end
-        
-        btn = _G["MultiBar7Button"..i]
-        if btn then self:SkinButton(btn) end
+        self.hooksSetup = true
     end
     
-    -- Pet bar buttons
-    for i = 1, 10 do
-        local btn = _G["PetActionButton"..i]
-        if btn then self:SkinButton(btn) end
+    -- Skin ALL existing action buttons with multiple attempts
+    local function SkinAllButtons()
+        local buttonsSkinned = 0
         
-        btn = _G["StanceButton"..i]
-        if btn then self:SkinButton(btn) end
+        for i = 1, 12 do
+            local buttons = {
+                _G["ActionButton"..i],
+                _G["MultiBarBottomLeftButton"..i],
+                _G["MultiBarBottomRightButton"..i],
+                _G["MultiBarRightButton"..i],
+                _G["MultiBarLeftButton"..i],
+                _G["MultiBar5Button"..i],
+                _G["MultiBar6Button"..i],
+                _G["MultiBar7Button"..i]
+            }
+            
+            for _, btn in ipairs(buttons) do
+                if btn then
+                    self:SkinButton(btn)
+                    buttonsSkinned = buttonsSkinned + 1
+                end
+            end
+        end
+        
+        -- Pet bar buttons
+        for i = 1, 10 do
+            local btn = _G["PetActionButton"..i]
+            if btn then
+                self:SkinButton(btn)
+                buttonsSkinned = buttonsSkinned + 1
+            end
+            
+            btn = _G["StanceButton"..i]
+            if btn then
+                self:SkinButton(btn)
+                buttonsSkinned = buttonsSkinned + 1
+            end
+        end
+        
+        print("|cff00ff00MidnightUI Skins:|r Skinned " .. buttonsSkinned .. " action bar buttons")
     end
+    
+    -- Try immediately
+    SkinAllButtons()
+    
+    -- Try again after 1 second in case buttons load late
+    C_Timer.After(1, SkinAllButtons)
+    
+    -- Try one more time after 3 seconds
+    C_Timer.After(3, SkinAllButtons)
 end
 
 function Skin:SkinButton(btn)
