@@ -383,6 +383,10 @@ function AB:CreateBar(barKey, config)
             -- Check for center snap FIRST (now highest priority)
             local screenWidth = UIParent:GetWidth()
             local screenCenterX = screenWidth / 2
+            local realScreenWidth = GetScreenWidth()
+            local realScreenHeight = GetScreenHeight()
+            local realScreenCenterX = realScreenWidth / 2
+            local realScreenCenterY = realScreenHeight / 2
             local barWidth = selfRight - selfLeft
             local selfCenterX = (selfLeft + selfRight) / 2
             if DEFAULT_CHAT_FRAME then
@@ -406,23 +410,28 @@ function AB:CreateBar(barKey, config)
                     " dragRight="..tostring(dragRight)..
                     " dragWidth="..tostring(dragWidth)..
                     " screenCenterX="..tostring(screenCenterX)..
-                    " diff="..tostring(math.abs(selfCenterX - screenCenterX))..
+                    " realScreenWidth="..tostring(realScreenWidth)..
+                    " realScreenHeight="..tostring(realScreenHeight)..
+                    " realScreenCenterX="..tostring(realScreenCenterX)..
+                    " diff (UIParent center)="..tostring(math.abs(selfCenterX - screenCenterX))..
+                    " diff (real center)="..tostring(math.abs(selfCenterX - realScreenCenterX))..
                     " mouseX="..tostring(scaledCursorX)..
-                    " mouseDiff="..tostring(math.abs(scaledCursorX - screenCenterX)))
+                    " mouseDiff (UIParent center)="..tostring(math.abs(scaledCursorX - screenCenterX))..
+                    " mouseDiff (real center)="..tostring(math.abs(scaledCursorX - realScreenCenterX)))
             end
             local cursorX, cursorY = GetCursorPosition()
             local uiScale = UIParent:GetEffectiveScale()
             local scaledCursorX = cursorX / uiScale
-            if math.abs(scaledCursorX - screenCenterX) < 60 then
+            if math.abs(scaledCursorX - realScreenCenterX) < 60 then
                 -- (do nothing, revert to bar center logic below)
             end
-            if math.abs(selfCenterX - screenCenterX) < 60 then
+            if math.abs(selfCenterX - realScreenCenterX) < 60 then
                 anchorPoint = "BOTTOM"
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
-                bestSnapX = 0
+                bestSnapX = realScreenCenterX - (selfLeft + barWidth/2)
                 bestSnapY = y -- preserve Y unless center Y snap is also triggered
-                snapDebug = "snap: center to screen (exclusive, bar center)"
+                snapDebug = "snap: center to REAL screen (exclusive, bar center)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
@@ -435,19 +444,19 @@ function AB:CreateBar(barKey, config)
                 container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
                 -- Debug: print anchor info, scale, and parent after SetPoint
                 if DEFAULT_CHAT_FRAME then
+                    local uiLeft = UIParent:GetLeft()
+                    local uiRight = UIParent:GetRight()
+                    local uiTop = UIParent:GetTop()
+                    local uiBottom = UIParent:GetBottom()
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][UIParentCoords] left="..tostring(uiLeft)..", right="..tostring(uiRight)..", top="..tostring(uiTop)..", bottom="..tostring(uiBottom))
                     local p, relTo, relP, px, py = container:GetPoint()
                     local parent = container:GetParent()
                     local parentName = parent and parent:GetName() or "nil"
                     local containerScale = container:GetEffectiveScale()
                     local parentScale = parent and parent.GetEffectiveScale and parent:GetEffectiveScale() or "nil"
                     local uiParentScale = UIParent:GetEffectiveScale()
-                    local uiLeft = UIParent:GetLeft()
-                    local uiRight = UIParent:GetRight()
-                    local uiTop = UIParent:GetTop()
-                    local uiBottom = UIParent:GetBottom()
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container parent="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parentScale)..", UIParent scale="..tostring(uiParentScale))
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] UIParent: left="..tostring(uiLeft)..", right="..tostring(uiRight)..", top="..tostring(uiTop)..", bottom="..tostring(uiBottom))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
                 end
                 AB:SaveBarPosition(barKey)
