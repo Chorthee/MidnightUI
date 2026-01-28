@@ -64,6 +64,7 @@ for barKey, config in pairs(BAR_CONFIGS) do
         y = config.default.y,
         showInPetBattle = barKey == "PetActionBar",
         showInVehicle = barKey == "MainMenuBar",
+        showEmpty = true,
         pagingCondition = (barKey == "MainMenuBar") and DEFAULT_PAGING or nil,
     }
 end
@@ -92,6 +93,8 @@ function AB:OnDBReady()
     self:RegisterEvent("PET_BATTLE_CLOSE")
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     self:RegisterEvent("UNIT_EXITED_VEHICLE")
+    self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+    self:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
     
     -- ADDED: Register for Move Mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
@@ -179,6 +182,11 @@ function AB:InitializeAllBars()
     for barKey, config in pairs(BAR_CONFIGS) do
         self:CreateBar(barKey, config)
     end
+    
+    -- Update empty button visibility after all bars are created
+    C_Timer.After(0.5, function()
+        self:UpdateAllEmptyButtons()
+    end)
 end
 
 function AB:CreateBar(barKey, config)
@@ -799,6 +807,41 @@ function AB:SaveBarPosition(barKey)
     db.y = math.floor(y + 0.5)
 end
 
+-- Update visibility of empty buttons for a bar
+function AB:UpdateEmptyButtons(barKey)
+    local container = bars[barKey]
+    local db = self.db.profile.bars[barKey]
+    
+    if not container or not container.buttons or not db then return end
+    
+    for _, btn in ipairs(container.buttons) do
+        if btn then
+            local hasAction = HasAction(btn.action)
+            
+            if db.showEmpty then
+                -- Show all buttons
+                btn:SetAlpha(1)
+                btn:Show()
+            else
+                -- Hide empty buttons
+                if hasAction then
+                    btn:SetAlpha(1)
+                    btn:Show()
+                else
+                    btn:Hide()
+                end
+            end
+        end
+    end
+end
+
+-- Update all bars' empty button visibility
+function AB:UpdateAllEmptyButtons()
+    for barKey in pairs(BAR_CONFIGS) do
+        self:UpdateEmptyButtons(barKey)
+    end
+end
+
 -- ============================================================================
 -- 7. FADING SYSTEM
 -- ============================================================================
@@ -886,6 +929,16 @@ function AB:UNIT_EXITED_VEHICLE(event, unit)
     if unit == "player" then
         self:UpdateAllBars()
     end
+end
+
+function AB:ACTIONBAR_SLOT_CHANGED(event, slot)
+    -- Update empty button visibility when actions change
+    self:UpdateAllEmptyButtons()
+end
+
+function AB:UPDATE_BONUS_ACTIONBAR()
+    -- Update when bonus action bar changes (stance/form changes)
+    self:UpdateAllEmptyButtons()
 end
 
 -- ============================================================================
@@ -1129,6 +1182,17 @@ function AB:GetOptions()
                         end
                     },
                     spacer1 = { name = "", type = "header", order = 10 },
+                    showEmpty = {
+                        name = "Show Empty Buttons",
+                        desc = "Show buttons even when they have no action assigned",
+                        type = "toggle",
+                        order = 10.5,
+                        get = function() return self.db.profile.bars[barKey].showEmpty end,
+                        set = function(_, v)
+                            self.db.profile.bars[barKey].showEmpty = v
+                            self:UpdateEmptyButtons(barKey)
+                        end
+                    },
                     fadeMouseover = {
                         name = "Fade on Mouseover",
                         desc = "Fade bar until you mouse over it",
