@@ -634,27 +634,25 @@ function AB:UpdateButtonElements(btn)
         highlight:SetBlendMode("ADD")
     end
     
-    -- Fix pushed texture to match icon size
+    -- Fix pushed texture to match full button size
     local pushed = btn:GetPushedTexture()
-    if pushed and btn.icon then
+    if pushed then
         pushed:ClearAllPoints()
-        pushed:SetPoint("TOPLEFT", btn.icon, "TOPLEFT", 0, 0)
-        pushed:SetPoint("BOTTOMRIGHT", btn.icon, "BOTTOMRIGHT", 0, 0)
+        pushed:SetAllPoints(btn)
+        pushed:SetTexCoord(0, 1, 0, 1)
     end
     
-    -- Fix flash texture to match icon size
-    if btn.Flash and btn.icon then
+    -- Fix flash texture to match full button size
+    if btn.Flash then
         btn.Flash:ClearAllPoints()
-        btn.Flash:SetPoint("TOPLEFT", btn.icon, "TOPLEFT", 0, 0)
-        btn.Flash:SetPoint("BOTTOMRIGHT", btn.icon, "BOTTOMRIGHT", 0, 0)
+        btn.Flash:SetAllPoints(btn)
     end
     
-    -- Fix checked texture to match icon size
+    -- Fix checked texture to match full button size
     local checked = btn:GetCheckedTexture()
-    if checked and btn.icon then
+    if checked then
         checked:ClearAllPoints()
-        checked:SetPoint("TOPLEFT", btn.icon, "TOPLEFT", 0, 0)
-        checked:SetPoint("BOTTOMRIGHT", btn.icon, "BOTTOMRIGHT", 0, 0)
+        checked:SetAllPoints(btn)
     end
     
     -- Hide NormalTexture (the default button border/background)
