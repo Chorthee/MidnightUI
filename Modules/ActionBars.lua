@@ -1100,8 +1100,10 @@ function AB:UpdateEmptyButtons(barKey)
                 end
                 if ShouldShowEmpty(db) then
                     btn:SetAlpha(1)
-                    btn:Show()
-                    btn:Enable()
+                    if not InCombatLockdown() then
+                        btn:Show()
+                        btn:Enable()
+                    end
                     if btn.icon then
                         if hasAction then
                             btn.icon:SetAlpha(1)
@@ -1121,8 +1123,10 @@ function AB:UpdateEmptyButtons(barKey)
                 else
                     if hasAction then
                         btn:SetAlpha(1)
-                        btn:Show()
-                        btn:Enable()
+                        if not InCombatLockdown() then
+                            btn:Show()
+                            btn:Enable()
+                        end
                         if btn.icon then
                             btn.icon:SetAlpha(1)
                             btn.icon:Show()
@@ -1130,8 +1134,10 @@ function AB:UpdateEmptyButtons(barKey)
                         if btn.emptyBackground then btn.emptyBackground:Hide() end
                         if btn.emptyBorder then btn.emptyBorder:Hide() end
                     else
-                        btn:Hide()
-                        btn:Disable()
+                        if not InCombatLockdown() then
+                            btn:Hide()
+                            btn:Disable()
+                        end
                         if btn.customHotkey then
                             btn.customHotkey:Hide()
                         end
