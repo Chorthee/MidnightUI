@@ -94,7 +94,10 @@ end
 function Movable:OnEnable()
     print("Movable:OnEnable - Module enabled")
     -- Listen for move mode changes
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", function(event, enabled)
+        print("!!! MOVABLE RECEIVED MESSAGE !!! enabled=" .. tostring(enabled))
+        Movable:OnMoveModeChanged(event, enabled)
+    end)
     print("Movable:OnEnable - Registered for MIDNIGHTUI_MOVEMODE_CHANGED")
 end
 
