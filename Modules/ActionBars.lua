@@ -359,7 +359,6 @@ function AB:CreateBar(barKey, config)
         -- Snap to center and other bars if move mode active
         if MidnightUI.moveMode then
             local point, relativeTo, relativePoint, x, y = container:GetPoint()
-            
             -- Get current absolute positions
             local selfLeft = container:GetLeft()
             local selfRight = container:GetRight()
@@ -367,11 +366,10 @@ function AB:CreateBar(barKey, config)
             local selfBottom = container:GetBottom()
             local selfWidth = selfRight - selfLeft
             local selfHeight = selfTop - selfBottom
-            
             local snapThreshold = 30 -- Distance to trigger snap
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
-            
+            local alignX = nil
             -- Check snapping to other bars FIRST (higher priority)
             if bars then
                 for otherBarKey, otherBar in pairs(bars) do
@@ -380,31 +378,33 @@ function AB:CreateBar(barKey, config)
                         local otherRight = otherBar:GetRight()
                         local otherTop = otherBar:GetTop()
                         local otherBottom = otherBar:GetBottom()
-                        
                         if otherLeft then
                             -- Horizontal snapping (left-right adjacency)
                             local rightToLeftDist = math.abs(selfRight - otherLeft)
                             local leftToRightDist = math.abs(selfLeft - otherRight)
-                            
                             if rightToLeftDist < snapThreshold and rightToLeftDist < bestDistX then
                                 bestSnapX = x + (otherLeft - selfRight)
                                 bestDistX = rightToLeftDist
+                                -- Align left edges if close
+                                if math.abs(selfLeft - otherLeft) < snapThreshold then
+                                    alignX = x + (otherLeft - selfLeft)
+                                end
                             end
-                            
                             if leftToRightDist < snapThreshold and leftToRightDist < bestDistX then
                                 bestSnapX = x + (otherRight - selfLeft)
                                 bestDistX = leftToRightDist
+                                -- Align right edges if close
+                                if math.abs(selfRight - otherRight) < snapThreshold then
+                                    alignX = x + (otherRight - selfRight)
+                                end
                             end
-                            
                             -- Vertical snapping (top-bottom adjacency)
                             local bottomToTopDist = math.abs(selfBottom - otherTop)
                             local topToBottomDist = math.abs(selfTop - otherBottom)
-                            
                             if bottomToTopDist < snapThreshold and bottomToTopDist < bestDistY then
                                 bestSnapY = y + (otherTop - selfBottom)
                                 bestDistY = bottomToTopDist
                             end
-                            
                             if topToBottomDist < snapThreshold and topToBottomDist < bestDistY then
                                 bestSnapY = y + (otherBottom - selfTop)
                                 bestDistY = topToBottomDist
@@ -413,7 +413,6 @@ function AB:CreateBar(barKey, config)
                     end
                 end
             end
-            
             -- Only snap to screen center if we didn't snap to another bar
             if not bestSnapX then
                 local screenCenterX = UIParent:GetWidth() / 2
@@ -422,7 +421,6 @@ function AB:CreateBar(barKey, config)
                     bestSnapX = 0
                 end
             end
-            
             if not bestSnapY then
                 local screenCenterY = UIParent:GetHeight() / 2
                 local selfCenterY = (selfTop + selfBottom) / 2
@@ -430,11 +428,9 @@ function AB:CreateBar(barKey, config)
                     bestSnapY = 0
                 end
             end
-            
-            -- Apply best snap positions
-            local finalX = bestSnapX or x
+            -- If alignX is set, use it to align left/right edges
+            local finalX = alignX or bestSnapX or x
             local finalY = bestSnapY or y
-            
             container:ClearAllPoints()
             container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
         end
