@@ -261,10 +261,10 @@ function AB:CreateBar(barKey, config)
         if barKey == "MainMenuBar" and config.hasPages then
             self:SetupBarPaging(container)
         end
-        
-        -- Collect buttons
-        self:CollectButtons(container, barKey)
     end
+    
+    -- Collect buttons (do this even if blizzBar is nil, for MainMenuBar)
+    self:CollectButtons(container, barKey)
     
     -- CHANGED: Create drag frame for Move Mode with enhanced styling
     container.dragFrame = CreateFrame("Frame", nil, container, "BackdropTemplate")
