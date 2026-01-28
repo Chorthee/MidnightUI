@@ -129,7 +129,8 @@ function MidnightUI:GetOptions()
                         get = function() return self.db.profile.modules.UIButtons end,
                         set = function(_, v) self.db.profile.modules.UIButtons = v; C_UI.Reload() end },
                     maps = { name = "Maps", type = "toggle", order = 5, width = "full",
-
+                        get = function() return self.db.profile.modules.maps end,
+                        set = function(_, v) self.db.profile.modules.maps = v; C_UI.Reload() end },
                     actionbars = { name = "Action Bars", type = "toggle", order = 6, width = "full",
                         get = function() return self.db.profile.modules.actionbars end,
                         set = function(_, v) self.db.profile.modules.actionbars = v; C_UI.Reload() end },
