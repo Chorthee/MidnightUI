@@ -338,7 +338,8 @@ function AB:CreateBar(barKey, config)
             local selfWidth = selfRight - selfLeft
             local selfHeight = selfTop - selfBottom
             
-            local snapThreshold = 10 -- Distance to trigger snap
+            local snapThreshold = 20 -- Distance to trigger snap (increased)
+            local alignmentTolerance = 20 -- How close bars need to be aligned (increased)
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
             
@@ -369,7 +370,7 @@ function AB:CreateBar(barKey, config)
                         if otherLeft then
                             -- Horizontal snapping (left-right adjacency)
                             -- Check if bars are roughly aligned vertically
-                            local verticalAligned = (selfBottom < otherTop + 5) and (selfTop > otherBottom - 5)
+                            local verticalAligned = (selfBottom < otherTop + alignmentTolerance) and (selfTop > otherBottom - alignmentTolerance)
                             
                             if verticalAligned then
                                 -- Snap right edge to left edge (bar on left)
@@ -389,7 +390,7 @@ function AB:CreateBar(barKey, config)
                             
                             -- Vertical snapping (top-bottom adjacency)
                             -- Check if bars are roughly aligned horizontally
-                            local horizontalAligned = (selfLeft < otherRight + 5) and (selfRight > otherLeft - 5)
+                            local horizontalAligned = (selfLeft < otherRight + alignmentTolerance) and (selfRight > otherLeft - alignmentTolerance)
                             
                             if horizontalAligned then
                                 -- Snap bottom edge to top edge (bar below)
