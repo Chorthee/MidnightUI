@@ -545,6 +545,8 @@ function AB:UpdateButtonElements(btn)
             hotkey:Show()
             hotkey:ClearAllPoints()
             hotkey:SetPoint("TOPRIGHT", 2, -2)
+            hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+            hotkey:SetTextColor(1, 1, 1)
         else
             hotkey:Hide()
         end
