@@ -211,16 +211,20 @@ function UIButtons:UpdateLayout()
     
     print("|cff00ff00MidnightUI:|r Positioning "..#sortedButtons.." buttons with scale="..scale..", spacing="..spacing)
     
-    for i, data in ipairs(sortedButtons) do
+    -- Position buttons from right to left (reversed loop)
+    for i = #sortedButtons, 1, -1 do
+        local data = sortedButtons[i]
         data.btn:ClearAllPoints()
         data.btn:SetScale(scale)
         
-        if i == 1 then
+        if i == #sortedButtons then
+            -- First button (rightmost) anchors to BOTTOMRIGHT
             data.btn:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 10)
             print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned at BOTTOMRIGHT")
         else
-            local prevBtn = sortedButtons[i-1].btn
-            data.btn:SetPoint("RIGHT", prevBtn, "LEFT", -spacing, 0)
+            -- Subsequent buttons go to the left
+            local nextBtn = sortedButtons[i+1].btn
+            data.btn:SetPoint("RIGHT", nextBtn, "LEFT", -spacing, 0)
             print("|cff00ff00MidnightUI:|r Button '"..data.key.."' positioned to left of previous button")
         end
         
