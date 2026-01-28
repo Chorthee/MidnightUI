@@ -236,10 +236,10 @@ function Skin:ApplyFrameSkin(frame, skinName)
         frame:SetBackdropColor(unpack(skin.bgColor))
     end
     
-    -- Skin the close button
-    if frame.CloseButton then
-        self:SkinCloseButton(frame.CloseButton)
-    end
+    -- Do not override Blizzard close button art
+    -- if frame.CloseButton then
+    --     self:SkinCloseButton(frame.CloseButton)
+    -- end
     
     -- Skin child frames AFTER applying backdrop (disabled: function not defined)
     -- self:SkinChildFrames(frame)
@@ -276,77 +276,7 @@ end
     Skins a close button
 ]]
 function Skin:SkinCloseButton(btn)
-    if not btn or btn.muiCloseSkinned then return end
-    
-    -- Completely strip the button textures
-    for i = 1, btn:GetNumRegions() do
-        local region = select(i, btn:GetRegions())
-        if region and region.GetObjectType then
-            local success, objType = pcall(function() return region:GetObjectType() end)
-            if success and objType == "Texture" then
-                region:SetTexture(nil)
-                region:Hide()
-            end
-        end
-    end
-    
-    -- Hide all button textures
-    if btn.SetNormalTexture then btn:SetNormalTexture("") end
-    if btn.SetPushedTexture then btn:SetPushedTexture("") end
-    if btn.SetHighlightTexture then btn:SetHighlightTexture("") end
-    if btn.SetDisabledTexture then btn:SetDisabledTexture("") end
-    
-    -- Size the button
-    btn:SetSize(20, 20)
-    
-    -- Create dark background
-    if BackdropTemplateMixin and not btn.SetBackdrop then
-        Mixin(btn, BackdropTemplateMixin)
-        if btn.OnBackdropLoaded then
-            btn:OnBackdropLoaded()
-        end
-    end
-    
-    if btn.SetBackdrop then
-        btn:SetBackdrop({
-            bgFile = "Interface\\Buttons\\WHITE8X8",
-            edgeFile = "Interface\\Buttons\\WHITE8X8",
-            tile = false, edgeSize = 1,
-            insets = { left = 0, right = 0, top = 0, bottom = 0 }
-        })
-        btn:SetBackdropColor(0.2, 0.2, 0.2, 1)
-        btn:SetBackdropBorderColor(0, 0, 0, 1)
-    end
-    
-    -- Create custom X text
-    if not btn.customX then
-        btn.customX = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-        btn.customX:SetPoint("CENTER", 0, 0)
-        btn.customX:SetText("×")
-        btn.customX:SetTextColor(0.8, 0.2, 0.2, 1)
-        btn.customX:SetFont("Fonts\\FRIZQT__.TTF", 18, "OUTLINE")
-    end
-    
-    -- Hover effect
-    btn:HookScript("OnEnter", function(self)
-        if self.customX then
-            self.customX:SetTextColor(1, 0, 0, 1)
-        end
-        if self.SetBackdropColor then
-            self:SetBackdropColor(0.3, 0.1, 0.1, 1)
-        end
-    end)
-    
-    btn:HookScript("OnLeave", function(self)
-        if self.customX then
-            self.customX:SetTextColor(0.8, 0.2, 0.2, 1)
-        end
-        if self.SetBackdropColor then
-            self:SetBackdropColor(0.2, 0.2, 0.2, 1)
-        end
-    end)
-    
-    btn.muiCloseSkinned = true
+    -- Do nothing: preserve Blizzard's default close button art
 end
 
 --[[
