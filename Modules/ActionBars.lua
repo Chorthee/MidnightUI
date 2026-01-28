@@ -547,49 +547,48 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Keep TextOverlayContainer visible but hide its background
+    -- Aggressively hide all textures in TextOverlayContainer
     if btn.TextOverlayContainer then
-        btn.TextOverlayContainer:Show()
-        btn.TextOverlayContainer:SetAlpha(1)
-        
-        -- Make the background atlas transparent
-        if btn.TextOverlayContainer.SetAtlas then
-            btn.TextOverlayContainer:SetAtlas(nil)
-        end
-        
-        -- Loop through and hide only the background texture layers
-        if btn.TextOverlayContainer.Backdrop then
-            btn.TextOverlayContainer.Backdrop:SetAlpha(0)
-        end
-        
-        -- Style the hotkey text inside the container
-        if btn.TextOverlayContainer.HotKey then
-            local hotkey = btn.TextOverlayContainer.HotKey
-            if db.showHotkeys then
-                hotkey:Show()
-                hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-                hotkey:SetTextColor(1, 1, 1)
-            else
-                hotkey:Hide()
+        -- Hide all child textures recursively
+        local function HideTextures(frame)
+            for i = 1, frame:GetNumRegions() do
+                local region = select(i, frame:GetRegions())
+                if region and region:GetObjectType() == "Texture" then
+                    region:SetTexture(nil)
+                    region:SetAlpha(0)
+                    region:Hide()
+                end
+            end
+            
+            for i = 1, frame:GetNumChildren() do
+                local child = select(i, frame:GetChildren())
+                if child then
+                    HideTextures(child)
+                end
             end
         end
+        
+        HideTextures(btn.TextOverlayContainer)
     end
     
-    -- Fix highlight texture to match icon exactly
+    -- Fix highlight to be around the icon, not inside
     local highlight = btn:GetHighlightTexture()
     if highlight and btn.icon then
         highlight:ClearAllPoints()
-        highlight:SetPoint("TOPLEFT", btn.icon, "TOPLEFT", 0, 0)
-        highlight:SetPoint("BOTTOMRIGHT", btn.icon, "BOTTOMRIGHT", 0, 0)
+        highlight:SetAllPoints(btn)  -- Match the full button size, not just icon
+        highlight:SetDrawLayer("HIGHLIGHT")
     end
     
-    -- Also check for the legacy HotKey fontstring
+    -- Style hotkey text
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
         if db.showHotkeys then
             hotkey:Show()
+            hotkey:ClearAllPoints()
+            hotkey:SetPoint("TOPRIGHT", btn, "TOPRIGHT", 2, -2)
             hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
             hotkey:SetTextColor(1, 1, 1)
+            hotkey:SetDrawLayer("OVERLAY", 7)
         else
             hotkey:Hide()
         end
