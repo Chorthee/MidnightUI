@@ -542,17 +542,18 @@ function AB:UpdateButtonElements(btn)
     local hotkey = btn.HotKey or _G[btn:GetName().."HotKey"]
     if hotkey then
         if db.showHotkeys then
-            hotkey:Show()
-            hotkey:ClearAllPoints()
-            hotkey:SetPoint("TOPRIGHT", 2, -2)
-            hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
-            hotkey:SetTextColor(1, 1, 1)
-            hotkey:SetDrawLayer("OVERLAY", 7)
-            
-            -- Hide the text if it's empty or default (to hide rectangles)
+            -- Check if there's valid keybind text
             local text = hotkey:GetText()
-            if not text or text == "" or text == "?" then
-                hotkey:SetText("")
+            if text and text ~= "" and text ~= "?" then
+                hotkey:Show()
+                hotkey:ClearAllPoints()
+                hotkey:SetPoint("TOPRIGHT", 2, -2)
+                hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
+                hotkey:SetTextColor(1, 1, 1)
+                hotkey:SetDrawLayer("OVERLAY", 7)
+            else
+                -- Hide if no valid keybind
+                hotkey:Hide()
             end
         else
             hotkey:Hide()
