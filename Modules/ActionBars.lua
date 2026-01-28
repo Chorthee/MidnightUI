@@ -1,3 +1,10 @@
+-- ============================================================================
+-- 0. GLOBALS FOR DRAG STATE
+-- ============================================================================
+local forceShowEmpty = false
+local function ShouldShowEmpty(db)
+    return forceShowEmpty or db.showEmpty
+end
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local AB = MidnightUI:NewModule("ActionBars", "AceEvent-3.0", "AceHook-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -1028,7 +1035,7 @@ function AB:UpdateEmptyButtons(barKey)
                     actionID = btn:GetActionID()
                 end
                 local hasAction = actionID and HasAction(actionID)
-                if db.showEmpty then
+                if ShouldShowEmpty(db) then
                     btn:SetAlpha(1)
                     btn:Show()
                     if btn.icon then
@@ -1067,6 +1074,21 @@ function AB:UpdateEmptyButtons(barKey)
                     end
                 end
             end
+        end
+    end
+    self:RegisterEvent("CURSOR_UPDATE")
+function AB:CURSOR_UPDATE()
+    -- Show empty buttons if dragging a spell or macro
+    local type, _ = GetCursorInfo()
+    if type == "spell" or type == "macro" or type == "item" then
+        if not forceShowEmpty then
+            forceShowEmpty = true
+            self:UpdateAllEmptyButtons()
+        end
+    else
+        if forceShowEmpty then
+            forceShowEmpty = false
+            self:UpdateAllEmptyButtons()
         end
     end
 end
