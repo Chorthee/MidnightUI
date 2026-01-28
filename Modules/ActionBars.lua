@@ -620,6 +620,15 @@ function AB:CollectButtons(container, barKey)
             end)
             btn._hookedDrag = true
         end
+        -- Register button with Masque for skinning
+        if masqueGroup and masqueGroup.AddButton then
+            masqueGroup:AddButton(btn)
+        end
+    end
+
+    -- Re-skin after adding buttons
+    if masqueGroup and masqueGroup.ReSkin then
+        masqueGroup:ReSkin()
     end
 end
 
