@@ -437,12 +437,12 @@ function AB:UpdateBar(barKey)
     -- Layout buttons FIRST
     self:LayoutButtons(container, barKey)
     
-    -- CRITICAL: Always re-skin buttons after layout to ensure they stay skinned
+    -- CRITICAL: Immediately skin buttons (no timer)
     if self.db.profile.skinButtons and container.buttons then
         for _, btn in ipairs(container.buttons) do
-            -- Force re-skin by temporarily removing the flag
-            btn.muiSkinned = nil
-            self:SkinButton(btn)
+            if btn then
+                self:SkinButton(btn)
+            end
         end
     end
     
@@ -569,52 +569,102 @@ end
 function AB:SkinAllButtons()
     if not self.db.profile.skinButtons then return end
     
+    -- Skin all cached buttons immediately
     for btn in pairs(buttonCache) do
-        self:SkinButton(btn)
+        if btn then
+            self:SkinButton(btn)
+        end
     end
     
-    -- Hook button updates (only hook once)
-    if ActionBarActionButtonMixin and ActionBarActionButtonMixin.Update then
-        if not self.isHooked then
-            self:SecureHook(ActionBarActionButtonMixin, "Update", function(button)
-                self:SkinButton(button)
-            end)
-            self.isHooked = true
-        end
+    -- Setup hooks to maintain skinning (only once)
+    if not self.hooksSetup then
+        -- Hook ActionButton_Update
+        hooksecurefunc("ActionButton_Update", function(button)
+            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
+                C_Timer.After(0, function()
+                    AB:SkinButton(button)
+                end)
+            end
+        end)
+        
+        -- Hook ActionButton_UpdateUsable
+        hooksecurefunc("ActionButton_UpdateUsable", function(button)
+            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
+                if button.muiBg then
+                    button.muiBg:Show()
+                    button.muiBg:SetVertexColor(0.1, 0.1, 0.1, 0.8)
+                end
+            end
+        end)
+        
+        -- Hook ActionButton_UpdateCooldown
+        hooksecurefunc("ActionButton_UpdateCooldown", function(button)
+            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
+                if button.muiBg then
+                    button.muiBg:Show()
+                end
+            end
+        end)
+        
+        self.hooksSetup = true
     end
 end
 
 function AB:SkinButton(btn)
-    if not btn then return end
+    if not btn or not self.db.profile.skinButtons then return end
     
-    -- REMOVED: if btn.muiSkinned then return end
-    -- We want to be able to re-skin buttons when needed
-    
-    -- Create dark background if it doesn't exist
+    -- Create or get background texture
     if not btn.muiBg then
         btn.muiBg = btn:CreateTexture(nil, "BACKGROUND", nil, -8)
         btn.muiBg:SetAllPoints(btn)
-        btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
     end
     
-    -- Always ensure background is visible
+    -- Always show and set the background
     btn.muiBg:Show()
+    btn.muiBg:SetDrawLayer("BACKGROUND", -8)
     btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
     
-    -- Trim icon edges for square look
-    local icon = btn.icon or _G[btn:GetName() and btn:GetName().."Icon"]
-    if icon then
+    -- Get the icon texture - try ALL possible methods
+    local icon = btn.icon or btn.Icon
+    if not icon then
+        local btnName = btn:GetName()
+        if btnName then
+            icon = _G[btnName.."Icon"]
+        end
+    end
+    
+    -- Apply icon crop
+    if icon and icon.SetTexCoord then
         icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+        icon:SetDrawLayer("ARTWORK", 1)
         icon:Show()
     end
     
-    -- Hide default textures
-    if btn.Border then btn.Border:SetAlpha(0) end
-    if btn.NormalTexture then 
-        local nt = btn.NormalTexture
-        if nt and nt.SetAlpha then nt:SetAlpha(0) end
+    -- Hide ALL Blizzard decoration elements
+    local elementsToHide = {
+        "Border",
+        "NormalTexture",
+        "SlotBackground",
+        "BorderSheen",
+        "FloatingBG",
+        "SlotArt",
+        "CheckedTexture"
+    }
+    
+    for _, elementName in ipairs(elementsToHide) do
+        local element = btn[elementName]
+        if element then
+            if element.SetAlpha then element:SetAlpha(0) end
+            if element.Hide then element:Hide() end
+        end
     end
-    if btn.SlotBackground then btn.SlotBackground:SetAlpha(0) end
+    
+    -- Get and hide normal texture via GetNormalTexture
+    local normalTexture = btn:GetNormalTexture()
+    if normalTexture then
+        normalTexture:SetAlpha(0)
+        normalTexture:Hide()
+    end
     
     -- Special handling for MainMenuBar buttons
     local btnName = btn:GetName()
@@ -623,7 +673,7 @@ function AB:SkinButton(btn)
         btn.ignoreFramePositionManager = true
     end
     
-    -- Apply Masque if available
+    -- Apply Masque if available (only once)
     if masqueGroup and not btn.muiMasqueApplied then
         masqueGroup:AddButton(btn, {
             Icon = icon,
