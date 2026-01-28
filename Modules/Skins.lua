@@ -254,30 +254,55 @@ function Skin:StripBlizzardTextures(frame)
     if frame.NineSlice then
         frame.NineSlice:SetAlpha(0)
         frame.NineSlice:Hide()
+        -- Hide all NineSlice pieces
+        if frame.NineSlice.TopEdge then frame.NineSlice.TopEdge:Hide() end
+        if frame.NineSlice.BottomEdge then frame.NineSlice.BottomEdge:Hide() end
+        if frame.NineSlice.LeftEdge then frame.NineSlice.LeftEdge:Hide() end
+        if frame.NineSlice.RightEdge then frame.NineSlice.RightEdge:Hide() end
+        if frame.NineSlice.TopLeftCorner then frame.NineSlice.TopLeftCorner:Hide() end
+        if frame.NineSlice.TopRightCorner then frame.NineSlice.TopRightCorner:Hide() end
+        if frame.NineSlice.BottomLeftCorner then frame.NineSlice.BottomLeftCorner:Hide() end
+        if frame.NineSlice.BottomRightCorner then frame.NineSlice.BottomRightCorner:Hide() end
+        if frame.NineSlice.Center then frame.NineSlice.Center:Hide() end
     end
     
-    -- Hide Portrait Container
+    -- Hide Portrait Container and all its children
     if frame.PortraitContainer then
         frame.PortraitContainer:SetAlpha(0)
         frame.PortraitContainer:Hide()
+        if frame.PortraitContainer.portrait then frame.PortraitContainer.portrait:Hide() end
+        if frame.PortraitContainer.CircleMask then frame.PortraitContainer.CircleMask:Hide() end
     end
     
-    -- Hide Title Container
+    -- Hide Portrait (legacy)
+    if frame.portrait then
+        frame.portrait:SetAlpha(0)
+        frame.portrait:Hide()
+    end
+    if frame.Portrait then
+        frame.Portrait:SetAlpha(0)
+        frame.Portrait:Hide()
+    end
+    
+    -- Hide Title Container but preserve text
     if frame.TitleContainer then
         if frame.TitleContainer.TitleText then
-            -- Keep the text but hide the background
             local titleText = frame.TitleContainer.TitleText
             titleText:SetParent(frame)
             titleText:ClearAllPoints()
-            titleText:SetPoint("TOP", frame, "TOP", 0, -5)
+            titleText:SetPoint("TOP", frame, "TOP", 0, -8)
         end
         frame.TitleContainer:SetAlpha(0)
     end
     
-    -- Hide Bg texture
+    -- Hide Bg texture and variations
     if frame.Bg then
         frame.Bg:SetAlpha(0)
         frame.Bg:Hide()
+    end
+    if frame.BG then
+        frame.BG:SetAlpha(0)
+        frame.BG:Hide()
     end
     
     -- Hide TopTileStreaks
@@ -290,7 +315,8 @@ function Skin:StripBlizzardTextures(frame)
     local edgeTextures = {
         "TopEdge", "BottomEdge", "LeftEdge", "RightEdge",
         "TopLeftCorner", "TopRightCorner", "BottomLeftCorner", "BottomRightCorner",
-        "Center"
+        "Center", "TopLeft", "TopRight", "BotLeft", "BotRight",
+        "TopMiddle", "BottomMiddle", "LeftMiddle", "RightMiddle"
     }
     
     for _, texName in ipairs(edgeTextures) do
@@ -300,7 +326,7 @@ function Skin:StripBlizzardTextures(frame)
         end
     end
     
-    -- Hide Inset
+    -- Hide Inset and its components
     if frame.Inset then
         if frame.Inset.Bg then
             frame.Inset.Bg:SetAlpha(0)
@@ -310,9 +336,29 @@ function Skin:StripBlizzardTextures(frame)
             frame.Inset.NineSlice:SetAlpha(0)
             frame.Inset.NineSlice:Hide()
         end
+        -- Strip Inset borders
+        for _, edge in ipairs({"Top", "Bottom", "Left", "Right", "TopLeft", "TopRight", "BottomLeft", "BottomRight"}) do
+            if frame.Inset[edge] then
+                frame.Inset[edge]:SetAlpha(0)
+                frame.Inset[edge]:Hide()
+            end
+        end
     end
     
-    -- Hide all textures named with common patterns
+    -- Hide various border elements
+    local borderElements = {
+        "TopLeftTexture", "TopRightTexture", "BottomLeftTexture", "BottomRightTexture",
+        "TopTexture", "BottomTexture", "LeftTexture", "RightTexture"
+    }
+    
+    for _, borderName in ipairs(borderElements) do
+        if frame[borderName] then
+            frame[borderName]:SetAlpha(0)
+            frame[borderName]:Hide()
+        end
+    end
+    
+    -- Hide all textures by scanning regions
     for _, region in pairs({frame:GetRegions()}) do
         if region and region.GetObjectType then
             local success, objType = pcall(function() return region:GetObjectType() end)
@@ -320,21 +366,38 @@ function Skin:StripBlizzardTextures(frame)
                 local texturePath = region.GetTexture and region:GetTexture()
                 if texturePath then
                     local path = tostring(texturePath):lower()
-                    -- Hide interface art textures
-                    if path:find("interface") and (
-                        path:find("frame") or 
-                        path:find("border") or
-                        path:find("portrait") or
-                        path:find("corner") or
-                        path:find("parchment") or
-                        path:find("characterframe") or
-                        path:find("paperdoll") or
-                        path:find("questframe") or
-                        path:find("gossip") or
-                        path:find("merchant") or
-                        path:find("mail")) then
-                        region:SetAlpha(0)
-                        region:Hide()
+                    -- Very aggressive - hide almost all Interface art
+                    if path:find("interface") then
+                        local shouldHide = path:find("frame") or 
+                            path:find("border") or
+                            path:find("portrait") or
+                            path:find("corner") or
+                            path:find("parchment") or
+                            path:find("characterframe") or
+                            path:find("paperdoll") or
+                            path:find("questframe") or
+                            path:find("gossip") or
+                            path:find("merchant") or
+                            path:find("mail") or
+                            path:find("dialog") or
+                            path:find("auctionfra") or
+                            path:find("bankframe") or
+                            path:find("friendsframe") or
+                            path:find("guildframe") or
+                            path:find("pvp") or
+                            path:find("spellbook") or
+                            path:find("talent") or
+                            path:find("achievement") or
+                            path:find("collections") or
+                            path:find("encounter") or
+                            path:find("tradeskill") or
+                            path:find("profession")
+                        
+                        if shouldHide then
+                            region:SetTexture(nil)
+                            region:SetAlpha(0)
+                            region:Hide()
+                        end
                     end
                 end
             end
