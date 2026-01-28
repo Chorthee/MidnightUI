@@ -395,6 +395,9 @@ function AB:CreateBar(barKey, config)
                 redDotX = container.centerDot:GetLeft() + container.centerDot:GetWidth()/2
             end
             if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][SnapDebug] redDotX="..tostring(redDotX)..", selfCenterX="..tostring(selfCenterX)..", realScreenCenterX="..tostring(realScreenCenterX))
+            end
+            if DEFAULT_CHAT_FRAME then
                 local cursorX, cursorY = GetCursorPosition()
                 local uiScale = UIParent:GetEffectiveScale()
                 local scaledCursorX = cursorX / uiScale
