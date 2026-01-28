@@ -42,8 +42,9 @@ local DEFAULT_PAGING = "[possessbar] 16; [overridebar] 18; [shapeshift] 13; [veh
 local defaults = {
     profile = {
         hideGryphons = true,
-        buttonSize = 36,
+        buttonSize = 42, -- Blizzard default
         buttonSpacing = 4,
+        globalScale = 1.0, -- New: global scale for all bars
         showHotkeys = true,
         showMacroNames = true,
         showCooldownNumbers = true,
@@ -57,14 +58,14 @@ local defaults = {
 for barKey, config in pairs(BAR_CONFIGS) do
     defaults.profile.bars[barKey] = {
         enabled = true,
-        scale = 1.0,
+        scale = 1.0, -- Individual scale
         alpha = 1.0,
         fadeAlpha = 0.2,
         fadeInCombat = false,
         fadeOutCombat = false,
         fadeMouseover = false,
         columns = (barKey == "PetActionBar" or barKey == "StanceBar") and 10 or 12,
-        buttonSize = 36,
+        buttonSize = 42, -- Blizzard default
         buttonSpacing = 4,
         point = config.default.point,
         x = config.default.x,
@@ -715,7 +716,8 @@ function AB:UpdateBar(barKey)
     end
     
     -- Apply scale and alpha
-    container:SetScale(db.scale)
+    local globalScale = self.db.profile.globalScale or 1.0
+    container:SetScale((db.scale or 1.0) * globalScale)
     container:SetAlpha(db.alpha)
     
     -- Update position
@@ -1347,6 +1349,20 @@ function AB:GetOptions()
                         set = function(_, v)
                             self.db.profile.hideGryphons = v
                             self:HideBlizzardElements()
+                        end
+                    },
+                    globalScale = {
+                        name = "Global Action Bar Scale",
+                        desc = "Scale all action bars at once (multiplies individual bar scale)",
+                        type = "range",
+                        order = 4,
+                        min = 0.5,
+                        max = 2.0,
+                        step = 0.01,
+                        get = function() return self.db.profile.globalScale end,
+                        set = function(_, v)
+                            self.db.profile.globalScale = v
+                            self:UpdateAllBars()
                         end
                     },
                     spacer0 = { name = "", type = "header", order = 5 },
