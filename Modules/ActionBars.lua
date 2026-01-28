@@ -178,7 +178,11 @@ function AB:InitializeAllBars()
 end
 
 function AB:CreateBar(barKey, config)
-    if bars[barKey] then return end
+    print("CreateBar called for: " .. barKey)
+    if bars[barKey] then 
+        print("  Bar already exists, returning")
+        return 
+    end
     
     -- Create container frame (SecureHandlerStateTemplate for paging support)
     local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
@@ -195,6 +199,7 @@ function AB:CreateBar(barKey, config)
     
     -- Get the actual Blizzard bar frame
     local blizzBar = _G[barKey]
+    print("  Blizzard frame " .. barKey .. " = " .. tostring(blizzBar))
     if blizzBar then
         container.blizzBar = blizzBar
         
