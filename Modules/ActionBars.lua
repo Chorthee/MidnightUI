@@ -441,8 +441,13 @@ function AB:CreateBar(barKey, config)
                     local containerScale = container:GetEffectiveScale()
                     local parentScale = parent and parent.GetEffectiveScale and parent:GetEffectiveScale() or "nil"
                     local uiParentScale = UIParent:GetEffectiveScale()
+                    local uiLeft = UIParent:GetLeft()
+                    local uiRight = UIParent:GetRight()
+                    local uiTop = UIParent:GetTop()
+                    local uiBottom = UIParent:GetBottom()
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container parent="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parentScale)..", UIParent scale="..tostring(uiParentScale))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] UIParent: left="..tostring(uiLeft)..", right="..tostring(uiRight)..", top="..tostring(uiTop)..", bottom="..tostring(uiBottom))
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
                 end
                 AB:SaveBarPosition(barKey)
