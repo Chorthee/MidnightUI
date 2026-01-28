@@ -295,7 +295,7 @@ function AB:CreateBar(barKey, config)
         { offsetX = 0, offsetY = 0 },
         function()
             local db = AB.db.profile.bars[barKey]
-            local nudgeDB = nudgeFrame.db
+            local nudgeDB = container.nudgeFrame.db
             db.x = (db.x or 0) + (nudgeDB.offsetX or 0)
             db.y = (db.y or 0) + (nudgeDB.offsetY or 0)
             
@@ -305,7 +305,7 @@ function AB:CreateBar(barKey, config)
             container:ClearAllPoints()
             container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
             
-            Movable:UpdateNudgeDisplay(nudgeFrame, nudgeDB)
+            Movable:UpdateNudgeDisplay(container.nudgeFrame, nudgeDB)
         end,
         nil
     )
