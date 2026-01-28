@@ -326,23 +326,32 @@ function AB:CreateBar(barKey, config)
     container.dragFrame:SetScript("OnDragStop", function(self)
         container:StopMovingOrSizing()
         
-        -- Snap to grid, center, and other bars if move mode active
+        -- Snap to center and other bars if move mode active
         if MidnightUI.moveMode then
             local point, relativeTo, relativePoint, x, y = container:GetPoint()
             
+            local finalX = x
+            local finalY = y
+            
             -- Snap to center of screen if within 40px
             if math.abs(x) < 40 then
-                x = 0
+                finalX = 0
             end
             if math.abs(y) < 40 then
-                y = 0
+                finalY = 0
             end
             
-            -- Snap to other action bars if within 16px (one grid square)
+            -- Apply center snap temporarily to get accurate positions
+            container:ClearAllPoints()
+            container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
+            
+            -- Now check for edge snapping to other bars
+            local snapThreshold = 32 -- Snap distance in pixels
+            local snappedX, snappedY = nil, nil
+            
             if AB.bars then
-                local snapped = false
                 for otherBarKey, otherBar in pairs(AB.bars) do
-                    if otherBarKey ~= barKey and otherBar:IsShown() and not snapped then
+                    if otherBarKey ~= barKey and otherBar:IsShown() then
                         local otherLeft = otherBar:GetLeft()
                         local otherRight = otherBar:GetRight()
                         local otherTop = otherBar:GetTop()
@@ -353,37 +362,37 @@ function AB:CreateBar(barKey, config)
                         local selfBottom = container:GetBottom()
                         
                         if otherLeft and selfLeft then
-                            -- For side-by-side snapping, check if Y ranges overlap or are close
-                            local yRangeOverlap = (selfBottom <= otherTop and selfTop >= otherBottom)
+                            -- Check if bars have vertical overlap (needed for horizontal snapping)
+                            local hasVerticalOverlap = not (selfBottom > otherTop or selfTop < otherBottom)
                             
-                            if yRangeOverlap then
+                            if hasVerticalOverlap then
                                 -- Snap right edge of self to left edge of other (self on left)
-                                if math.abs(selfRight - otherLeft) < 16 then
-                                    x = x + (otherLeft - selfRight)
-                                    snapped = true
+                                local rightToLeftDist = math.abs(selfRight - otherLeft)
+                                if rightToLeftDist < snapThreshold and not snappedX then
+                                    snappedX = finalX + (otherLeft - selfRight)
                                 end
                                 
                                 -- Snap left edge of self to right edge of other (self on right)
-                                if not snapped and math.abs(selfLeft - otherRight) < 16 then
-                                    x = x + (otherRight - selfLeft)
-                                    snapped = true
+                                local leftToRightDist = math.abs(selfLeft - otherRight)
+                                if leftToRightDist < snapThreshold and not snappedX then
+                                    snappedX = finalX + (otherRight - selfLeft)
                                 end
                             end
                             
-                            -- For top-bottom snapping, check if X ranges overlap or are close
-                            local xRangeOverlap = (selfLeft <= otherRight and selfRight >= otherLeft)
+                            -- Check if bars have horizontal overlap (needed for vertical snapping)
+                            local hasHorizontalOverlap = not (selfRight < otherLeft or selfLeft > otherRight)
                             
-                            if not snapped and xRangeOverlap then
+                            if hasHorizontalOverlap then
                                 -- Snap bottom edge of self to top edge of other (self below)
-                                if math.abs(selfBottom - otherTop) < 16 then
-                                    y = y + (otherTop - selfBottom)
-                                    snapped = true
+                                local bottomToTopDist = math.abs(selfBottom - otherTop)
+                                if bottomToTopDist < snapThreshold and not snappedY then
+                                    snappedY = finalY + (otherTop - selfBottom)
                                 end
                                 
                                 -- Snap top edge of self to bottom edge of other (self above)
-                                if not snapped and math.abs(selfTop - otherBottom) < 16 then
-                                    y = y + (otherBottom - selfTop)
-                                    snapped = true
+                                local topToBottomDist = math.abs(selfTop - otherBottom)
+                                if topToBottomDist < snapThreshold and not snappedY then
+                                    snappedY = finalY + (otherBottom - selfTop)
                                 end
                             end
                         end
@@ -391,11 +400,12 @@ function AB:CreateBar(barKey, config)
                 end
             end
             
-            -- Finally snap to grid
-            x = Movable:SnapToGrid(x)
-            y = Movable:SnapToGrid(y)
+            -- Apply snapped positions if any
+            finalX = snappedX or finalX
+            finalY = snappedY or finalY
+            
             container:ClearAllPoints()
-            container:SetPoint(point, relativeTo, relativePoint, x, y)
+            container:SetPoint(point, relativeTo, relativePoint, finalX, finalY)
         end
         
         AB:SaveBarPosition(barKey)
