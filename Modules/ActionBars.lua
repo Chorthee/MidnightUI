@@ -423,7 +423,7 @@ function AB:CreateBar(barKey, config)
                     anchorPoint = "BOTTOM"
                     relativeTo = UIParent
                     relativePoint = "BOTTOM"
-                    bestSnapX = -barWidth / 2
+                    bestSnapX = 0
                 else
                     bestSnapX = x
                 end
