@@ -390,13 +390,19 @@ function AB:CreateBar(barKey, config)
                     " mouseX="..tostring(scaledCursorX)..
                     " mouseDiff="..tostring(math.abs(scaledCursorX - screenCenterX)))
             end
+            local cursorX, cursorY = GetCursorPosition()
+            local uiScale = UIParent:GetEffectiveScale()
+            local scaledCursorX = cursorX / uiScale
+            if math.abs(scaledCursorX - screenCenterX) < 60 then
+                -- (do nothing, revert to bar center logic below)
+            end
             if math.abs(selfCenterX - screenCenterX) < 60 then
                 anchorPoint = "BOTTOM"
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
                 bestSnapX = 0
                 bestSnapY = y -- preserve Y unless center Y snap is also triggered
-                snapDebug = "snap: center to screen (exclusive)"
+                snapDebug = "snap: center to screen (exclusive, bar center)"
                 -- Debug: print SetPoint args
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
