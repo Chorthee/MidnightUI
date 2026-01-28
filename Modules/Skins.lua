@@ -87,16 +87,14 @@ function Skin:OnDBReady()
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
-    -- TEMPORARILY DISABLED - Will revisit skins after other functionality is complete
+    -- DISABLED - Action bar skinning disabled
     return
     
     -- Wait for UI to fully load
     C_Timer.After(2, function()
         if not self.db or not self.db.profile then return end
         
-        if self.db.profile.skinActionBars then
-            self:SkinActionBarButtons()
-        end
+        -- DISABLED - Removed all skinning calls
         
         if self.db.profile.skinTooltips then
             self:SkinTooltips()
@@ -801,221 +799,28 @@ end
 -- ACTION BAR BUTTON SKINNING
 -- ============================================================================
 
+--[[
 function Skin:SkinActionBarButtons()
-    local bgColor = self.db.profile.buttonBackgroundColor
-    local borderColor = self.db.profile.buttonBorderColor
-    
-    -- Setup hooks only once - removed old hooks that don't exist in WoW 12.0
-    if not self.hooksSetup then
-        -- Instead of hooking non-existent functions, we'll just periodically check buttons
-        -- This is less elegant but more reliable across WoW versions
-        self.hooksSetup = true
-    end
-    
-    -- Skin ALL existing action buttons with multiple attempts
-    local function SkinAllButtons()
-        local buttonsSkinned = 0
-        
-        for i = 1, 12 do
-            local buttons = {
-                _G["ActionButton"..i],
-                _G["MultiBarBottomLeftButton"..i],
-                _G["MultiBarBottomRightButton"..i],
-                _G["MultiBarRightButton"..i],
-                _G["MultiBarLeftButton"..i],
-                _G["MultiBar5Button"..i],
-                _G["MultiBar6Button"..i],
-                _G["MultiBar7Button"..i]
-            }
-            
-            for _, btn in ipairs(buttons) do
-                if btn then
-                    self:SkinButton(btn)
-                    buttonsSkinned = buttonsSkinned + 1
-                end
-            end
-        end
-        
-        -- Pet bar buttons
-        for i = 1, 10 do
-            local btn = _G["PetActionButton"..i]
-            if btn then
-                self:SkinButton(btn)
-                buttonsSkinned = buttonsSkinned + 1
-            end
-            
-            btn = _G["StanceButton"..i]
-            if btn then
-                self:SkinButton(btn)
-                buttonsSkinned = buttonsSkinned + 1
-            end
-        end
-    end
-    
-    -- Try immediately
-    SkinAllButtons()
-    
-    -- Try again after 1 second in case buttons load late
-    C_Timer.After(1, SkinAllButtons)
-    
-    -- Try one more time after 3 seconds
-    C_Timer.After(3, SkinAllButtons)
-    
-    -- Set up a periodic check to maintain skins (every 5 seconds)
-    if not self.skinMaintenanceTimer then
-        self.skinMaintenanceTimer = C_Timer.NewTicker(5, function()
-            if Skin.db and Skin.db.profile.skinActionBars then
-                -- Silently maintain button skins
-                for i = 1, 12 do
-                    local buttons = {
-                        _G["ActionButton"..i],
-                        _G["MultiBarBottomLeftButton"..i],
-                        _G["MultiBarBottomRightButton"..i],
-                        _G["MultiBarRightButton"..i],
-                        _G["MultiBarLeftButton"..i],
-                        _G["MultiBar5Button"..i],
-                        _G["MultiBar6Button"..i],
-                        _G["MultiBar7Button"..i]
-                    }
-                    
-                    for _, btn in ipairs(buttons) do
-                        if btn and btn.muiSkinned then
-                            Skin:MaintainButtonSkin(btn)
-                        end
-                    end
-                end
-            end
-        end)
-    end
+    -- DISABLED - Action bar skinning completely disabled
+    print("|cffff0000MidnightUI:|r Action bar skinning is currently disabled.")
+    return
 end
 
 function Skin:SkinButton(btn)
-    -- Safety check: ensure database is initialized
-    if not self.db or not self.db.profile then
-        return
-    end
-    
-    if not btn then 
-        return 
-    end
-    
-    if not self.db.profile.skinActionBars then 
-        return 
-    end
-    
-    local bgColor = self.db.profile.buttonBackgroundColor
-    
-    -- Create dark background
-    if not btn.muiSkinBg then
-        btn.muiSkinBg = btn:CreateTexture(nil, "BACKGROUND", nil, -8)
-        btn.muiSkinBg:SetAllPoints(btn)
-    end
-    
-    btn.muiSkinBg:Show()
-    btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
-    btn.muiSkinBg:SetColorTexture(unpack(bgColor))
-    
-    -- Get icon texture - try ALL methods
-    local icon = btn.icon or btn.Icon
-    if not icon then
-        local btnName = btn:GetName()
-        if btnName then
-            icon = _G[btnName.."Icon"]
-        end
-    end
-    
-    -- CRITICAL: Ensure icon is visible and properly layered
-    if icon then
-        -- Make sure icon is on ARTWORK layer, above our background
-        icon:SetDrawLayer("ARTWORK", 1)
-        
-        -- Apply square cropping (removes rounded edges)
-        if icon.SetTexCoord then
-            icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-        end
-        
-        -- CRITICAL: Force the icon to show and be at full alpha
-        icon:Show()
-        icon:SetAlpha(1)
-        
-        -- Ensure icon is not being masked/clipped
-        if icon.SetVertexColor then
-            icon:SetVertexColor(1, 1, 1, 1)
-        end
-    end
-    
-    -- Hide ONLY the border/decoration elements, NOT the icon
-    self:HideBlizzardButtonElements(btn)
-    
-    btn.muiSkinned = true
+    -- DISABLED - Button skinning completely disabled
+    return
 end
 
 function Skin:MaintainButtonSkin(btn)
-    if not btn or not btn.muiSkinned then return end
-    
-    -- Ensure background stays visible
-    if btn.muiSkinBg then
-        btn.muiSkinBg:SetDrawLayer("BACKGROUND", -8)
-        btn.muiSkinBg:SetAlpha(1)
-        btn.muiSkinBg:Show()
-    end
-    
-    -- Ensure icon stays visible
-    local icon = btn.icon or btn.Icon
-    if not icon then
-        local btnName = btn:GetName()
-        if btnName then
-            icon = _G[btnName.."Icon"]
-        end
-    end
-    
-    if icon then
-        icon:Show()
-        icon:SetAlpha(1)
-        icon:SetDrawLayer("ARTWORK", 1)
-    end
-    
-    -- Re-hide decoration elements
-    self:HideBlizzardButtonElements(btn)
+    -- DISABLED - Button skin maintenance completely disabled
+    return
 end
 
 function Skin:HideBlizzardButtonElements(btn)
-    if not btn then return end
-    
-    -- ONLY hide decoration elements, NOT functional elements like icon/cooldown/count
-    local elementsToHide = {
-        "Border",              -- The action button border
-        "NormalTexture",       -- Normal state texture
-        "SlotBackground",      -- Empty slot background
-        "BorderSheen",         -- Shiny border effect
-        "FloatingBG",          -- Floating background
-        "SlotArt",             -- Slot artwork
-        "CheckedTexture",      -- Checked state texture
-        "Flash",               -- Flash animation texture (optional - remove if you want flash)
-    }
-    
-    for _, elementName in ipairs(elementsToHide) do
-        local element = btn[elementName]
-        if element then
-            if element.SetAlpha then element:SetAlpha(0) end
-            if element.Hide then element:Hide() end
-        end
-    end
-    
-    -- Hide the normal texture via GetNormalTexture
-    local normalTexture = btn:GetNormalTexture()
-    if normalTexture then
-        normalTexture:SetAlpha(0)
-        normalTexture:Hide()
-    end
-    
-    -- CRITICAL: Do NOT hide these elements - they are functional
-    -- icon/Icon - The spell/item icon (we want to keep this!)
-    -- cooldown/Cooldown - The cooldown spiral
-    -- Count - The item count text
-    -- HotKey - The keybind text
-    -- Name - The macro name text
+    -- DISABLED - Blizzard element hiding completely disabled
+    return
 end
+]]--
 
 -- ============================================================================
 -- TOOLTIP SKINNING
