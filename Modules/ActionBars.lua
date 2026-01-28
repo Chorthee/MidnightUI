@@ -391,12 +391,17 @@ function AB:CreateBar(barKey, config)
                 -- Only check snapping to other bars if NOT snapping to center
                 if bars then
                     for otherBarKey, otherBar in pairs(bars) do
-                        if otherBarKey ~= barKey and otherBar:IsShown() then
+                        if otherBarKey ~= barKey then
                             local otherLeft = otherBar:GetLeft()
                             local otherRight = otherBar:GetRight()
                             local otherTop = otherBar:GetTop()
                             local otherBottom = otherBar:GetBottom()
-                            if otherLeft then
+                            -- Debug: print info about every bar checked
+                            if DEFAULT_CHAT_FRAME then
+                                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Checking bar: "..tostring(otherBarKey).." shown="..tostring(otherBar:IsShown()).." left="..tostring(otherLeft).." right="..tostring(otherRight).." top="..tostring(otherTop).." bottom="..tostring(otherBottom))
+                            end
+                            -- Only snap to bars that are visible and have valid positions
+                            if otherBar:IsShown() and otherLeft and otherRight and otherTop and otherBottom then
                                 -- Horizontal snapping (left-right adjacency)
                                 local rightToLeftDist = math.abs(selfRight - otherLeft)
                                 local leftToRightDist = math.abs(selfLeft - otherRight)
