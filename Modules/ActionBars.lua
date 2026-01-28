@@ -1005,21 +1005,24 @@ function AB:UpdateEmptyButtons(barKey)
                 if GetShapeshiftFormInfo then
                     texture = select(1, GetShapeshiftFormInfo(i))
                 end
-                btn:SetAlpha(1)
-                btn:Show()
                 if icon and texture then
+                    btn:SetAlpha(1)
+                    btn:Show()
                     icon:SetTexture(texture)
                     icon:SetAlpha(1)
                     icon:Show()
                     if btn.emptyBackground then btn.emptyBackground:Hide() end
                     if btn.emptyBorder then btn.emptyBorder:Hide() end
+                    if btn.customHotkey then btn.customHotkey:Show() end
                 else
+                    btn:Hide()
                     if icon then
                         icon:SetAlpha(0)
                         icon:Hide()
                     end
-                    if btn.emptyBackground then btn.emptyBackground:Show() end
-                    if btn.emptyBorder then btn.emptyBorder:Show() end
+                    if btn.emptyBackground then btn.emptyBackground:Hide() end
+                    if btn.emptyBorder then btn.emptyBorder:Hide() end
+                    if btn.customHotkey then btn.customHotkey:Hide() end
                 end
             else
                 -- ...existing code for other bars...
