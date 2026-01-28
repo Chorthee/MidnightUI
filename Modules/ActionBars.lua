@@ -389,11 +389,22 @@ function AB:CreateBar(barKey, config)
                 local cursorX, cursorY = GetCursorPosition()
                 local uiScale = UIParent:GetEffectiveScale()
                 local scaledCursorX = cursorX / uiScale
+                local selfWidth = selfRight - selfLeft
+                local dragLeft, dragRight = nil, nil
+                if container.dragFrame then
+                    dragLeft = container.dragFrame:GetLeft()
+                    dragRight = container.dragFrame:GetRight()
+                end
+                local dragWidth = dragLeft and dragRight and (dragRight - dragLeft) or "nil"
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] BAR: "..tostring(barKey)..
                     " UIParent width="..tostring(screenWidth)..
                     " selfLeft="..tostring(selfLeft)..
                     " selfRight="..tostring(selfRight)..
+                    " selfWidth="..tostring(selfWidth)..
                     " selfCenterX="..tostring(selfCenterX)..
+                    " dragLeft="..tostring(dragLeft)..
+                    " dragRight="..tostring(dragRight)..
+                    " dragWidth="..tostring(dragWidth)..
                     " screenCenterX="..tostring(screenCenterX)..
                     " diff="..tostring(math.abs(selfCenterX - screenCenterX))..
                     " mouseX="..tostring(scaledCursorX)..
@@ -412,9 +423,13 @@ function AB:CreateBar(barKey, config)
                 bestSnapX = 0
                 bestSnapY = y -- preserve Y unless center Y snap is also triggered
                 snapDebug = "snap: center to screen (exclusive, bar center)"
-                -- Debug: print SetPoint args
+                -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
+                    if container.dragFrame and container.centerDot then
+                        local dotX = container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or "nil"
+                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Red dot center X: "..tostring(dotX))
+                    end
                 end
                 container:ClearAllPoints()
                 container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
