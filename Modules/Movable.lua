@@ -1,10 +1,6 @@
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local Movable = MidnightUI:NewModule("Movable", "AceEvent-3.0")
 
--- Register for move mode changes immediately at file load
-Movable:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-print("Movable module loaded and registered for move mode changes")
-
 -- ============================================================================
 -- MOVABLE FRAME SYSTEM
 -- Centralized drag and nudge functionality for all MidnightUI modules
