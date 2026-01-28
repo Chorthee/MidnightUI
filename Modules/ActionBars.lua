@@ -102,21 +102,11 @@ function AB:PLAYER_ENTERING_WORLD()
     self:InitializeAllBars()
     self:UpdateAllBars()
     
-    print("|cffff9900[ActionBars Debug]|r PLAYER_ENTERING_WORLD fired")
-    
-    -- ADDED: Trigger Skins module to skin our buttons
+    -- Trigger Skins module to skin our buttons
     C_Timer.After(0.5, function()
-        print("|cffff9900[ActionBars Debug]|r Checking for Skins module...")
         local Skin = MidnightUI:GetModule("Skin", true)
-        if Skin then
-            print("|cff00ff00[ActionBars Debug]|r Skins module found, calling SkinActionBarButtons")
-            if Skin.SkinActionBarButtons then
-                Skin:SkinActionBarButtons()
-            else
-                print("|cffff0000[ActionBars Debug]|r SkinActionBarButtons function not found!")
-            end
-        else
-            print("|cffff0000[ActionBars Debug]|r Skins module NOT found!")
+        if Skin and Skin.SkinActionBarButtons then
+            Skin:SkinActionBarButtons()
         end
     end)
 end

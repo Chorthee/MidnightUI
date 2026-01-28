@@ -57,7 +57,6 @@ local SKINS = {
 -- ============================================================================
 
 function Skin:OnInitialize()
-    print("|cff00ff00[Skins]|r OnInitialize called")
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
 end
 
@@ -77,21 +76,15 @@ function Skin:OnDBReady()
         }
     })
     
-    print("|cff00ff00[Skins]|r Database initialized")
-    print("|cff00ff00[Skins]|r skinActionBars setting:", self.db.profile.skinActionBars)
-    
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
-    print("|cff00ff00[Skins]|r Registered for PLAYER_ENTERING_WORLD")
     
     -- Immediately trigger skinning since we may have already entered world
     C_Timer.After(0.1, function()
-        print("|cff00ff00[Skins]|r Manually triggering PLAYER_ENTERING_WORLD handler")
         self:PLAYER_ENTERING_WORLD()
     end)
 end
 
 function Skin:PLAYER_ENTERING_WORLD()
-    print("|cff00ff00[Skins]|r PLAYER_ENTERING_WORLD fired")
     -- Wait longer to ensure ActionBars module has created all buttons
     C_Timer.After(1.5, function()
         if self.db.profile.skinActionBars then
@@ -122,7 +115,6 @@ function Skin:ApplyFrameSkin(frame, skinName)
     
     -- Safety check: ensure database is initialized
     if not self.db or not self.db.profile then
-        print("|cffff0000[Skins]|r ApplyFrameSkin called before database initialized!")
         skinName = skinName or "Midnight"
     else
         skinName = skinName or self.db.profile.globalSkin
@@ -170,13 +162,9 @@ function Skin:SkinActionBarButtons()
     
     -- Setup hooks only once - removed old hooks that don't exist in WoW 12.0
     if not self.hooksSetup then
-        print("|cff00ff00[Skins]|r Setting up button update detection...")
-        
         -- Instead of hooking non-existent functions, we'll just periodically check buttons
         -- This is less elegant but more reliable across WoW versions
-        
         self.hooksSetup = true
-        print("|cff00ff00[Skins]|r Hooks setup complete (using periodic check)")
     end
     
     -- Skin ALL existing action buttons with multiple attempts
