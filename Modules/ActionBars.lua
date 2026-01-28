@@ -114,6 +114,7 @@ end
 -- ADDED: Handle Move Mode changes
 function AB:OnMoveModeChanged(event, enabled)
     -- Update all bars to show/hide drag frames and nudge controls
+    print("ActionBars:OnMoveModeChanged called! enabled=" .. tostring(enabled) .. " moveMode=" .. tostring(MidnightUI.moveMode))
     self:UpdateAllBars()
 end
 
@@ -406,9 +407,19 @@ end
 -- ============================================================================
 
 function AB:UpdateAllBars()
+    print("ActionBars:UpdateAllBars called, bars count=" .. tostring(self:CountBars()))
     for barKey, container in pairs(bars) do
+        print("  Updating bar: " .. tostring(barKey))
         self:UpdateBar(barKey)
     end
+end
+
+function AB:CountBars()
+    local count = 0
+    for _ in pairs(bars) do
+        count = count + 1
+    end
+    return count
 end
 
 function AB:UpdateBar(barKey)
