@@ -547,9 +547,19 @@ end
 function AB:UpdateButtonElements(btn)
     local db = self.db.profile
     
-    -- Hide TextOverlayContainer which creates the rectangle backgrounds
+    -- Hide TextOverlayContainer's background textures but keep the text
     if btn.TextOverlayContainer then
-        btn.TextOverlayContainer:Hide()
+        -- Hide any background textures in the container
+        if btn.TextOverlayContainer.Background then
+            btn.TextOverlayContainer.Background:SetAlpha(0)
+        end
+        -- Loop through all regions and hide textures (keep fontstrings)
+        for i = 1, btn.TextOverlayContainer:GetNumRegions() do
+            local region = select(i, btn.TextOverlayContainer:GetRegions())
+            if region and region:GetObjectType() == "Texture" then
+                region:SetAlpha(0)
+            end
+        end
     end
     
     -- Hotkey text
