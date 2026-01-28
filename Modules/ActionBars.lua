@@ -161,8 +161,21 @@ end
 -- ============================================================================
 
 function AB:InitializeAllBars()
+    print("=== InitializeAllBars START ===")
     for barKey, config in pairs(BAR_CONFIGS) do
+        print("Creating bar: " .. barKey)
         self:CreateBar(barKey, config)
+        local container = bars[barKey]
+        if container then
+            print("  Container created: " .. tostring(container:GetName()))
+            print("  Button count: " .. #container.buttons)
+            print("  Has dragFrame: " .. tostring(container.dragFrame ~= nil))
+        else
+            print("  ERROR: Container is nil!")
+        end
+    end
+    print("=== InitializeAllBars END ===")
+end
     end
 end
 
