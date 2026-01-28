@@ -1076,7 +1076,6 @@ function AB:UpdateEmptyButtons(barKey)
             end
         end
     end
-    self:RegisterEvent("CURSOR_UPDATE")
 function AB:CURSOR_UPDATE()
     -- Show empty buttons if dragging a spell or macro
     local type, _ = GetCursorInfo()
