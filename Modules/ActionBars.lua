@@ -82,7 +82,13 @@ end
 
 function AB:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
-    self:RegisterEvent("CURSOR_UPDATE")
+    -- Use OnCursorChanged instead of CURSOR_UPDATE event
+    if not self._hookedCursor then
+        UIParent:HookScript("OnCursorChanged", function()
+            AB:CURSOR_UPDATE()
+        end)
+        self._hookedCursor = true
+    end
 end
 
 function AB:OnDBReady()
