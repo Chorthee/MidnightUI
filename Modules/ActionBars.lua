@@ -374,7 +374,8 @@ function AB:CreateBar(barKey, config)
             local selfBottom = container:GetBottom()
             local selfWidth = selfRight - selfLeft
             local selfHeight = selfTop - selfBottom
-            local snapThreshold = 60 -- Distance to trigger snap (increased)
+            local snapThreshold = 60 -- Default for bar-to-bar snap
+            local centerSnapThreshold = 250 -- Increased threshold for center snap
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
             local alignX = nil
@@ -434,7 +435,7 @@ function AB:CreateBar(barKey, config)
                 -- (do nothing, revert to bar center logic below)
             end
             local snapReferenceX = redDotX or selfCenterX
-            if math.abs(snapReferenceX - realScreenCenterX) < 60 then
+            if math.abs(snapReferenceX - realScreenCenterX) < centerSnapThreshold then
                 anchorPoint = "BOTTOM"
                 relativeTo = UIParent
                 relativePoint = "BOTTOM"
