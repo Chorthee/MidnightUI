@@ -41,28 +41,32 @@ function Movable:CreateGrid()
     
     gridFrame.lines = {}
     
-    -- Draw ALL gray grid lines first (every 8 pixels)
+    -- Draw gray grid lines (every 8 pixels), but skip positions where green lines will be
     for x = 0, screenWidth, GRID_SIZE do
-        local line = gridFrame:CreateTexture(nil, "BACKGROUND")
-        line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
-        line:SetWidth(1)
-        line:SetHeight(screenHeight)
-        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
-        table.insert(gridFrame.lines, line)
+        if (x % 40) ~= 0 then  -- Skip multiples of 40
+            local line = gridFrame:CreateTexture(nil, "BACKGROUND")
+            line:SetTexture("Interface\\Buttons\\WHITE8X8")
+            line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
+            line:SetWidth(1)
+            line:SetHeight(screenHeight)
+            line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
+            table.insert(gridFrame.lines, line)
+        end
     end
     
     for y = 0, screenHeight, GRID_SIZE do
-        local line = gridFrame:CreateTexture(nil, "BACKGROUND")
-        line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
-        line:SetWidth(screenWidth)
-        line:SetHeight(1)
-        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
-        table.insert(gridFrame.lines, line)
+        if (y % 40) ~= 0 then  -- Skip multiples of 40
+            local line = gridFrame:CreateTexture(nil, "BACKGROUND")
+            line:SetTexture("Interface\\Buttons\\WHITE8X8")
+            line:SetVertexColor(0.4, 0.4, 0.4, 0.5)
+            line:SetWidth(screenWidth)
+            line:SetHeight(1)
+            line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
+            table.insert(gridFrame.lines, line)
+        end
     end
     
-    -- Now overlay green emphasis lines every 40 pixels (on top of gray)
+    -- Now draw green emphasis lines every 40 pixels
     for x = 0, screenWidth, 40 do
         local line = gridFrame:CreateTexture(nil, "OVERLAY")
         line:SetTexture("Interface\\Buttons\\WHITE8X8")
