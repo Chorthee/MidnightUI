@@ -110,21 +110,15 @@ function UIButtons:CreateButtons()
             text = "L",
             tooltip = "Logout to Character Select",
             onClick = function() Logout() end
-        
-        if config and config.enabled then
-            
-            local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, "SecureActionButtonTemplate")
-            btn:SetSize(32, 32)
-            btn:SetFrameStrata("TOOLTIP")
-            btn:SetFrameLevel(201
-                    -- Legacy addon list
-                    if AddonList:IsShown() then
-                        AddonList:Hide()
-                    else
-                        AddonList:Show()
-                    end
+        },
+        addons = {
+            name = "Addons",
+            text = "A",
+            tooltip = "Toggle Addon Settings",
+            onClick = function()
+                if AddonList and AddonList:IsShown() then
+                    AddonList:Hide()
                 elseif SettingsPanel then
-                    -- Modern WoW - toggle Settings panel
                     if SettingsPanel:IsShown() then
                         SettingsPanel:Close()
                     else
@@ -151,11 +145,11 @@ function UIButtons:CreateButtons()
     }
 
     for key, data in pairs(buttonData) do
-        local config = self.db.profile.UIButtons[key]  -- Changed
+        local config = self.db.profile.UIButtons[key]
         
         if config and config.enabled then
             
-            local btn = CreateFrame("Button", "MidnightUIButton_"..key, UIParent, "SecureActionButtonTemplate")
+            local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
             btn:SetFrameStrata("TOOLTIP")
             btn:SetFrameLevel(200)
@@ -228,28 +222,34 @@ function UIButtons:OnMoveModeChanged(event, enabled)
 end
 
 function UIButtons:UpdateLayout()
+    if not container then return end
+    
     local sortedButtons = {}
     
-    for key, btn in pairs(uiButtons) do  -- Changed variable name
-        local order = self.db.profile.UIButtons[key].order or 999  -- Changed
+    for key, btn in pairs(uiButtons) do
+        local order = self.db.profile.UIButtons[key].order or 999
         table.insert(sortedButtons, {key = key, btn = btn, order = order})
     end
     
     table.sort(sortedButtons, function(a, b) return a.order < b.order end)
     
-    local scale = self.db.profile.scale
     local spacing = self.db.profile.spacing
+    local buttonWidth = 32
+    local totalWidth = (#sortedButtons * buttonWidth) + ((#sortedButtons - 1) * spacing) + 6
     
-    for i = #sortedButtons, 1, -1 do
-        local data = sortedButtons[i]
+    container:SetSize(totalWidth, 36)
+    container:SetScale(self.db.profile.scale)
+    container:SetBackdropColor(unpack(self.db.profile.backgroundColor))
+    
+    -- Position buttons from left to right
+    for i, data in ipairs(sortedButtons) do
         data.btn:ClearAllPoints()
-        data.btn:SetScale(scale)
         
-        if i == #sortedButtons then
-            data.btn:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -10, 10)
+        if i == 1 then
+            data.btn:SetPoint("LEFT", container, "LEFT", 3, 0)
         else
-            local nextBtn = sortedButtons[i+1].btn
-            data.btn:SetPoint("RIGHT", nextBtn, "LEFT", -spacing, 0)
+            local prevBtn = sortedButtons[i-1].btn
+            data.btn:SetPoint("LEFT", prevBtn, "RIGHT", spacing, 0)
         end
         
         data.btn:Show()
