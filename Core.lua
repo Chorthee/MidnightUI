@@ -143,10 +143,11 @@ function MidnightUI:GetOptions()
                         get = function() return self.db.profile.modules.tweaks end,
                         set = function(_, v) self.db.profile.modules.tweaks = v; C_UI.Reload() end },
                 }
-            },
+            },  -- This closes the 'general' group
             profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-        }
-    }
+        }  -- This closes the main 'args' table
+    }  -- This closes the options table
+    
     options.args.profiles.order = 100
     
     -- Inject Module Options
@@ -186,6 +187,7 @@ function MidnightUI:GetOptions()
             options.args[name].order = 10
         end
     end
+    
     return options
 end
 
