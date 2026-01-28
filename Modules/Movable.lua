@@ -67,10 +67,14 @@ function Movable:CreateGrid()
 end
 
 function Movable:ShowGrid()
+    print("Movable:ShowGrid called")
     if not gridFrame then
+        print("  Creating grid...")
         self:CreateGrid()
     end
+    print("  Showing grid frame")
     gridFrame:Show()
+    print("  Grid frame shown=" .. tostring(gridFrame:IsShown()))
 end
 
 function Movable:HideGrid()
@@ -86,13 +90,17 @@ end
 function Movable:OnEnable()
     -- Listen for move mode changes
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    print("Movable:OnEnable - Registered for move mode changes")
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
+    print("Movable:OnMoveModeChanged - enabled=" .. tostring(enabled))
     if enabled then
         self:ShowGrid()
+        print("  Grid should be showing")
     else
         self:HideGrid()
+        print("  Grid should be hidden")
     end
 end
 
@@ -564,8 +572,8 @@ function Movable:CreateContainerArrows(container, db, resetCallback)
         end)
         
         btn:SetScript("OnClick", function()
-            -- Use grid size for nudging when in move mode
-            local step = IsShiftKeyDown() and (GRID_SIZE * 5) or GRID_SIZE
+            -- 1 pixel by default, grid size (8px) with Shift held
+            local step = IsShiftKeyDown() and GRID_SIZE or 1
             
             -- CRITICAL FIX: Get CURRENT position from container, not from DB
             local currentPoint, _, _, currentX, currentY = container:GetPoint()
