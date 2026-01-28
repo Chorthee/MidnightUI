@@ -95,11 +95,21 @@ function Movable:ShowGrid()
     print("  Showing grid frame")
     gridFrame:Show()
     print("  Grid frame shown=" .. tostring(gridFrame:IsShown()))
+    
+    -- Hide Blizzard's Edit Mode grid if it exists
+    if EditModeManagerFrame and EditModeManagerFrame.Grid then
+        EditModeManagerFrame.Grid:Hide()
+    end
 end
 
 function Movable:HideGrid()
     if gridFrame then
         gridFrame:Hide()
+    end
+    
+    -- Restore Blizzard's Edit Mode grid if it was showing
+    if EditModeManagerFrame and EditModeManagerFrame.Grid and EditModeManagerFrame:ShouldShowGridLayout() then
+        EditModeManagerFrame.Grid:Show()
     end
 end
 
