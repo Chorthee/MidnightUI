@@ -343,22 +343,7 @@ function AB:CreateBar(barKey, config)
             local bestSnapX, bestSnapY = nil, nil
             local bestDistX, bestDistY = 9999, 9999
             
-            -- Snap to screen center
-            local screenCenterX = UIParent:GetWidth() / 2
-            local screenCenterY = UIParent:GetHeight() / 2
-            local selfCenterX = (selfLeft + selfRight) / 2
-            local selfCenterY = (selfTop + selfBottom) / 2
-            
-            if math.abs(selfCenterX - screenCenterX) < snapThreshold * 2 then
-                bestSnapX = 0
-                bestDistX = 0
-            end
-            if math.abs(selfCenterY - screenCenterY) < snapThreshold * 2 then
-                bestSnapY = 0
-                bestDistY = 0
-            end
-            
-            -- Check snapping to other bars
+            -- Check snapping to other bars FIRST (higher priority)
             if AB.bars then
                 for otherBarKey, otherBar in pairs(AB.bars) do
                     if otherBarKey ~= barKey and otherBar:IsShown() then
@@ -409,6 +394,23 @@ function AB:CreateBar(barKey, config)
                             end
                         end
                     end
+                end
+            end
+            
+            -- Only snap to screen center if we didn't snap to another bar
+            if not bestSnapX then
+                local screenCenterX = UIParent:GetWidth() / 2
+                local selfCenterX = (selfLeft + selfRight) / 2
+                if math.abs(selfCenterX - screenCenterX) < snapThreshold * 2 then
+                    bestSnapX = 0
+                end
+            end
+            
+            if not bestSnapY then
+                local screenCenterY = UIParent:GetHeight() / 2
+                local selfCenterY = (selfTop + selfBottom) / 2
+                if math.abs(selfCenterY - screenCenterY) < snapThreshold * 2 then
+                    bestSnapY = 0
                 end
             end
             
