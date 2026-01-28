@@ -171,28 +171,13 @@ end
 -- ============================================================================
 
 function AB:InitializeAllBars()
-    print("=== InitializeAllBars START ===")
     for barKey, config in pairs(BAR_CONFIGS) do
-        print("Creating bar: " .. barKey)
         self:CreateBar(barKey, config)
-        local container = bars[barKey]
-        if container then
-            print("  Container created: " .. tostring(container:GetName()))
-            print("  Button count: " .. #container.buttons)
-            print("  Has dragFrame: " .. tostring(container.dragFrame ~= nil))
-        else
-            print("  ERROR: Container is nil!")
-        end
     end
-    print("=== InitializeAllBars END ===")
 end
 
 function AB:CreateBar(barKey, config)
-    print("CreateBar called for: " .. barKey)
-    if bars[barKey] then 
-        print("  Bar already exists, returning")
-        return 
-    end
+    if bars[barKey] then return end
     
     -- Create container frame (SecureHandlerStateTemplate for paging support)
     local container = CreateFrame("Frame", "MidnightAB_"..barKey, UIParent, "SecureHandlerStateTemplate")
@@ -209,7 +194,6 @@ function AB:CreateBar(barKey, config)
     
     -- Get the actual Blizzard bar frame
     local blizzBar = _G[barKey]
-    print("  Blizzard frame " .. barKey .. " = " .. tostring(blizzBar))
     if blizzBar then
         container.blizzBar = blizzBar
         
@@ -360,13 +344,10 @@ function AB:CollectButtons(container, barKey)
     local buttons = {}
     
     if barKey == "MainMenuBar" then
-        print("  Collecting ActionButtons...")
         for i = 1, 12 do
             local btn = _G["ActionButton"..i]
-            print("    ActionButton" .. i .. " = " .. tostring(btn))
             if btn then table.insert(buttons, btn) end
         end
-        print("  Found " .. #buttons .. " ActionButtons")
     elseif barKey == "PetActionBar" then
         for i = 1, 10 do
             local btn = _G["PetActionButton"..i]
