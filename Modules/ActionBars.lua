@@ -638,8 +638,8 @@ function AB:UpdateButtonElements(btn)
     local pushed = btn:GetPushedTexture()
     if pushed then
         pushed:ClearAllPoints()
-        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, -1)
-        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -3)
+        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -2)
+        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -4)
         pushed:SetTexCoord(0, 1, 0, 1)
         pushed:SetDrawLayer("ARTWORK", 1)
     end
@@ -647,16 +647,16 @@ function AB:UpdateButtonElements(btn)
     -- Fix flash texture
     if btn.Flash then
         btn.Flash:ClearAllPoints()
-        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, -1)
-        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -3)
+        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -2)
+        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -4)
     end
     
     -- Fix checked texture
     local checked = btn:GetCheckedTexture()
     if checked then
         checked:ClearAllPoints()
-        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, -1)
-        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 2, -3)
+        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 1, -2)
+        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -4)
     end
     
     -- Hide NormalTexture (the default button border/background)
