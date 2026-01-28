@@ -34,8 +34,6 @@ local DEFAULT_PAGING = "[possessbar] 16; [overridebar] 18; [shapeshift] 13; [veh
 
 local defaults = {
     profile = {
-        -- REMOVED: locked = false,
-        skinButtons = true,
         hideGryphons = true,
         buttonSize = 36,
         buttonSpacing = 4,
@@ -103,7 +101,7 @@ function AB:PLAYER_ENTERING_WORLD()
     self:HideBlizzardElements()
     self:InitializeAllBars()
     self:UpdateAllBars()
-    self:SkinAllButtons()
+    -- Skinning now handled by Skins module
 end
 
 -- ADDED: Handle Move Mode changes
@@ -434,17 +432,10 @@ function AB:UpdateBar(barKey)
     container:ClearAllPoints()
     container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
     
-    -- Layout buttons FIRST
+    -- Layout buttons
     self:LayoutButtons(container, barKey)
     
-    -- CRITICAL: Immediately skin buttons (no timer)
-    if self.db.profile.skinButtons and container.buttons then
-        for _, btn in ipairs(container.buttons) do
-            if btn then
-                self:SkinButton(btn)
-            end
-        end
-    end
+    -- Note: Button skinning is handled by the Skins module
     
     -- Update fading
     self:UpdateBarFading(barKey)
@@ -549,147 +540,7 @@ function AB:SaveBarPosition(barKey)
 end
 
 -- ============================================================================
--- 7. BUTTON SKINNING
--- ============================================================================
-
-function AB:SetButtonsAlpha(container, alpha)
-    if not container or not container.buttons then return end
-    
-    for _, btn in ipairs(container.buttons) do
-        if btn then
-            -- CHANGED: Only set alpha on the button itself, not all elements
-            -- This prevents the skin from being affected
-            if btn.muiBg then
-                btn.muiBg:SetAlpha(alpha)
-            end
-        end
-    end
-end
-
-function AB:SkinAllButtons()
-    if not self.db.profile.skinButtons then return end
-    
-    -- Skin all cached buttons immediately
-    for btn in pairs(buttonCache) do
-        if btn then
-            self:SkinButton(btn)
-        end
-    end
-    
-    -- Setup hooks to maintain skinning (only once)
-    if not self.hooksSetup then
-        -- Hook ActionButton_Update
-        hooksecurefunc("ActionButton_Update", function(button)
-            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
-                C_Timer.After(0, function()
-                    AB:SkinButton(button)
-                end)
-            end
-        end)
-        
-        -- Hook ActionButton_UpdateUsable
-        hooksecurefunc("ActionButton_UpdateUsable", function(button)
-            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
-                if button.muiBg then
-                    button.muiBg:Show()
-                    button.muiBg:SetVertexColor(0.1, 0.1, 0.1, 0.8)
-                end
-            end
-        end)
-        
-        -- Hook ActionButton_UpdateCooldown
-        hooksecurefunc("ActionButton_UpdateCooldown", function(button)
-            if AB.db and AB.db.profile.skinButtons and buttonCache[button] then
-                if button.muiBg then
-                    button.muiBg:Show()
-                end
-            end
-        end)
-        
-        self.hooksSetup = true
-    end
-end
-
-function AB:SkinButton(btn)
-    if not btn or not self.db.profile.skinButtons then return end
-    
-    -- Create or get background texture
-    if not btn.muiBg then
-        btn.muiBg = btn:CreateTexture(nil, "BACKGROUND", nil, -8)
-        btn.muiBg:SetAllPoints(btn)
-    end
-    
-    -- Always show and set the background
-    btn.muiBg:Show()
-    btn.muiBg:SetDrawLayer("BACKGROUND", -8)
-    btn.muiBg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
-    
-    -- Get the icon texture - try ALL possible methods
-    local icon = btn.icon or btn.Icon
-    if not icon then
-        local btnName = btn:GetName()
-        if btnName then
-            icon = _G[btnName.."Icon"]
-        end
-    end
-    
-    -- Apply icon crop
-    if icon and icon.SetTexCoord then
-        icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-        icon:SetDrawLayer("ARTWORK", 1)
-        icon:Show()
-    end
-    
-    -- Hide ALL Blizzard decoration elements
-    local elementsToHide = {
-        "Border",
-        "NormalTexture",
-        "SlotBackground",
-        "BorderSheen",
-        "FloatingBG",
-        "SlotArt",
-        "CheckedTexture"
-    }
-    
-    for _, elementName in ipairs(elementsToHide) do
-        local element = btn[elementName]
-        if element then
-            if element.SetAlpha then element:SetAlpha(0) end
-            if element.Hide then element:Hide() end
-        end
-    end
-    
-    -- Get and hide normal texture via GetNormalTexture
-    local normalTexture = btn:GetNormalTexture()
-    if normalTexture then
-        normalTexture:SetAlpha(0)
-        normalTexture:Hide()
-    end
-    
-    -- Special handling for MainMenuBar buttons
-    local btnName = btn:GetName()
-    if btnName and btnName:match("^ActionButton%d+$") then
-        btn:SetParent(bars["MainMenuBar"])
-        btn.ignoreFramePositionManager = true
-    end
-    
-    -- Apply Masque if available (only once)
-    if masqueGroup and not btn.muiMasqueApplied then
-        masqueGroup:AddButton(btn, {
-            Icon = icon,
-            Cooldown = btn.cooldown or btn.Cooldown,
-            HotKey = btn.HotKey,
-            Count = btn.Count,
-            Name = btn.Name,
-        })
-        btn.muiMasqueApplied = true
-    end
-    
-    btn.muiSkinned = true
-end
-
--- ============================================================================
--- 8. FADING SYSTEM
+-- 7. FADING SYSTEM
 -- ============================================================================
 
 function AB:UpdateBarFading(barKey)
@@ -796,21 +647,7 @@ function AB:GetOptions()
                 type = "group",
                 order = 1,
                 args = {
-                    -- REMOVED: locked option
-                    skinButtons = {
-                        name = "Skin Buttons",
-                        desc = "Apply custom button styling",
-                        type = "toggle",
-                        order = 2,
-                        get = function() return self.db.profile.skinButtons end,
-                        set = function(_, v)
-                            self.db.profile.skinButtons = v
-                            if v then
-                                self:SkinAllButtons()
-                            end
-                            self:UpdateAllBars()
-                        end
-                    },
+                    -- Note: Button skinning is controlled by the Skins module
                     hideGryphons = {
                         name = "Hide Gryphons",
                         desc = "Hide main bar gryphons and art",

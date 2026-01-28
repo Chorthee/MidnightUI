@@ -17,8 +17,9 @@ local defaults = {
             borderColor = {0, 0, 0, 1},
         },
         modules = {
+            skins = true,
             bar = true,
-            UIButtons = true,  -- Changed from buttons = true
+            UIButtons = true,
             maps = true,
             actionbars = true,
             unitframes = true,
