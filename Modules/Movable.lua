@@ -158,20 +158,35 @@ function Movable:CreateNudgeControls(parentFrame, db, applyCallback, updateCallb
         btn:SetScript("OnClick", function()
             local step = IsShiftKeyDown() and 10 or 1
             
+            -- CRITICAL FIX: Get CURRENT position from container, not from DB
+            local currentPoint, _, _, currentX, currentY = container:GetPoint()
+            
+            -- Use current position if DB doesn't have it
+            local pos = db.position or {}
+            pos.point = pos.point or currentPoint or "CENTER"
+            pos.x = pos.x or currentX or 0
+            pos.y = pos.y or currentY or 0
+            
             if direction == "UP" then
-                db.offsetY = (db.offsetY or 0) + step
+                pos.y = pos.y + step
             elseif direction == "DOWN" then
-                db.offsetY = (db.offsetY or 0) - step
+                pos.y = pos.y - step
             elseif direction == "LEFT" then
-                db.offsetX = (db.offsetX or 0) - step
+                pos.x = pos.x - step
             elseif direction == "RIGHT" then
-                db.offsetX = (db.offsetX or 0) + step
+                pos.x = pos.x + step
             end
             
-            applyCallback()
-            Movable:UpdateNudgeDisplay(nudge, db)
-            if updateCallback then updateCallback() end
+            -- Save to database
+            db.position = pos
+            
+            -- Update container position
+            container:ClearAllPoints()
+            container:SetPoint(pos.point, UIParent, pos.point, pos.x, pos.y)
         end)
+        
+        btn:Hide()
+        container.arrows[direction] = btn
     end
     
     -- Create 4 arrow buttons
@@ -371,7 +386,15 @@ function Movable:CreateContainerArrows(container, db)
         
         btn:SetScript("OnClick", function()
             local step = IsShiftKeyDown() and 10 or 1
-            local pos = db.position or {point = "CENTER", x = 0, y = 0}
+            
+            -- CRITICAL FIX: Get CURRENT position from container, not from DB
+            local currentPoint, _, _, currentX, currentY = container:GetPoint()
+            
+            -- Use current position if DB doesn't have it
+            local pos = db.position or {}
+            pos.point = pos.point or currentPoint or "CENTER"
+            pos.x = pos.x or currentX or 0
+            pos.y = pos.y or currentY or 0
             
             if direction == "UP" then
                 pos.y = pos.y + step
@@ -383,7 +406,7 @@ function Movable:CreateContainerArrows(container, db)
                 pos.x = pos.x + step
             end
             
-            -- CRITICAL FIX: Save to database
+            -- Save to database
             db.position = pos
             
             -- Update container position
