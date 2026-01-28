@@ -241,8 +241,8 @@ function Skin:ApplyFrameSkin(frame, skinName)
         self:SkinCloseButton(frame.CloseButton)
     end
     
-    -- Skin child frames AFTER applying backdrop
-    self:SkinChildFrames(frame)
+    -- Skin child frames AFTER applying backdrop (disabled: function not defined)
+    -- self:SkinChildFrames(frame)
 end
 
 --[[
