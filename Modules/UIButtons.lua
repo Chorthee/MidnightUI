@@ -281,7 +281,8 @@ function UIButtons:CreateButtons()
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, "SecureActionButtonTemplate")
             btn:SetSize(32, 32)
             btn:SetFrameStrata("TOOLTIP")
-            btn:SetFrameLevel(200)
+            btn:SetFrameLevel(201)
+            btn:EnableMouse(true)
             
             -- Set up secure attributes for logout/exit buttons FIRST
             if key == "logout" then
