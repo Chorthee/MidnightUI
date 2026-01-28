@@ -154,7 +154,7 @@ function MidnightUI:GetOptions()
         -- Map module names to their database keys
         local dbKey = name
         if name == "UIButtons" then 
-            dbKey = "UIButtons"  -- Now matches perfectly
+            dbKey = "UIButtons"
         elseif name == "Bar" then
             dbKey = "bar"
         elseif name == "Maps" then
