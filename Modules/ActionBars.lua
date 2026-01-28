@@ -547,16 +547,30 @@ function AB:UpdateButtonElements(btn)
             hotkey:SetPoint("TOPRIGHT", 2, -2)
             hotkey:SetFont("Fonts\\FRIZQT__.TTF", 11, "OUTLINE")
             hotkey:SetTextColor(1, 1, 1)
+            hotkey:SetDrawLayer("OVERLAY", 7)
         else
             hotkey:Hide()
         end
+        
+        -- Hide all possible hotkey backgrounds
+        if hotkey.Background then
+            hotkey.Background:SetAlpha(0)
+            hotkey.Background:Hide()
+        end
     end
     
-    -- Hide hotkey background texture
-    local hotkeyBg = btn.HotKeyBackground or _G[btn:GetName().."HotKey"].Background
-    if hotkeyBg then
-        hotkeyBg:SetAlpha(0)
-        hotkeyBg:Hide()
+    -- Hide NormalTexture (the default button border/background)
+    local normalTex = btn:GetNormalTexture()
+    if normalTex then
+        normalTex:SetAlpha(0)
+    end
+    
+    -- Hide border textures that might show as rectangles
+    if btn.Border then
+        btn.Border:SetAlpha(0)
+    end
+    if btn.SlotBackground then
+        btn.SlotBackground:SetAlpha(0)
     end
     
     -- Macro name
