@@ -18,7 +18,7 @@ local defaults = {
         },
         modules = {
             bar = true,
-            buttons = true,
+            UIButtons = true,  -- Changed from buttons = true
             maps = true,
             actionbars = true,
             unitframes = true,
@@ -125,12 +125,11 @@ function MidnightUI:GetOptions()
                     bar = { name = "Data Brokers", type = "toggle", order = 3, width = "full",
                         get = function() return self.db.profile.modules.bar end,
                         set = function(_, v) self.db.profile.modules.bar = v; C_UI.Reload() end },
-                    buttons = { name = "UI Buttons", type = "toggle", order = 4, width = "full",
-                        get = function() return self.db.profile.modules.buttons end,
-                        set = function(_, v) self.db.profile.modules.buttons = v; C_UI.Reload() end },
+                    UIButtons = { name = "UI Buttons", type = "toggle", order = 4, width = "full",  -- Changed from buttons
+                        get = function() return self.db.profile.modules.UIButtons end,  -- Changed
+                        set = function(_, v) self.db.profile.modules.UIButtons = v; C_UI.Reload() end },  -- Changed
                     maps = { name = "Maps", type = "toggle", order = 5, width = "full",
-                        get = function() return self.db.profile.modules.maps end,
-                        set = function(_, v) self.db.profile.modules.maps = v; C_UI.Reload() end },
+
                     actionbars = { name = "Action Bars", type = "toggle", order = 6, width = "full",
                         get = function() return self.db.profile.modules.actionbars end,
                         set = function(_, v) self.db.profile.modules.actionbars = v; C_UI.Reload() end },
@@ -150,14 +149,37 @@ function MidnightUI:GetOptions()
     }
     options.args.profiles.order = 100
     
-    -- Inject Module Options with RENAMING
+    -- Inject Module Options
     for name, module in self:IterateModules() do
-        if module.GetOptions and self.db.profile.modules[string.lower(name)] then
+        -- Map module names to their database keys
+        local dbKey = name
+        if name == "UIButtons" then 
+            dbKey = "UIButtons"  -- Now matches perfectly
+        elseif name == "Bar" then
+            dbKey = "bar"
+        elseif name == "Maps" then
+            dbKey = "maps"
+        elseif name == "ActionBars" then
+            dbKey = "actionbars"
+        elseif name == "UnitFrames" then
+            dbKey = "unitframes"
+        elseif name == "Cooldowns" then
+            dbKey = "cooldowns"
+        elseif name == "Tweaks" then
+            dbKey = "tweaks"
+        else
+            dbKey = string.lower(name)
+        end
+        
+        if module.GetOptions and self.db.profile.modules[dbKey] then
             local displayName = name
             
-            -- RENAME LOGIC
-            if name == "Buttons" or name == "UIButtons" then displayName = "UI Buttons"
-            elseif name == "Bar" then displayName = "Data Brokers" end
+            -- RENAME LOGIC FOR DISPLAY
+            if name == "UIButtons" then 
+                displayName = "UI Buttons"
+            elseif name == "Bar" then 
+                displayName = "Data Brokers"
+            end
             
             options.args[name] = module:GetOptions()
             options.args[name].name = displayName
