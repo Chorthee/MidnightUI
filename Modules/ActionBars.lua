@@ -428,14 +428,14 @@ function AB:CreateBar(barKey, config)
     end)
     
     -- Create compact arrow nudge controls for this action bar
+    local db = self.db.profile.bars[barKey]
     local nudgeFrame = Movable:CreateContainerArrows(
         container.dragFrame,
-        { offsetX = 0, offsetY = 0 },
+        db, -- Pass the bar's database directly
         function()
             -- Reset callback
             local config = BAR_CONFIGS[barKey]
             if config and config.default then
-                local db = AB.db.profile.bars[barKey]
                 db.point = config.default.point
                 db.x = config.default.x
                 db.y = config.default.y
@@ -453,18 +453,30 @@ function AB:CreateBar(barKey, config)
     
     container.nudgeFrame = nudgeFrame
     
-    -- Hook into nudge arrows to refresh move mode state after nudging
+    -- Hook into nudge arrows to use ActionBars database structure
     if nudgeFrame and nudgeFrame.UP then
         for _, direction in ipairs({"UP", "DOWN", "LEFT", "RIGHT"}) do
             local btn = nudgeFrame[direction]
             if btn then
-                local origOnClick = btn:GetScript("OnClick")
-                btn:SetScript("OnClick", function(self, ...)
-                    if origOnClick then
-                        origOnClick(self, ...)
+                btn:SetScript("OnClick", function()
+                    local step = IsShiftKeyDown() and 8 or 1
+                    
+                    -- Work directly with ActionBars database
+                    if direction == "UP" then
+                        db.y = db.y + step
+                    elseif direction == "DOWN" then
+                        db.y = db.y - step
+                    elseif direction == "LEFT" then
+                        db.x = db.x - step
+                    elseif direction == "RIGHT" then
+                        db.x = db.x + step
                     end
-                    -- Save position and refresh move mode state
-                    AB:SaveBarPosition(barKey)
+                    
+                    -- Update container position
+                    container:ClearAllPoints()
+                    container:SetPoint(db.point, UIParent, db.point, db.x, db.y)
+                    
+                    -- Refresh move mode state
                     if MidnightUI.moveMode then
                         C_Timer.After(0, function()
                             AB:UpdateBar(barKey)
