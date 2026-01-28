@@ -634,26 +634,29 @@ function AB:UpdateButtonElements(btn)
         highlight:SetBlendMode("ADD")
     end
     
-    -- Fix pushed texture to match icon area exactly
+    -- Fix pushed texture to match icon area with 2px insets
     local pushed = btn:GetPushedTexture()
-    if pushed and btn.icon then
+    if pushed then
         pushed:ClearAllPoints()
-        pushed:SetAllPoints(btn.icon)
+        pushed:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
+        pushed:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
         pushed:SetTexCoord(0, 1, 0, 1)
         pushed:SetDrawLayer("ARTWORK", 1)
     end
     
-    -- Fix flash texture to match icon area exactly
-    if btn.Flash and btn.icon then
+    -- Fix flash texture to match icon area with 2px insets
+    if btn.Flash then
         btn.Flash:ClearAllPoints()
-        btn.Flash:SetAllPoints(btn.icon)
+        btn.Flash:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
+        btn.Flash:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
     end
     
-    -- Fix checked texture to match icon area exactly
+    -- Fix checked texture to match icon area with 2px insets
     local checked = btn:GetCheckedTexture()
-    if checked and btn.icon then
+    if checked then
         checked:ClearAllPoints()
-        checked:SetAllPoints(btn.icon)
+        checked:SetPoint("TOPLEFT", btn, "TOPLEFT", 2, -2)
+        checked:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", -2, 2)
     end
     
     -- Hide NormalTexture (the default button border/background)
