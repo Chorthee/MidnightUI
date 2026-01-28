@@ -208,3 +208,72 @@ function MidnightUI:ToggleMoveMode()
     -- Use AceEvent's SendMessage (already loaded)
     self:SendMessage("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
 end
+
+-- Create arrow buttons
+local function CreateArrow(direction, point, x, y)
+    local btn = CreateFrame("Button", nil, nudge, "BackdropTemplate")
+    btn:SetSize(24, 24)
+    btn:SetPoint(point, nudge, point, x, y)
+    
+    btn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8X8",
+        edgeFile = "Interface\\Buttons\\WHITE8X8",
+        tile = false, edgeSize = 1,
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    btn:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+    btn:SetBackdropBorderColor(0, 1, 0, 1)
+    
+    -- Arrow text using simple ASCII-style characters
+    local arrow = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    arrow:SetPoint("CENTER")
+    
+    if direction == "UP" then arrow:SetText("^")
+    elseif direction == "DOWN" then arrow:SetText("v")
+    elseif direction == "LEFT" then arrow:SetText("<")
+    elseif direction == "RIGHT" then arrow:SetText(">")
+    end
+    
+    -- Make the symbols green and visible
+    arrow:SetTextColor(0, 1, 0, 1)
+    
+    -- Button behavior
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+    end)
+    
+    btn:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+    end)
+    
+    btn:SetScript("OnClick", function()
+        local step = IsShiftKeyDown() and 10 or 1  -- 10px if Shift held, 1px otherwise
+        
+        if direction == "UP" then
+            Maps.db.profile.offsetY = Maps.db.profile.offsetY + step
+        elseif direction == "DOWN" then
+            Maps.db.profile.offsetY = Maps.db.profile.offsetY - step
+        elseif direction == "LEFT" then
+            Maps.db.profile.offsetX = Maps.db.profile.offsetX - step
+        elseif direction == "RIGHT" then
+            Maps.db.profile.offsetX = Maps.db.profile.offsetX + step
+        end
+        
+        Maps:ApplyMinimapOffset()
+        Maps:UpdateNudgeDisplay()
+    end)
+    
+    -- Tooltip
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.3, 0.3, 0.3, 1)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Nudge Minimap "..direction)
+        GameTooltip:AddLine("|cffaaaaaa(Hold Shift for 10px)|r", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    
+    btn:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.2, 0.2, 0.2, 0.8)
+        GameTooltip:Hide()
+    end)
+end
