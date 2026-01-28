@@ -419,8 +419,11 @@ function AB:CreateBar(barKey, config)
                 local barWidth = selfRight - selfLeft
                 local selfCenterX = (selfLeft + selfRight) / 2
                 if math.abs(selfCenterX - screenCenterX) < snapThreshold * 2 then
-                    -- Offset so bar is perfectly centered
-                    bestSnapX = (screenCenterX - barWidth / 2) - (selfLeft - x)
+                    -- Snap to bottom center: anchor BOTTOM, center X
+                    anchorPoint = "BOTTOM"
+                    relativeTo = UIParent
+                    relativePoint = "BOTTOM"
+                    bestSnapX = (screenCenterX - barWidth / 2)
                 end
             end
             if not bestSnapY then
