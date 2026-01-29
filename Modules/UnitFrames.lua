@@ -11,28 +11,13 @@
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+
 function UnitFrames:GetPlayerOptions()
     if self.GetPlayerOptions_Real then
         return self:GetPlayerOptions_Real()
     end
     return nil
 end
-
-        frame.powerBar.text:SetText(powerStr)
-
-        -- Info
-        if frame.infoBar then
-            frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
-            frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
-            local name = UnitName(unit) or ""
-            local level = UnitLevel(unit) or ""
-            local _, class = UnitClass(unit)
-            class = class or ""
-            local infoStr = string.format("%s %s %s", name, level, class)
-            frame.infoBar.text:SetText(infoStr)
-        end
-    
-    -- Event-driven updates
 
     function UnitFrames:PLAYER_ENTERING_WORLD()
         print("[MidnightUI] UnitFrames: PLAYER_ENTERING_WORLD fired")
