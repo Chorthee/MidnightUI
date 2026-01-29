@@ -409,7 +409,6 @@ function UnitFrames:GetPlayerOptions()
                             },
                         },
                     },
-                },
                 target = {
                         type = "group",
                         name = "Target",
