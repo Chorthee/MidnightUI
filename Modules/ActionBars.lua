@@ -439,21 +439,22 @@ function AB:CreateBar(barKey, config)
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
-                -- Only snap X, preserve Y position, and dynamically correct so red dot ends at screen center
+                -- Only snap X, preserve Y position as dropped, and dynamically correct so red dot ends at screen center
                 local initialSnapX = realScreenCenterX - snapReferenceX
                 -- Simulate where the red dot would end up after SetPoint
                 container:ClearAllPoints()
-                container:SetPoint(anchorPoint, relativeTo, relativePoint, initialSnapX, 0)
+                -- Use the current Y offset from the drop
+                local _, _, _, _, droppedY = container:GetPoint()
+                droppedY = droppedY or 0
+                container:SetPoint(anchorPoint, relativeTo, relativePoint, initialSnapX, droppedY)
                 local simulatedDotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or snapReferenceX
                 local correction = realScreenCenterX - simulatedDotX
                 -- Restore position before final snap
                 container:ClearAllPoints()
                 -- Apply correction
                 bestSnapX = initialSnapX + correction
-                -- Calculate Y offset from current position (where dropped)
-                local _, _, _, _, currentY = container:GetPoint()
-                bestSnapY = currentY or 0
-                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, dynamic correction)"
+                bestSnapY = droppedY
+                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, dynamic correction, preserve Y)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
