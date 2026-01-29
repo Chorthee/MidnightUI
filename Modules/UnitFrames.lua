@@ -412,32 +412,7 @@ function UnitFrames:GetPlayerOptions()
                 target = {
                         type = "group",
                         name = "Target",
-                        local options = {
-                            type = "group",
-                            name = "Player Frame",
-                            args = {
-                                position = {
-                                    name = "Player Frame Position",
-                                    type = "group",
-                                    inline = true,
-                                    order = 1,
-                                    args = {
-                                        point = {
-                                            name = "Anchor Point",
-                                            type = "select",
-                                            order = 1,
-                                            values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
-                                            get = function() return self.db.profile.position.point end,
-                                            set = function(_, v) self.db.profile.position.point = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end
-                                        },
-                                        x = {
-                                            name = "X Offset",
-                                            type = "range",
-                                            min = -1000, max = 1000, step = 1,
-                                            order = 2,
-                                            get = function() return self.db.profile.position.x end,
-                                            set = function(_, v)
-                                                self.db.profile.position.x = v;
+                        -- ...existing code...
                                                 local frame = frames and frames.PlayerFrame
                                                 if frame then
                                                     local db = self.db.profile
