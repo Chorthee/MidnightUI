@@ -2294,3 +2294,5 @@ function UnitFrames:GetOptions()
                             frames[key] = frame
                             return frame
                         end
+
+                    end
