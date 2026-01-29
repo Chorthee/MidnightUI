@@ -274,6 +274,11 @@ function UnitFrames:PLAYER_ENTERING_WORLD()
 end
 
 
+function UnitFrames:PLAYER_TARGET_CHANGED()
+    if self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
+    if self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+end
+
 function UnitFrames:UNIT_HEALTH(event, unit)
     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
@@ -309,8 +314,9 @@ function UnitFrames:OnDBReady()
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
-        -- Only now call PLAYER_ENTERING_WORLD logic
-        self:PLAYER_ENTERING_WORLD()
+    self:RegisterEvent("PLAYER_TARGET_CHANGED")
+    -- Only now call PLAYER_ENTERING_WORLD logic
+    self:PLAYER_ENTERING_WORLD()
 end
 
 function UnitFrames:GetOptions()
