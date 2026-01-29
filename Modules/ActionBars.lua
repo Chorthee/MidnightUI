@@ -436,6 +436,7 @@ function AB:CreateBar(barKey, config)
             end
             local snapReferenceX = redDotX or selfCenterX
             if math.abs(snapReferenceX - realScreenCenterX) < centerSnapThreshold then
+                --[[
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
@@ -453,6 +454,7 @@ function AB:CreateBar(barKey, config)
                 bestSnapX = initialSnapX + correction
                 bestSnapY = droppedY
                 snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, Y always as dropped)"
+                --]]
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
