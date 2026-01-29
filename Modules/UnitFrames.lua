@@ -350,14 +350,13 @@ function UnitFrames:OnDBReady()
     self:PLAYER_ENTERING_WORLD()
 end
 
-function UnitFrames:GetPlayerOptions()
 -- See Frames/Player.lua for GetPlayerOptions
-        local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
-        frame.powerBar:SetMinMaxValues(0, maxpp)
-        frame.powerBar:SetValue(curpp)
-        frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
-        frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
-        local powerStr = string.format("%s / %s", tostring(curpp or 0), tostring(maxpp or 0))
+function UnitFrames:GetPlayerOptions()
+    if self.GetPlayerOptions_Real then
+        return self:GetPlayerOptions_Real()
+    end
+    return nil
+end
         frame.powerBar.text:SetText(powerStr)
 
         -- Info
@@ -441,23 +440,13 @@ function UnitFrames:GetPlayerOptions()
         self:PLAYER_ENTERING_WORLD()
     end
 
-    function UnitFrames:GetTargetOptions()
-        -- ...existing code for tag helpers...
-
-        -- ...existing code for hiding Blizzard frames...
-
-        -- ...existing code for hook Blizzard PlayerFrame...
-
-        -- ...existing code for defaults...
-
-        local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-        local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
-        local LSM = LibStub("LibSharedMedia-3.0")
-        local frames = {}
-
-        local function CreateBar(parent, opts, yOffset)
-            local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
-            bar:SetStatusBarTexture(LSM:Fetch("statusbar", opts.texture or "Flat"))
+-- See Frames/Target.lua for GetTargetOptions
+function UnitFrames:GetTargetOptions()
+    if self.GetTargetOptions_Real then
+        return self:GetTargetOptions_Real()
+    end
+    return nil
+end
             bar:SetStatusBarColor(unpack(opts.color))
             bar:SetMinMaxValues(0, 1)
             bar:SetValue(1)
@@ -708,6 +697,12 @@ function UnitFrames:GetPlayerOptions()
         end
 
 -- See Frames/TargetTarget.lua for GetTargetTargetOptions
+function UnitFrames:GetTargetTargetOptions()
+    if self.GetTargetTargetOptions_Real then
+        return self:GetTargetTargetOptions_Real()
+    end
+    return nil
+end
                 bar:SetWidth(opts.width)
                 bar:SetPoint("LEFT", 0, 0)
                 bar:SetPoint("RIGHT", 0, 0)
