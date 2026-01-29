@@ -264,9 +264,6 @@ function UnitFrames:OnDBReady()
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
     -- Also hide Blizzard frames on config change
-    hooksecurefunc(self.db.profile, "showPlayer", function() SetBlizzardFramesHidden(self) end)
-    hooksecurefunc(self.db.profile, "showTarget", function() SetBlizzardFramesHidden(self) end)
-    hooksecurefunc(self.db.profile, "showTargetTarget", function() SetBlizzardFramesHidden(self) end)
 end
 
 function UnitFrames:GetOptions()
