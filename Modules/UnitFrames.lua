@@ -1,3 +1,9 @@
+-- Hide Blizzard frames if custom frames are enabled
+local function SetBlizzardFramesHidden(self)
+    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide() else if PlayerFrame then PlayerFrame:Show() end end
+    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide() else if TargetFrame then TargetFrame:Show() end end
+    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide() else if TargetFrameToT then TargetFrameToT:Show() end end
+end
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -217,6 +223,7 @@ function UnitFrames:PLAYER_ENTERING_WORLD()
     if self.db.profile.showPlayer then self:CreatePlayerFrame() end
     if self.db.profile.showTarget then self:CreateTargetFrame() end
     if self.db.profile.showTargetTarget then self:CreateTargetTargetFrame() end
+    SetBlizzardFramesHidden(self)
 end
 
 
@@ -250,6 +257,10 @@ function UnitFrames:OnDBReady()
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
+    -- Also hide Blizzard frames on config change
+    hooksecurefunc(self.db.profile, "showPlayer", function() SetBlizzardFramesHidden(self) end)
+    hooksecurefunc(self.db.profile, "showTarget", function() SetBlizzardFramesHidden(self) end)
+    hooksecurefunc(self.db.profile, "showTargetTarget", function() SetBlizzardFramesHidden(self) end)
 end
 
 function UnitFrames:GetOptions()
