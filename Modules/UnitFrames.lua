@@ -303,42 +303,48 @@ function UnitFrames:GetOptions()
                     },
                 },
             },
-            -- ...add any other options here...
-        },
-    }
-end
-
-local function safe(val)
-    if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
-    return val
-end
-local function ParseTags(str, unit)
-    local curhp = safe(UnitHealth(unit))
-    local maxhp = safe(UnitHealthMax(unit))
-    local perhp = maxhp > 0 and math.floor((curhp / maxhp) * 100) or 0
-    local curpp = safe(UnitPower(unit))
-    local maxpp = safe(UnitPowerMax(unit))
-    local tags = {
-        ["[curhp]"] = curhp,
-        ["[maxhp]"] = maxhp,
-        ["[perhp]"] = perhp,
-        ["[curpp]"] = curpp,
-        ["[maxpp]"] = maxpp,
-        ["[name]"] = UnitName(unit) or "",
-        ["[level]"] = UnitLevel(unit) or "",
-        ["[class]"] = select(2, UnitClass(unit)) or "",
-        ["[shortcurhp]"] = ShortValue(curhp),
-        ["[shortmaxhp]"] = ShortValue(maxhp),
-        ["[shortcurpp]"] = ShortValue(curpp),
-        ["[shortmaxpp]"] = ShortValue(maxpp),
-        ["[classcolor]"] = ClassColor(unit),
-        ["[close]"] = "|r",
-    }
-    for tag, val in pairs(tags) do
-        str = str:gsub(tag, tostring(val))
-    end
-    return str
-end
+            health = {
+                name = "Health Bar",
+                type = "group",
+                order = 10,
+                args = {
+                    width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 1,
+                        get = function() return self.db.profile.health.width end,
+                        set = function(_, v) self.db.profile.health.width = v; self:UpdatePlayerFrame() end },
+                    height = { type = "range", name = "Height", min = 8, max = 60, step = 1, order = 2,
+                        get = function() return self.db.profile.health.height end,
+                        set = function(_, v) self.db.profile.health.height = v; self:UpdatePlayerFrame() end },
+                    color = colorOpt("Bar Color", nil,
+                        function() return unpack(self.db.profile.health.color) end,
+                        function(_,r,g,b,a) self.db.profile.health.color = {r,g,b,a}; self:UpdatePlayerFrame() end, 3),
+                    bgColor = colorOpt("Background Color", nil,
+                        function() return unpack(self.db.profile.health.bgColor) end,
+                        function(_,r,g,b,a) self.db.profile.health.bgColor = {r,g,b,a}; self:UpdatePlayerFrame() end, 4),
+                    font = fontOpt("Font",
+                        function() return self.db.profile.health.font end,
+                        function(_,v) self.db.profile.health.font = v; self:UpdatePlayerFrame() end, 5),
+                    fontSize = { type = "range", name = "Font Size", min = 8, max = 32, step = 1, order = 6,
+                        get = function() return self.db.profile.health.fontSize end,
+                        set = function(_,v) self.db.profile.health.fontSize = v; self:UpdatePlayerFrame() end },
+                    fontOutline = { type = "select", name = "Font Outline", order = 7,
+                        values = {NONE="NONE",OUTLINE="OUTLINE",THICKOUTLINE="THICKOUTLINE"},
+                        get = function() return self.db.profile.health.fontOutline end,
+                        set = function(_,v) self.db.profile.health.fontOutline = v; self:UpdatePlayerFrame() end },
+                    fontColor = colorOpt("Font Color", nil,
+                        function() return unpack(self.db.profile.health.fontColor) end,
+                        function(_,r,g,b,a) self.db.profile.health.fontColor = {r,g,b,a}; self:UpdatePlayerFrame() end, 8),
+                    text = { type = "input", name = "Text Format", order = 9,
+                        get = function() return self.db.profile.health.text end,
+                        set = function(_,v) self.db.profile.health.text = v; self:UpdatePlayerFrame() end },
+                    textPos = { type = "select", name = "Text Position", order = 10,
+                        values = {LEFT="LEFT",CENTER="CENTER",RIGHT="RIGHT"},
+                        get = function() return self.db.profile.health.textPos end,
+                        set = function(_,v) self.db.profile.health.textPos = v; self:UpdatePlayerFrame() end },
+                    texture = texOpt("Bar Texture",
+                        function() return self.db.profile.health.texture end,
+                        function(_,v) self.db.profile.health.texture = v; self:UpdatePlayerFrame() end, 11),
+                }
+            },
             power = {
                 name = "Power Bar",
                 type = "group",
@@ -426,6 +432,42 @@ end
                         function(_,v) self.db.profile.info.texture = v; self:UpdatePlayerFrame() end, 11),
                 }
             },
+            -- ...add any other options here...
+        },
+    }
+end
+
+local function safe(val)
+    if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
+    return val
+end
+local function ParseTags(str, unit)
+    local curhp = safe(UnitHealth(unit))
+    local maxhp = safe(UnitHealthMax(unit))
+    local perhp = maxhp > 0 and math.floor((curhp / maxhp) * 100) or 0
+    local curpp = safe(UnitPower(unit))
+    local maxpp = safe(UnitPowerMax(unit))
+    local tags = {
+        ["[curhp]"] = curhp,
+        ["[maxhp]"] = maxhp,
+        ["[perhp]"] = perhp,
+        ["[curpp]"] = curpp,
+        ["[maxpp]"] = maxpp,
+        ["[name]"] = UnitName(unit) or "",
+        ["[level]"] = UnitLevel(unit) or "",
+        ["[class]"] = select(2, UnitClass(unit)) or "",
+        ["[shortcurhp]"] = ShortValue(curhp),
+        ["[shortmaxhp]"] = ShortValue(maxhp),
+        ["[shortcurpp]"] = ShortValue(curpp),
+        ["[shortmaxpp]"] = ShortValue(maxpp),
+        ["[classcolor]"] = ClassColor(unit),
+        ["[close]"] = "|r",
+    }
+    for tag, val in pairs(tags) do
+        str = str:gsub(tag, tostring(val))
+    end
+        return str
+    end
         }
     }
 end
