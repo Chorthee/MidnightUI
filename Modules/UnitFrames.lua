@@ -123,21 +123,6 @@ end
                 texture = "Flat"
             }
         }
-                            color = {0.2, 0.4, 0.8, 1},
-                            bgColor = {0, 0, 0, 0.5},
-                            font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                            text = "[curpp] / [maxpp]", textPos = "CENTER",
-                            texture = "Flat"
-                        },
-                        info = {
-                            enabled = true, width = 220, height = 10,
-                            color = {0.8, 0.8, 0.2, 1},
-                            bgColor = {0, 0, 0, 0.5},
-                            font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                            text = "[name] [level] [class]", textPos = "CENTER",
-                            texture = "Flat"
-                        }
-                    }
                 }
 
                 local function SetBlizzardFramesHidden(self)
