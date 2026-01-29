@@ -32,9 +32,9 @@ end
 
 -- Hide Blizzard frames if custom frames are enabled
 local function SetBlizzardFramesHidden(self)
-    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide() end
-    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide() end
-    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide() end
+    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide(); PlayerFrame:UnregisterAllEvents(); PlayerFrame:Hide() end
+    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide(); TargetFrame:UnregisterAllEvents(); TargetFrame:Hide() end
+    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide(); TargetFrameToT:UnregisterAllEvents(); TargetFrameToT:Hide() end
 end
 
 -- Keep Blizzard PlayerFrame hidden if custom is enabled
@@ -132,7 +132,10 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     local totalHeight = h.height + p.height + (i.enabled and i.height or 0) + spacing * (i.enabled and 2 or 1)
     local width = math.max(h.width, p.width, i.width or 0)
 
-    local frame = CreateFrame("Frame", "MidnightUI_"..key, UIParent, "BackdropTemplate")
+    -- Use SecureUnitButtonTemplate for targetable frames
+    local frameType = (key == "TargetFrame" or key == "TargetTargetFrame") and "Button" or "Frame"
+    local template = (key == "TargetFrame" or key == "TargetTargetFrame") and "SecureUnitButtonTemplate,BackdropTemplate" or "BackdropTemplate"
+    local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
     frame:SetSize(width, totalHeight)
     -- Ensure anchorTo is always a frame, never a string
     local myPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
@@ -167,6 +170,25 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     if i.enabled then
         local infoBar = CreateBar(frame, i, -(h.height + p.height + spacing * 2))
         frame.infoBar = infoBar
+    end
+
+    -- Make TargetFrame and TargetTargetFrame secure unit buttons for click targeting
+    if key == "TargetFrame" then
+        frame:SetAttribute("unit", "target")
+        frame:RegisterForClicks("AnyUp")
+        frame:SetScript("OnClick", function(self, button)
+            if button == "LeftButton" then
+                TargetUnit("target")
+            end
+        end)
+    elseif key == "TargetTargetFrame" then
+        frame:SetAttribute("unit", "targettarget")
+        frame:RegisterForClicks("AnyUp")
+        frame:SetScript("OnClick", function(self, button)
+            if button == "LeftButton" then
+                TargetUnit("targettarget")
+            end
+        end)
     end
 
     frames[key] = frame
