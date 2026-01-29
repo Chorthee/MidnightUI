@@ -82,10 +82,8 @@ local defaults = {
             font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
             text = "[name] [level] [class]", textPos = "CENTER",
             texture = "Flat"
-        }
-    }
-
-}
+                    },
+                target = {
 
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
