@@ -97,37 +97,95 @@ end
             showTarget = true,
             showTargetTarget = true,
             spacing = 4,
-            position = { point = "CENTER", x = 0, y = -200 },
-            targetPosition = { point = "TOPLEFT", x = 320, y = 0 },
-            totPosition = { point = "TOP", x = 0, y = -20 },
-            health = {
-                enabled = true,
-                width = 220, height = 24,
-                color = {0.2, 0.8, 0.2, 1},
-                bgColor = {0, 0, 0, 0.5},
-                font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
-                texture = "Flat"
+            player = {
+                position = { point = "CENTER", x = 0, y = -200 },
+                health = {
+                    enabled = true,
+                    width = 220, height = 24,
+                    color = {0.2, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                power = {
+                    enabled = true,
+                    width = 220, height = 12,
+                    color = {0.2, 0.4, 0.8, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curpp] / [maxpp]", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                info = {
+                    enabled = true, width = 220, height = 10,
+                    color = {0.8, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[name] [level] [class]", textPos = "CENTER",
+                    texture = "Flat"
+                }
             },
-            power = {
-                enabled = true,
-                width = 220, height = 12,
-                color = {0.2, 0.4, 0.8, 1},
-                bgColor = {0, 0, 0, 0.5},
-                font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                text = "[curpp] / [maxpp]", textPos = "CENTER",
-                texture = "Flat"
+            target = {
+                position = { point = "TOPLEFT", x = 320, y = 0 },
+                health = {
+                    enabled = true,
+                    width = 220, height = 24,
+                    color = {0.2, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                power = {
+                    enabled = true,
+                    width = 220, height = 12,
+                    color = {0.2, 0.4, 0.8, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curpp] / [maxpp]", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                info = {
+                    enabled = true, width = 220, height = 10,
+                    color = {0.8, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[name] [level] [class]", textPos = "CENTER",
+                    texture = "Flat"
+                }
             },
-            info = {
-                enabled = true, width = 220, height = 10,
-                color = {0.8, 0.8, 0.2, 1},
-                bgColor = {0, 0, 0, 0.5},
-                font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                text = "[name] [level] [class]", textPos = "CENTER",
-                texture = "Flat"
+            targettarget = {
+                position = { point = "TOP", x = 0, y = -20 },
+                health = {
+                    enabled = true,
+                    width = 220, height = 24,
+                    color = {0.2, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                power = {
+                    enabled = true,
+                    width = 220, height = 12,
+                    color = {0.2, 0.4, 0.8, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curpp] / [maxpp]", textPos = "CENTER",
+                    texture = "Flat"
+                },
+                info = {
+                    enabled = true, width = 220, height = 10,
+                    color = {0.8, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0.5},
+                    font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[name] [level] [class]", textPos = "CENTER",
+                    texture = "Flat"
+                }
             }
         }
-                }
+    }
 
                 local function SetBlizzardFramesHidden(self)
                     if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide(); PlayerFrame:UnregisterAllEvents(); PlayerFrame:Hide() end
@@ -178,7 +236,9 @@ end
                     if frames[key] then return end
                     local db = self.db.profile
                     local spacing = db.spacing
-                    local h, p, i = db.health, db.power, db.info
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local frameDB = db[frameKey]
+                    local h, p, i = frameDB.health, frameDB.power, frameDB.info
                     local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
                     local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
 
@@ -186,11 +246,11 @@ end
                     local template = "SecureUnitButtonTemplate,BackdropTemplate"
                     local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
                     frame:SetSize(width, totalHeight)
-                    local myPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
+                    local myPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
                     local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
-                    local relPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
-                    local px = x or (db.position and db.position.x) or 0
-                    local py = y or (db.position and db.position.y) or 0
+                    local relPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
+                    local px = x or (frameDB.position and frameDB.position.x) or 0
+                    local py = y or (frameDB.position and frameDB.position.y) or 0
                     frame:SetPoint(myPoint, relTo, relPoint, px, py)
                     frame:SetMovable(true)
                     frame:EnableMouse(true)
@@ -202,7 +262,7 @@ end
                     frame.debugBorder:SetAllPoints()
                     frame.debugBorder:SetColorTexture(1,0,0,0.5)
                     frame.debugBorder:SetBlendMode("ADD")
-                    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y).." size "..width.."x"..totalHeight) end
+                    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(px)..","..(py).." size "..width.."x"..totalHeight) end
 
                     local yOffset = 0
                     if h.enabled then
@@ -264,7 +324,8 @@ end
                     local db = self.db.profile
                     local frame = frames[key]
                     if not frame then return end
-                    local h, p, i = db.health, db.power, db.info
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local h, p, i = db[frameKey].health, db[frameKey].power, db[frameKey].info
 
                     if key == "TargetFrame" then
                         if not UnitExists("target") then
