@@ -21,15 +21,15 @@ local masqueGroup
 -- Bar Definitions
 local BAR_CONFIGS = {
     ["MainMenuBar"] = { name = "Action Bar 1", hasPages = true, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 0 } },
-    ["MultiBarBottomLeft"] = { name = "Action Bar 2", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 44 } },
-    ["MultiBarBottomRight"] = { name = "Action Bar 3", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 88 } },
-    ["MultiBarRight"] = { name = "Action Bar 4", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 132 } },
-    ["MultiBarLeft"] = { name = "Action Bar 5", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 176 } },
-    ["MultiBar5"] = { name = "Action Bar 6", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 220 } },
-    ["MultiBar6"] = { name = "Action Bar 7", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 264 } },
-    ["MultiBar7"] = { name = "Action Bar 8", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 308 } },
-    ["PetActionBar"] = { name = "Pet Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = -250, y = 308 } },
-    ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 308 } },
+    ["MultiBarBottomLeft"] = { name = "Action Bar 2", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 42 } },
+    ["MultiBarBottomRight"] = { name = "Action Bar 3", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 84 } },
+    ["MultiBarRight"] = { name = "Action Bar 4", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 126 } },
+    ["MultiBarLeft"] = { name = "Action Bar 5", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 168 } },
+    ["MultiBar5"] = { name = "Action Bar 6", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 210 } },
+    ["MultiBar6"] = { name = "Action Bar 7", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 252 } },
+    ["MultiBar7"] = { name = "Action Bar 8", hasPages = false, buttonCount = 12, default = { point = "BOTTOM", x = 0, y = 294 } },
+    ["PetActionBar"] = { name = "Pet Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = -250, y = 336 } },
+    ["StanceBar"] = { name = "Stance Bar", hasPages = false, buttonCount = 10, default = { point = "BOTTOM", x = 250, y = 336 } },
 }
 
 -- Bar Paging Conditions (for Action Bar 1)
