@@ -51,6 +51,10 @@ function MidnightUI:OnEnable()
     C_Timer.After(0.2, function()
         AceConfig:RegisterOptionsTable("MidnightUI", function() return self:GetOptions() end)
         AceConfigDialog:AddToBlizOptions("MidnightUI", "Midnight UI")
+        -- Set a larger default size for the options window
+        if AceConfigDialog.SetDefaultSize then
+            AceConfigDialog:SetDefaultSize("MidnightUI", 900, 700)
+        end
     end)
 end
 
