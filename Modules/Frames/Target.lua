@@ -1,7 +1,7 @@
 -- MidnightUI UnitFrames: Target Frame Module
 
 
-local UnitFrames = UnitFrames or _G.UnitFrames
+UnitFrames = UnitFrames or _G.UnitFrames
 function UnitFrames:GetTargetOptions_Real()
     -- Target frame options table
     local options = {
