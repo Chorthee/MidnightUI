@@ -22,7 +22,11 @@ local function ParseTags(str, unit)
     }
     local stringTags = {}
     for tag, val in pairs(tags) do
-        stringTags[tag] = (val ~= nil and tostring(val)) or ""
+        if val == nil then
+            stringTags[tag] = ""
+        else
+            stringTags[tag] = tostring(val)
+        end
     end
     for tag, sval in pairs(stringTags) do
         str = str:gsub(tag, sval)
