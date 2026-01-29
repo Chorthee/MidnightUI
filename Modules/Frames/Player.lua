@@ -3,8 +3,9 @@
 
 UnitFrames = UnitFrames or _G.UnitFrames
 
+
 function UnitFrames:GetPlayerOptions_Real()
-    local db = self.db and self.db.profile or {}
+    local db = self.db and self.db.profile and self.db.profile.player or {}
     return {
         type = "group",
         name = "Player Frame",
