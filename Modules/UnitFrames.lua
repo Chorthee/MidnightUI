@@ -1,14 +1,6 @@
 -- Helper: Safe number
-local function safe(val)
-    if val == nil then return "" end
-    local t = type(val)
-    if t == "boolean" then return val and "true" or "false" end
-    if t == "number" then return tostring(val) end
-    if t == "string" then return val end
-    -- For secret values or anything else, just tostring safely
-    local ok, str = pcall(tostring, val)
-    if ok and str then return str else return "" end
-end
+-- Remove tag parsing helpers; use direct formatting functions instead
+
 
 -- Helper: Tag parsing for text overlays (safe for secret values)
 local function ParseTags(str, unit)
@@ -37,6 +29,8 @@ local function ParseTags(str, unit)
         return safe(value)
     end))
 end
+    -- Tag parsing removed; overlays are now set by direct formatting functions
+    return str
 
 -- Hide Blizzard frames if custom frames are enabled
 local function SetBlizzardFramesHidden(self)
@@ -206,7 +200,7 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     frame.healthBar:SetValue(curhp)
     frame.healthBar.text:SetFont(LSM:Fetch("font", h.font), h.fontSize, h.fontOutline)
     frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
-    frame.healthBar.text:SetText(ParseTags(h.text, unit))
+    frame.healthBar.text:SetText(h.text)  -- Update health text using robust formatting (no tag parsing)
 
     -- Power
     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
@@ -214,13 +208,13 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     frame.powerBar:SetValue(curpp)
     frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
     frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
-    frame.powerBar.text:SetText(ParseTags(p.text, unit))
+    frame.powerBar.text:SetText(p.text)  -- Update power text using robust formatting (no tag parsing)
 
     -- Info
     if frame.infoBar then
         frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
         frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
-        frame.infoBar.text:SetText(ParseTags(i.text, unit))
+        frame.infoBar.text:SetText(i.text)  -- Update info text using robust formatting (no tag parsing)
     end
 end
 
