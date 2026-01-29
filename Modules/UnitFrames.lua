@@ -356,15 +356,7 @@ function UnitFrames:OnDBReady()
 end
 
 function UnitFrames:GetPlayerOptions()
--- See UnitFrames_Player.lua for GetPlayerOptions
-                            },
-                        },
-                    },
-                },
-            },
-        }
-    return options
-end
+-- See Frames/Player.lua for GetPlayerOptions
         local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
         frame.powerBar:SetMinMaxValues(0, maxpp)
         frame.powerBar:SetValue(curpp)
