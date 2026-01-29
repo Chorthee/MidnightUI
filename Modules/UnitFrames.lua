@@ -132,9 +132,9 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
 
     local frame = CreateFrame("Frame", "MidnightUI_"..key, UIParent, "BackdropTemplate")
     frame:SetSize(width, totalHeight)
-    -- Ensure anchor points are always valid strings
+    -- Ensure anchorTo is always a frame, never a string
     local myPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
-    local relTo = anchorTo or UIParent
+    local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
     local relPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
     local px = x or (db.position and db.position.x) or 0
     local py = y or (db.position and db.position.y) or 0
