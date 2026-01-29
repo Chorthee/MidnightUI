@@ -271,6 +271,7 @@ end
 -- Integration with MidnightUI
 function UnitFrames:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 
 function UnitFrames:OnDBReady()
@@ -278,10 +279,14 @@ function UnitFrames:OnDBReady()
     if not MidnightUI.db.profile.modules.unitframes then print("[MidnightUI] UnitFrames module disabled in profile"); return end
     self.db = MidnightUI.db:RegisterNamespace("UnitFrames", defaults)
     print("[MidnightUI] UnitFrames: Registered namespace and events")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
+    -- If PLAYER_ENTERING_WORLD already fired, call handler manually
+    if IsLoggedIn and IsLoggedIn() then
+        print("[MidnightUI] PLAYER_ENTERING_WORLD already fired, calling handler manually")
+        self:PLAYER_ENTERING_WORLD()
+    end
 end
 
 function UnitFrames:GetOptions()
