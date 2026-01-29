@@ -464,7 +464,17 @@ function AB:CreateBar(barKey, config)
                     end
                 end
                 container:ClearAllPoints()
-                container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
+                if anchorPoint and relativeTo and relativePoint and bestSnapX and bestSnapY then
+                    container:SetPoint(anchorPoint, relativeTo, relativePoint, bestSnapX, bestSnapY)
+                else
+                    -- Fallback: use current position, or default to UIParent center
+                    local curPoint, curRelTo, curRelPoint, curX, curY = container:GetPoint()
+                    if curPoint and curRelTo and curRelPoint and curX and curY then
+                        container:SetPoint(curPoint, curRelTo, curRelPoint, curX, curY)
+                    else
+                        container:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+                    end
+                end
                 -- Debug: print anchor info, scale, parent, and red dot after SetPoint
                 if DEFAULT_CHAT_FRAME then
                     local uiLeft = UIParent:GetLeft()
