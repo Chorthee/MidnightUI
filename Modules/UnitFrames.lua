@@ -1,12 +1,5 @@
--- Modular UnitFrames: Load separate option files
-
 -- Modular UnitFrames: Load separate option files from Frames subfolder
 -- The Player, Target, and TargetTarget option files are loaded via the TOC and available globally.
-
--- ...existing code...
-
--- target, tot, etc. should be added here as siblings, not nested
--- target = { ... },
 
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
