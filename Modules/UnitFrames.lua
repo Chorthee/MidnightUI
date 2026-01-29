@@ -149,6 +149,10 @@ end
 
 function UnitFrames:PLAYER_ENTERING_WORLD()
     print("[MidnightUI] UnitFrames: PLAYER_ENTERING_WORLD fired")
+    if not self.db or not self.db.profile then
+        print("[MidnightUI] UnitFrames: DB not ready, skipping PLAYER_ENTERING_WORLD")
+        return
+    end
     HookBlizzardPlayerFrame(self)
     if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
     if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
