@@ -225,6 +225,16 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     if not frame then return end
     local h, p, i = db.health, db.power, db.info
 
+    -- Special logic for Target of Target: only show if targettarget exists
+    if key == "TargetTargetFrame" then
+        if not UnitExists("targettarget") then
+            frame:Hide()
+            return
+        else
+            frame:Show()
+        end
+    end
+
     -- Health
     local curhp, maxhp = UnitHealth(unit), UnitHealthMax(unit)
     frame.healthBar:SetMinMaxValues(0, maxhp)
