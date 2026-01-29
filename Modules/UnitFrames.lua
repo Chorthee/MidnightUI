@@ -381,7 +381,18 @@ function UnitFrames:GetOptions()
                         min = -1000, max = 1000, step = 1,
                         order = 2,
                         get = function() return self.db.profile.position.x end,
-                        set = function(_, v) self.db.profile.position.x = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end
+                        set = function(_, v)
+                            self.db.profile.position.x = v;
+                            local frame = frames and frames.PlayerFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.position and db.position.point or "CENTER"
+                                local px = db.position and db.position.x or 0
+                                local py = db.position and db.position.y or 0
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
+                        end
                     },
                     y = {
                         name = "Y Offset",
@@ -389,7 +400,18 @@ function UnitFrames:GetOptions()
                         min = -1000, max = 1000, step = 1,
                         order = 3,
                         get = function() return self.db.profile.position.y end,
-                        set = function(_, v) self.db.profile.position.y = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end
+                        set = function(_, v)
+                            self.db.profile.position.y = v;
+                            local frame = frames and frames.PlayerFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.position and db.position.point or "CENTER"
+                                local px = db.position and db.position.x or 0
+                                local py = db.position and db.position.y or 0
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
+                        end
                     },
                 },
             },
