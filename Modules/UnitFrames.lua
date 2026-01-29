@@ -132,9 +132,9 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     local totalHeight = h.height + p.height + (i.enabled and i.height or 0) + spacing * (i.enabled and 2 or 1)
     local width = math.max(h.width, p.width, i.width or 0)
 
-    -- Use SecureUnitButtonTemplate for targetable frames
-    local frameType = (key == "TargetFrame" or key == "TargetTargetFrame") and "Button" or "Frame"
-    local template = (key == "TargetFrame" or key == "TargetTargetFrame") and "SecureUnitButtonTemplate,BackdropTemplate" or "BackdropTemplate"
+    -- Use SecureUnitButtonTemplate for all unit frames
+    local frameType = "Button"
+    local template = "SecureUnitButtonTemplate,BackdropTemplate"
     local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
     frame:SetSize(width, totalHeight)
     -- Ensure anchorTo is always a frame, never a string
@@ -172,23 +172,16 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
         frame.infoBar = infoBar
     end
 
-    -- Make TargetFrame and TargetTargetFrame secure unit buttons for click targeting
-    if key == "TargetFrame" then
+    -- Make all frames secure unit buttons for click targeting
+    if key == "PlayerFrame" then
+        frame:SetAttribute("unit", "player")
+        frame:RegisterForClicks("AnyUp")
+    elseif key == "TargetFrame" then
         frame:SetAttribute("unit", "target")
         frame:RegisterForClicks("AnyUp")
-        frame:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                TargetUnit("target")
-            end
-        end)
     elseif key == "TargetTargetFrame" then
         frame:SetAttribute("unit", "targettarget")
         frame:RegisterForClicks("AnyUp")
-        frame:SetScript("OnClick", function(self, button)
-            if button == "LeftButton" then
-                TargetUnit("targettarget")
-            end
-        end)
     end
 
     frames[key] = frame
