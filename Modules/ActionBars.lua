@@ -439,22 +439,20 @@ function AB:CreateBar(barKey, config)
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
-                -- Only snap X, preserve Y position as dropped, and dynamically correct so red dot ends at screen center
+                -- Only snap X, preserve Y position as dropped. Do NOT simulate SetPoint with Y, just use dropped Y.
                 local initialSnapX = realScreenCenterX - snapReferenceX
-                -- Simulate where the red dot would end up after SetPoint
-                container:ClearAllPoints()
-                -- Use the current Y offset from the drop
                 local _, _, _, _, droppedY = container:GetPoint()
                 droppedY = droppedY or 0
+                -- Simulate where the red dot would end up after SetPoint, but always use droppedY
+                container:ClearAllPoints()
                 container:SetPoint(anchorPoint, relativeTo, relativePoint, initialSnapX, droppedY)
                 local simulatedDotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or snapReferenceX
                 local correction = realScreenCenterX - simulatedDotX
                 -- Restore position before final snap
                 container:ClearAllPoints()
-                -- Apply correction
                 bestSnapX = initialSnapX + correction
                 bestSnapY = droppedY
-                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, dynamic correction, preserve Y)"
+                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, Y always as dropped)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
