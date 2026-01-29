@@ -1,7 +1,13 @@
 -- Helper: Safe number
 local function safe(val)
-    if val == nil then return 0 end
-    return val
+    if val == nil then return "" end
+    local t = type(val)
+    if t == "boolean" then return val and "true" or "false" end
+    if t == "number" then return tostring(val) end
+    if t == "string" then return val end
+    -- For secret values or anything else, just tostring safely
+    local ok, str = pcall(tostring, val)
+    if ok and str then return str else return "" end
 end
 
 -- Helper: Tag parsing for text overlays (safe for secret values)
@@ -31,7 +37,16 @@ local function ParseTags(str, unit)
     for tag, sval in pairs(stringTags) do
         str = str:gsub(tag, sval)
     end
-    return str
+    return (str:gsub("%[(.-)%]", function(tag)
+        local ok, value = pcall(function()
+            if tagFuncs[tag] then
+                return tagFuncs[tag](unit)
+            end
+            return nil
+        end)
+        if not ok then return "" end
+        return safe(value)
+    end))
 end
 
 -- Hide Blizzard frames if custom frames are enabled
