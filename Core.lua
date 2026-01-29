@@ -211,7 +211,6 @@ function MidnightUI:ToggleMoveMode()
     end
     
     -- Use AceEvent's SendMessage (already loaded)
-    print("Core: Sending MIDNIGHTUI_MOVEMODE_CHANGED message with value: " .. tostring(self.moveMode))
     self:SendMessage("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
-    print("Core: Message sent")
+    
 end
