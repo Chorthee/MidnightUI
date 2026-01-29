@@ -712,27 +712,7 @@ function UnitFrames:GetPlayerOptions()
             self:PLAYER_ENTERING_WORLD()
         end
 
-        function UnitFrames:GetTargetTargetOptions()
-            -- ...existing code for tag helpers...
-
-            -- ...existing code for hiding Blizzard frames...
-
-            -- ...existing code for hook Blizzard PlayerFrame...
-
-            -- ...existing code for defaults...
-
-            local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-            local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
-            local LSM = LibStub("LibSharedMedia-3.0")
-            local frames = {}
-
-            local function CreateBar(parent, opts, yOffset)
-                local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
-                bar:SetStatusBarTexture(LSM:Fetch("statusbar", opts.texture or "Flat"))
-                bar:SetStatusBarColor(unpack(opts.color))
-                bar:SetMinMaxValues(0, 1)
-                bar:SetValue(1)
-                bar:SetHeight(opts.height)
+-- See Frames/TargetTarget.lua for GetTargetTargetOptions
                 bar:SetWidth(opts.width)
                 bar:SetPoint("LEFT", 0, 0)
                 bar:SetPoint("RIGHT", 0, 0)
