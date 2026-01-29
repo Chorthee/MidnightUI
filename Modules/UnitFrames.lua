@@ -17,6 +17,7 @@ end
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
+local frames = {}
     
     local function CreateBar(parent, opts, yOffset)
     local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
