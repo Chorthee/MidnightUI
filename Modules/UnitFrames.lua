@@ -1,3 +1,13 @@
+-- Modular UnitFrames: Load separate option files
+
+-- Modular UnitFrames: Load separate option files from Frames subfolder
+local playerOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/Player.lua"))
+if playerOptions then playerOptions() end
+local targetOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/Target.lua"))
+if targetOptions then targetOptions() end
+local targetTargetOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/TargetTarget.lua"))
+if targetTargetOptions then targetTargetOptions() end
+
 -- Helper: Safe number
 -- Remove tag parsing helpers; use direct formatting functions instead
 
@@ -346,70 +356,7 @@ function UnitFrames:OnDBReady()
 end
 
 function UnitFrames:GetPlayerOptions()
-    -- Options for Player Frame
-    local options = {
-        type = "group",
-        name = "Player Frame",
-        args = {
-            position = {
-                name = "Player Frame Position",
-                type = "group",
-                inline = true,
-                order = 1,
-                args = {
-                    point = {
-                        name = "Anchor Point",
-                        type = "select",
-                        order = 1,
-                        values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
-                        get = function() return self.db.profile.position.point end,
-                        set = function(_, v) self.db.profile.position.point = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end
-                    },
-                    x = {
-                                        name = "X Offset",
-                                        type = "range",
-                                        min = -1000, max = 1000, step = 1,
-                                        order = 2,
-                                        get = function() return self.db.profile.position.x end,
-                                        set = function(_, v)
-                                            self.db.profile.position.x = v;
-                                            local frame = frames and frames.PlayerFrame
-                                            if frame then
-                                                local db = self.db.profile
-                                                local myPoint = db.position and db.position.point or "CENTER"
-                                                local px = db.position and db.position.x or 0
-                                                local py = db.position and db.position.y or 0
-                                                frame:ClearAllPoints()
-                                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
-                                            end
-                                            if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
-                                        end
-                                    },
-                                    y = {
-                                        name = "Y Offset",
-                                        type = "range",
-                                        min = -1000, max = 1000, step = 1,
-                                        order = 3,
-                                        get = function() return self.db.profile.position.y end,
-                                        set = function(_, v)
-                                            self.db.profile.position.y = v;
-                                            local frame = frames and frames.PlayerFrame
-                                            if frame then
-                                                local db = self.db.profile
-                                                local myPoint = db.position and db.position.point or "CENTER"
-                                                local px = db.position and db.position.x or 0
-                                                local py = db.position and db.position.y or 0
-                                                frame:ClearAllPoints()
-                                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
-                                            end
-                                            if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
-                                        end
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    -- target group should be a sibling of position, not inside args
+-- See UnitFrames_Player.lua for GetPlayerOptions
                                 -- ...existing code...
                                 target = {
                                     type = "group",
