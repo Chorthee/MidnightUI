@@ -22,6 +22,52 @@ local frames = {}
 
 -- Default settings
 local defaults = {
+    profile = {
+        enabled = true,
+        showPlayer = true,
+        showTarget = false,
+        showTargetTarget = false,
+        spacing = 2,
+        position = { point = "CENTER", x = 0, y = -200 },
+        health = {
+            width = 250, height = 24,
+            color = {0.2, 0.8, 0.2, 1},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT",
+            fontSize = 14,
+            fontOutline = "OUTLINE",
+            fontColor = {1, 1, 1, 1},
+            text = "[curhp] / [maxhp] ([perhp]%)",
+            textPos = "CENTER",
+            texture = "Flat",
+        },
+        power = {
+            width = 250, height = 18,
+            color = {0.2, 0.4, 1, 1},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT",
+            fontSize = 13,
+            fontOutline = "OUTLINE",
+            fontColor = {1, 1, 1, 1},
+            text = "[curpp] / [maxpp]",
+            textPos = "CENTER",
+            texture = "Flat",
+        },
+        info = {
+            enabled = true,
+            width = 250, height = 16,
+            color = {0.1, 0.1, 0.1, 0.8},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT",
+            fontSize = 12,
+            fontOutline = "OUTLINE",
+            fontColor = {1, 1, 1, 1},
+            text = "[name] - [level] [class]",
+            textPos = "CENTER",
+            texture = "Flat",
+        },
+    }
+}
 
 -- Create a single bar (health, power, info)
 local function CreateBar(parent, opts, yOffset)
