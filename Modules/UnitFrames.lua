@@ -598,9 +598,13 @@ function UnitFrames:GetPlayerOptions()
                                     },
                                 },
                             },
-                        }
-                        return options
-                    end
+                        },
+                    },
+                },
+            },
+        }
+    return options
+end
         local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
         frame.powerBar:SetMinMaxValues(0, maxpp)
         frame.powerBar:SetValue(curpp)
