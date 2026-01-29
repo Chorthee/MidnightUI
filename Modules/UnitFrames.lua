@@ -16,28 +16,17 @@ local function ParseTags(str, unit)
     local maxhp = UnitHealthMax(unit)
     local curpp = UnitPower(unit)
     local maxpp = UnitPowerMax(unit)
-    local tags = {
-        ["[curhp]"] = curhp or "",
-        ["[maxhp]"] = maxhp or "",
-        ["[curpp]"] = curpp or "",
-        ["[maxpp]"] = maxpp or "",
-        ["[name]"] = UnitName(unit) or "",
-        ["[level]"] = UnitLevel(unit) or "",
-        ["[class]"] = select(2, UnitClass(unit)) or "",
-        -- [perhp] and math-based tags removed for safety
-    }
-    local stringTags = {}
-    for tag, val in pairs(tags) do
-        if val == nil then
-            stringTags[tag] = ""
-        else
-            stringTags[tag] = tostring(val)
-        end
-    end
-    for tag, sval in pairs(stringTags) do
-        str = str:gsub(tag, sval)
-    end
+    -- Only use the always-safe gsub loop, no pre-replacement
     return (str:gsub("%[(.-)%]", function(tag)
+        -- Built-in tags
+        if tag == "curhp" then return safe(curhp) end
+        if tag == "maxhp" then return safe(maxhp) end
+        if tag == "curpp" then return safe(curpp) end
+        if tag == "maxpp" then return safe(maxpp) end
+        if tag == "name" then return safe(UnitName(unit)) end
+        if tag == "level" then return safe(UnitLevel(unit)) end
+        if tag == "class" then local _, class = UnitClass(unit); return safe(class) end
+        -- Custom tag functions
         local ok, value = pcall(function()
             if tagFuncs[tag] then
                 return tagFuncs[tag](unit)
