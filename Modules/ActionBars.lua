@@ -439,12 +439,21 @@ function AB:CreateBar(barKey, config)
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
-                -- Only snap X, preserve Y position, and add 196px for visual alignment
-                bestSnapX = (realScreenCenterX - snapReferenceX) + 196
+                -- Only snap X, preserve Y position, and dynamically correct so red dot ends at screen center
+                local initialSnapX = realScreenCenterX - snapReferenceX
+                -- Simulate where the red dot would end up after SetPoint
+                container:ClearAllPoints()
+                container:SetPoint(anchorPoint, relativeTo, relativePoint, initialSnapX, 0)
+                local simulatedDotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or snapReferenceX
+                local correction = realScreenCenterX - simulatedDotX
+                -- Restore position before final snap
+                container:ClearAllPoints()
+                -- Apply correction
+                bestSnapX = initialSnapX + correction
                 -- Calculate Y offset from current position (where dropped)
                 local _, _, _, _, currentY = container:GetPoint()
                 bestSnapY = currentY or 0
-                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, no scale, +196px visual offset)"
+                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, dynamic correction)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
