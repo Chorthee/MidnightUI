@@ -196,7 +196,7 @@ end
 
 function UnitFrames:CreatePlayerFrame()
     if not self.db.profile.showPlayer then return end
-    CreateUnitFrame(self, "PlayerFrame", "player")
+        CreateUnitFrame(self, "PlayerFrame", "player", nil, nil, nil, 0, -200)
 end
 
 
@@ -205,7 +205,7 @@ function UnitFrames:CreateTargetFrame()
     local db = self.db.profile
     local anchorTo = UIParent
     local pos = db.targetPosition or { point = "TOPLEFT", x = 320, y = 0 }
-    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
+        CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
 end
 
 function UnitFrames:CreateTargetTargetFrame()
@@ -213,7 +213,7 @@ function UnitFrames:CreateTargetTargetFrame()
     local db = self.db.profile
     local anchorTo = UIParent
     local pos = db.totPosition or { point = "TOP", x = 0, y = -20 }
-    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
+        CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
 end
 
 -- Update all bars and text
