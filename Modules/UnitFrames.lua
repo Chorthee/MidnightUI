@@ -595,39 +595,6 @@ function UnitFrames:GetOptions()
                         },
                     }
                     return options
-        frame:SetPoint(myPoint, relTo, relPoint, px, py)
-        frame:SetMovable(true)
-        frame:EnableMouse(true)
-        frame:SetClampedToScreen(true)
-        frame:SetFrameStrata("HIGH")
-        frame:Show()
-        MidnightUI:SkinFrame(frame)
-        -- DEBUG: Add a red border to the custom frame
-        frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
-        frame.debugBorder:SetAllPoints()
-        frame.debugBorder:SetColorTexture(1,0,0,0.5)
-        frame.debugBorder:SetBlendMode("ADD")
-        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y).." size "..width.."x"..totalHeight) end
-
-        local yOffset = 0
-        if h.enabled then
-            local healthBar = CreateBar(frame, h, yOffset)
-            healthBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
-            frame.healthBar = healthBar
-            yOffset = yOffset - h.height - spacing
-        end
-        if p.enabled then
-            local powerBar = CreateBar(frame, p, yOffset)
-            frame.powerBar = powerBar
-            yOffset = yOffset - p.height - spacing
-        end
-        if i.enabled then
-            local infoBar = CreateBar(frame, i, yOffset)
-            frame.infoBar = infoBar
-        end
-
-        -- Make all frames secure unit buttons for click targeting
-        if key == "PlayerFrame" then
             frame:SetAttribute("unit", "player")
             frame:SetAttribute("type", "target")
             frame:RegisterForClicks("AnyUp")
