@@ -14,10 +14,41 @@ local function HookBlizzardPlayerFrame(self)
         PlayerFrame._MidnightUIHooked = true
     end
 end
-local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
-local LSM = LibStub("LibSharedMedia-3.0")
-local frames = {}
+
+local defaults = {
+    profile = {
+        enabled = true,
+        showPlayer = true,
+        showTarget = true,
+        showTargetTarget = true,
+        spacing = 4,
+        position = { point = "CENTER", x = 0, y = -200 },
+        health = {
+            width = 220, height = 24,
+            color = {0.2, 0.8, 0.2, 1},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+            text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+            texture = "Flat"
+        },
+        power = {
+            width = 220, height = 12,
+            color = {0.2, 0.4, 0.8, 1},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+            text = "[curpp] / [maxpp]", textPos = "CENTER",
+            texture = "Flat"
+        },
+        info = {
+            enabled = true, width = 220, height = 10,
+            color = {0.8, 0.8, 0.2, 1},
+            bgColor = {0, 0, 0, 0.5},
+            font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+            text = "[name] [level] [class]", textPos = "CENTER",
+            texture = "Flat"
+        }
+    }
+}
     
     local function CreateBar(parent, opts, yOffset)
     local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
