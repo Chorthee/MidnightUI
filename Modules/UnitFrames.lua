@@ -29,8 +29,6 @@ local function ParseTags(str, unit)
         return safe(value)
     end))
 end
-    -- Tag parsing removed; overlays are now set by direct formatting functions
-    return str
 
 -- Hide Blizzard frames if custom frames are enabled
 local function SetBlizzardFramesHidden(self)
