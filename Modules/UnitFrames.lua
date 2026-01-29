@@ -1096,8 +1096,6 @@ function UnitFrames:GetOptions()
                         if tagFuncs[tag] then
                             return tagFuncs[tag](unit)
                         end
-
-                    end
                         return nil
                     end)
                     if not ok then return "" end
