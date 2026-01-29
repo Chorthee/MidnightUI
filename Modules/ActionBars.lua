@@ -345,7 +345,7 @@ function AB:CreateBar(barKey, config)
         local dot = container.dragFrame:CreateTexture(nil, "OVERLAY")
         dot:SetColorTexture(1, 0, 0, 1) -- Solid red
         dot:SetSize(10, 10)
-        dot:SetPoint("CENTER", container.dragFrame, "CENTER", 0, 0)
+        dot:SetPoint("TOP", container.dragFrame, "TOP", 0, 0)
         container.centerDot = dot
     end
     
@@ -439,12 +439,12 @@ function AB:CreateBar(barKey, config)
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
-                -- Only snap X, preserve Y position (no scale division)
-                bestSnapX = realScreenCenterX - snapReferenceX
+                -- Only snap X, preserve Y position, and add 196px for visual alignment
+                bestSnapX = (realScreenCenterX - snapReferenceX) + 196
                 -- Calculate Y offset from current position (where dropped)
                 local _, _, _, _, currentY = container:GetPoint()
                 bestSnapY = currentY or 0
-                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, no scale)"
+                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only, no scale, +196px visual offset)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
