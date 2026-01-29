@@ -58,6 +58,7 @@ local defaults = {
         targetPosition = { point = "TOPLEFT", x = 320, y = 0 }, -- Target
         totPosition = { point = "TOP", x = 0, y = -20 }, -- Target of Target
         health = {
+            enabled = true, -- NEW
             width = 220, height = 24,
             color = {0.2, 0.8, 0.2, 1},
             bgColor = {0, 0, 0, 0.5},
@@ -66,6 +67,7 @@ local defaults = {
             texture = "Flat"
         },
         power = {
+            enabled = true, -- NEW
             width = 220, height = 12,
             color = {0.2, 0.4, 0.8, 1},
             bgColor = {0, 0, 0, 0.5},
@@ -73,7 +75,6 @@ local defaults = {
             text = "[curpp] / [maxpp]", textPos = "CENTER",
             texture = "Flat"
         },
-
         info = {
             enabled = true, width = 220, height = 10,
             color = {0.8, 0.8, 0.2, 1},
@@ -129,8 +130,8 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     local db = self.db.profile
     local spacing = db.spacing
     local h, p, i = db.health, db.power, db.info
-    local totalHeight = h.height + p.height + (i.enabled and i.height or 0) + spacing * (i.enabled and 2 or 1)
-    local width = math.max(h.width, p.width, i.width or 0)
+    local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
+    local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
 
     -- Use SecureUnitButtonTemplate for all unit frames
     local frameType = "Button"
@@ -157,18 +158,20 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     frame.debugBorder:SetBlendMode("ADD")
     if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y).." size "..width.."x"..totalHeight) end
 
-    -- Health Bar
-    local healthBar = CreateBar(frame, h, 0)
-    healthBar:SetPoint("TOP", frame, "TOP", 0, 0)
-    frame.healthBar = healthBar
-
-    -- Power Bar
-    local powerBar = CreateBar(frame, p, -(h.height + spacing))
-    frame.powerBar = powerBar
-
-    -- Info Bar (optional)
+    local yOffset = 0
+    if h.enabled then
+        local healthBar = CreateBar(frame, h, yOffset)
+        healthBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
+        frame.healthBar = healthBar
+        yOffset = yOffset - h.height - spacing
+    end
+    if p.enabled then
+        local powerBar = CreateBar(frame, p, yOffset)
+        frame.powerBar = powerBar
+        yOffset = yOffset - p.height - spacing
+    end
     if i.enabled then
-        local infoBar = CreateBar(frame, i, -(h.height + p.height + spacing * 2))
+        local infoBar = CreateBar(frame, i, yOffset)
         frame.infoBar = infoBar
     end
 
@@ -613,6 +616,9 @@ function UnitFrames:GetOptions()
                 type = "group",
                 order = 10,
                 args = {
+                    enabled = { type = "toggle", name = "Show Health Bar", order = 0,
+                        get = function() return self.db.profile.health.enabled end,
+                        set = function(_,v) self.db.profile.health.enabled = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end },
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 1,
                         get = function() return self.db.profile.health.width end,
                         set = function(_, v) self.db.profile.health.width = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end },
@@ -655,6 +661,9 @@ function UnitFrames:GetOptions()
                 type = "group",
                 order = 11,
                 args = {
+                    enabled = { type = "toggle", name = "Show Power Bar", order = 0,
+                        get = function() return self.db.profile.power.enabled end,
+                        set = function(_,v) self.db.profile.power.enabled = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end },
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 1,
                         get = function() return self.db.profile.power.width end,
                         set = function(_, v) self.db.profile.power.width = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end },
