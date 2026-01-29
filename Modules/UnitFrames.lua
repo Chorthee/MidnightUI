@@ -2275,3 +2275,22 @@ function UnitFrames:GetOptions()
                                 healthBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
                                 frame.healthBar = healthBar
                                 yOffset = yOffset - h.height - spacing
+                            end
+
+                            if p.enabled then
+                                local powerBar = CreateBar(frame, p, yOffset)
+                                powerBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
+                                frame.powerBar = powerBar
+                                yOffset = yOffset - p.height - spacing
+                            end
+
+                            if i.enabled then
+                                local infoBar = CreateBar(frame, i, yOffset)
+                                infoBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
+                                frame.infoBar = infoBar
+                                yOffset = yOffset - i.height - spacing
+                            end
+
+                            frames[key] = frame
+                            return frame
+                        end
