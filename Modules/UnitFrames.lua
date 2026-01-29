@@ -8,6 +8,9 @@ local frames = {}
 local defaults = {
     profile = {
         enabled = true,
+        showPlayer = true,
+        showTarget = false,
+        showTargetTarget = false,
         spacing = 2,
         position = { point = "CENTER", x = 0, y = -200 },
         health = {
@@ -120,17 +123,19 @@ local function CreateBar(parent, opts, yOffset)
 end
 
 -- Create the PlayerFrame
-function UnitFrames:CreatePlayerFrame()
-    if frames.player then return end
+
+-- Generic frame creation for any unit
+local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
+    if frames[key] then return end
     local db = self.db.profile
     local spacing = db.spacing
     local h, p, i = db.health, db.power, db.info
     local totalHeight = h.height + p.height + (i.enabled and i.height or 0) + spacing * (i.enabled and 2 or 1)
     local width = math.max(h.width, p.width, i.width or 0)
 
-    local frame = CreateFrame("Frame", "MidnightUI_PlayerFrame", UIParent, "BackdropTemplate")
+    local frame = CreateFrame("Frame", "MidnightUI_"..key, UIParent, "BackdropTemplate")
     frame:SetSize(width, totalHeight)
-    frame:SetPoint(db.position.point, UIParent, db.position.point, db.position.x, db.position.y)
+    frame:SetPoint(anchorPoint or db.position.point, anchorTo or UIParent, anchorPoint or db.position.point, x or db.position.x, y or db.position.y)
     frame:SetMovable(true)
     frame:EnableMouse(true)
     frame:SetClampedToScreen(true)
@@ -151,63 +156,86 @@ function UnitFrames:CreatePlayerFrame()
         frame.infoBar = infoBar
     end
 
-    frames.player = frame
-    self:UpdatePlayerFrame()
+    frames[key] = frame
+    self:UpdateUnitFrame(key, unit)
+end
+
+function UnitFrames:CreatePlayerFrame()
+    if not self.db.profile.showPlayer then return end
+    CreateUnitFrame(self, "PlayerFrame", "player")
+end
+
+function UnitFrames:CreateTargetFrame()
+    if not self.db.profile.showTarget then return end
+    -- Anchor to right of player frame if exists
+    local anchorTo, x = frames.PlayerFrame, 320
+    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, "TOPLEFT", "TOPRIGHT", x, 0)
+end
+
+function UnitFrames:CreateTargetTargetFrame()
+    if not self.db.profile.showTargetTarget then return end
+    -- Anchor to below target frame if exists
+    local anchorTo = frames.TargetFrame
+    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, "TOP", "BOTTOM", 0, -20)
 end
 
 -- Update all bars and text
-function UnitFrames:UpdatePlayerFrame()
+
+function UnitFrames:UpdateUnitFrame(key, unit)
     local db = self.db.profile
-    local frame = frames.player
+    local frame = frames[key]
     if not frame then return end
     local h, p, i = db.health, db.power, db.info
 
     -- Health
-    local curhp, maxhp = UnitHealth("player"), UnitHealthMax("player")
+    local curhp, maxhp = UnitHealth(unit), UnitHealthMax(unit)
     frame.healthBar:SetMinMaxValues(0, maxhp)
     frame.healthBar:SetValue(curhp)
     frame.healthBar.text:SetFont(LSM:Fetch("font", h.font), h.fontSize, h.fontOutline)
     frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
-    frame.healthBar.text:SetText(ParseTags(h.text, "player"))
+    frame.healthBar.text:SetText(ParseTags(h.text, unit))
 
     -- Power
-    local curpp, maxpp = UnitPower("player"), UnitPowerMax("player")
+    local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
     frame.powerBar:SetMinMaxValues(0, maxpp)
     frame.powerBar:SetValue(curpp)
     frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
     frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
-    frame.powerBar.text:SetText(ParseTags(p.text, "player"))
+    frame.powerBar.text:SetText(ParseTags(p.text, unit))
 
     -- Info
     if frame.infoBar then
         frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
         frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
-        frame.infoBar.text:SetText(ParseTags(i.text, "player"))
+        frame.infoBar.text:SetText(ParseTags(i.text, unit))
     end
 end
 
 -- Event-driven updates
+
 function UnitFrames:PLAYER_ENTERING_WORLD()
-    self:CreatePlayerFrame()
-    self:UpdatePlayerFrame()
+    if self.db.profile.showPlayer then self:CreatePlayerFrame() end
+    if self.db.profile.showTarget then self:CreateTargetFrame() end
+    if self.db.profile.showTargetTarget then self:CreateTargetTargetFrame() end
 end
 
+
 function UnitFrames:UNIT_HEALTH(event, unit)
-    if unit == "player" then
-        self:UpdatePlayerFrame()
-    end
+    if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
+    if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
+    if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
 end
 
 function UnitFrames:UNIT_POWER_UPDATE(event, unit)
-    if unit == "player" then
-        self:UpdatePlayerFrame()
-    end
+    if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
+    if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
+    if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
 end
 
 function UnitFrames:UNIT_DISPLAYPOWER(event, unit)
-    if unit == "player" then
-        self:UpdatePlayerFrame()
-    end
+    if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
+    if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
+    if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
 end
 
 -- Integration with MidnightUI
@@ -269,6 +297,27 @@ function UnitFrames:GetOptions()
                 order = 1,
                 get = function() return self.db.profile.enabled end,
                 set = function(_, v) self.db.profile.enabled = v; ReloadUI() end
+            },
+            showPlayer = {
+                name = "Show Player Frame",
+                type = "toggle",
+                order = 2,
+                get = function() return self.db.profile.showPlayer end,
+                set = function(_, v) self.db.profile.showPlayer = v; ReloadUI() end
+            },
+            showTarget = {
+                name = "Show Target Frame",
+                type = "toggle",
+                order = 3,
+                get = function() return self.db.profile.showTarget end,
+                set = function(_, v) self.db.profile.showTarget = v; ReloadUI() end
+            },
+            showTargetTarget = {
+                name = "Show Target of Target Frame",
+                type = "toggle",
+                order = 4,
+                get = function() return self.db.profile.showTargetTarget end,
+                set = function(_, v) self.db.profile.showTargetTarget = v; ReloadUI() end
             },
             spacing = {
                 name = "Bar Spacing",
