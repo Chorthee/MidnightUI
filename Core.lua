@@ -178,8 +178,6 @@ function MidnightUI:GetOptions()
         
         if module.GetOptions and self.db.profile.modules[dbKey] then
             local displayName = name
-            
-            -- RENAME LOGIC FOR DISPLAY
             if name == "UIButtons" then 
                 displayName = "UI Buttons"
             elseif name == "Skin" then
@@ -187,10 +185,15 @@ function MidnightUI:GetOptions()
             elseif name == "Bar" then 
                 displayName = "Data Brokers"
             end
-            
-            options.args[name] = module:GetOptions()
-            options.args[name].name = displayName
-            options.args[name].order = 10
+            if name == "UnitFrames" then
+                options.args.unitframes = module:GetOptions()
+                options.args.unitframes.name = "Unit Frames"
+                options.args.unitframes.order = 8
+            else
+                options.args[name] = module:GetOptions()
+                options.args[name].name = displayName
+                options.args[name].order = 10
+            end
         end
     end
     

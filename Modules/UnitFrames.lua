@@ -6,7 +6,36 @@ local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3
 _G.UnitFrames = UnitFrames
 local LSM = LibStub("LibSharedMedia-3.0")
 
+
 local frames = {}
+
+function UnitFrames:GetOptions()
+    return {
+        name = "Unit Frames",
+        type = "group",
+        childGroups = "tab",
+        args = {
+            player = {
+                name = "Player",
+                type = "group",
+                order = 1,
+                args = self.GetPlayerOptions_Real and self:GetPlayerOptions_Real().args or {},
+            },
+            target = {
+                name = "Target",
+                type = "group",
+                order = 2,
+                args = self.GetTargetOptions_Real and self:GetTargetOptions_Real().args or {},
+            },
+            targettarget = {
+                name = "Target of Target",
+                type = "group",
+                order = 3,
+                args = self.GetTargetTargetOptions_Real and self:GetTargetTargetOptions_Real().args or {},
+            },
+        },
+    }
+end
 
 function UnitFrames:GetPlayerOptions()
     if self.GetPlayerOptions_Real then
