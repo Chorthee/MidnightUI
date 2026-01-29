@@ -39,6 +39,7 @@ local defaults = {
             text = "[curpp] / [maxpp]", textPos = "CENTER",
             texture = "Flat"
         },
+
         info = {
             enabled = true, width = 220, height = 10,
             color = {0.8, 0.8, 0.2, 1},
@@ -48,9 +49,15 @@ local defaults = {
             texture = "Flat"
         }
     }
+
 }
-    
-    local function CreateBar(parent, opts, yOffset)
+
+local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
+local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
+local LSM = LibStub("LibSharedMedia-3.0")
+local frames = {}
+
+local function CreateBar(parent, opts, yOffset)
     local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
     bar:SetStatusBarTexture(LSM:Fetch("statusbar", opts.texture or "Flat"))
     bar:SetStatusBarColor(unpack(opts.color))
