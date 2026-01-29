@@ -238,10 +238,11 @@ end
 -- Event-driven updates
 
 function UnitFrames:PLAYER_ENTERING_WORLD()
+    print("[MidnightUI] UnitFrames: PLAYER_ENTERING_WORLD fired")
     HookBlizzardPlayerFrame(self)
-    if self.db.profile.showPlayer then self:CreatePlayerFrame() end
-    if self.db.profile.showTarget then self:CreateTargetFrame() end
-    if self.db.profile.showTargetTarget then self:CreateTargetTargetFrame() end
+    if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
+    if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
+    if self.db.profile.showTargetTarget then print("[MidnightUI] Creating TargetTargetFrame"); self:CreateTargetTargetFrame() end
     SetBlizzardFramesHidden(self)
 end
 
@@ -273,13 +274,14 @@ function UnitFrames:OnInitialize()
 end
 
 function UnitFrames:OnDBReady()
-    if not MidnightUI.db.profile.modules.unitframes then return end
+    print("[MidnightUI] UnitFrames:OnDBReady called")
+    if not MidnightUI.db.profile.modules.unitframes then print("[MidnightUI] UnitFrames module disabled in profile"); return end
     self.db = MidnightUI.db:RegisterNamespace("UnitFrames", defaults)
+    print("[MidnightUI] UnitFrames: Registered namespace and events")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
-    -- Also hide Blizzard frames on config change
 end
 
 function UnitFrames:GetOptions()
