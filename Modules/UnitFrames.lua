@@ -225,6 +225,15 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     if not frame then return end
     local h, p, i = db.health, db.power, db.info
 
+    -- Special logic for TargetFrame: only show if target exists
+    if key == "TargetFrame" then
+        if not UnitExists("target") then
+            frame:Hide()
+            return
+        else
+            frame:Show()
+        end
+    end
     -- Special logic for Target of Target: only show if targettarget exists
     if key == "TargetTargetFrame" then
         if not UnitExists("targettarget") then
