@@ -1,6 +1,7 @@
 -- MidnightUI UnitFrames: Player Frame Module
 
 
+local UnitFrames = UnitFrames or _G.UnitFrames
 function UnitFrames:GetPlayerOptions_Real()
     -- Player frame options table
     local options = {
