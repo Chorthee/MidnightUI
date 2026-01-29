@@ -409,10 +409,7 @@ function UnitFrames:GetPlayerOptions()
                             },
                         },
                     },
-                target = {
-                        type = "group",
-                        name = "Target",
-                        -- ...existing code...
+                    -- target group should be a sibling of position, not inside args
                                                 local frame = frames and frames.PlayerFrame
                                                 if frame then
                                                     local db = self.db.profile
