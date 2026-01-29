@@ -11,98 +11,13 @@
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 local LSM = LibStub("LibSharedMedia-3.0")
-local frames = {}
-
-local function CreateBar(parent, opts, yOffset)
-    local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
-    bar:SetStatusBarTexture(LSM:Fetch("statusbar", opts.texture or "Flat"))
-    bar:SetStatusBarColor(unpack(opts.color))
-    bar:SetMinMaxValues(0, 1)
-    bar:SetValue(1)
-    bar:SetHeight(opts.height)
-    bar:SetWidth(opts.width)
-    bar:SetPoint("LEFT", 0, 0)
-    bar:SetPoint("RIGHT", 0, 0)
-    bar:SetPoint("TOP", 0, yOffset)
-    bar.bg = bar:CreateTexture(nil, "BACKGROUND")
-    bar.bg:SetAllPoints()
-    bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
-    bar.text = bar:CreateFontString(nil, "OVERLAY")
-    bar.text:SetFont(LSM:Fetch("font", opts.font), opts.fontSize, opts.fontOutline)
-    bar.text:SetTextColor(unpack(opts.fontColor or {1,1,1,1}))
-    if opts.textPos == "LEFT" then
-        bar.text:SetPoint("LEFT", 4, 0)
-        bar.text:SetJustifyH("LEFT")
-    elseif opts.textPos == "RIGHT" then
-        bar.text:SetPoint("RIGHT", -4, 0)
-        bar.text:SetJustifyH("RIGHT")
-    else
-        bar.text:SetPoint("CENTER")
-        bar.text:SetJustifyH("CENTER")
+function UnitFrames:GetPlayerOptions()
+    if self.GetPlayerOptions_Real then
+        return self:GetPlayerOptions_Real()
     end
-    return bar
+    return nil
 end
-
--- Create the PlayerFrame
-
--- Generic frame creation for any unit
-local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
-    if frames[key] then return end
-    local db = self.db.profile
-    local spacing = db.spacing
-    local h, p, i = db.health, db.power, db.info
-    local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
-    local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
-
-    -- Use SecureUnitButtonTemplate for all unit frames
-    local frameType = "Button"
-    local template = "SecureUnitButtonTemplate,BackdropTemplate"
-    local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
-    frame:SetSize(width, totalHeight)
-    -- Ensure anchorTo is always a frame, never a string
-    local myPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
-    local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
-    local relPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
-    local px = x or (db.position and db.position.x) or 0
-    local py = y or (db.position and db.position.y) or 0
-    frame:SetPoint(myPoint, relTo, relPoint, px, py)
-    frame:SetMovable(true)
-    frame:EnableMouse(true)
-    frame:SetClampedToScreen(true)
-    frame:SetFrameStrata("HIGH")
-    frame:Show()
-    MidnightUI:SkinFrame(frame)
-    -- DEBUG: Add a red border to the custom frame
-    frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
-    frame.debugBorder:SetAllPoints()
-    frame.debugBorder:SetColorTexture(1,0,0,0.5)
-    frame.debugBorder:SetBlendMode("ADD")
-    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y).." size "..width.."x"..totalHeight) end
-
-    local yOffset = 0
-    if h.enabled then
-        local healthBar = CreateBar(frame, h, yOffset)
-        healthBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
-        frame.healthBar = healthBar
-        yOffset = yOffset - h.height - spacing
-    end
-    if p.enabled then
-        local powerBar = CreateBar(frame, p, yOffset)
-        frame.powerBar = powerBar
-        yOffset = yOffset - p.height - spacing
-    end
-    if i.enabled then
-        local infoBar = CreateBar(frame, i, yOffset)
-        frame.infoBar = infoBar
-    end
-
-    -- Make all frames secure unit buttons for click targeting
-    if key == "PlayerFrame" then
-        frame:SetAttribute("unit", "player")
-        frame:SetAttribute("type", "target")
-        frame:RegisterForClicks("AnyUp")
-    elseif key == "TargetFrame" then
-        frame:SetAttribute("unit", "target")
+-- ...existing code...
         frame:SetAttribute("type", "target")
         frame:RegisterForClicks("AnyUp")
     elseif key == "TargetTargetFrame" then
