@@ -1,6 +1,7 @@
 -- Helper: Safe number
 local function safe(val)
-    if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
+    if type(val) ~= "number" or not val then return 0 end
+    if val ~= val or val == math.huge or val == -math.huge then return 0 end
     return val
 end
 
