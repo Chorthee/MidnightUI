@@ -31,8 +31,7 @@ end
             local infoStr = string.format("%s %s %s", name, level, class)
             frame.infoBar.text:SetText(infoStr)
         end
-    end
-
+    
     -- Event-driven updates
 
     function UnitFrames:PLAYER_ENTERING_WORLD()
