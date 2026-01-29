@@ -364,39 +364,7 @@ function AB:CreateBar(barKey, config)
     end)
     container.dragFrame:SetScript("OnDragStop", function(self)
         container:StopMovingOrSizing()
-        -- Snap to center and other bars if move mode active
-        if MidnightUI.moveMode then
-            local point, relativeTo, relativePoint, x, y = container:GetPoint()
-            container:StopMovingOrSizing()
-            -- All snapping logic is disabled. Bar will remain exactly where dropped.
-            AB:SaveBarPosition(barKey)
-                anchorPoint, relativeTo, relativePoint = container:GetPoint()
-                if not relativeTo then relativeTo = UIParent end
-                if not anchorPoint then anchorPoint = "CENTER" end
-                if not relativePoint then relativePoint = anchorPoint end
-            end
-            if alignX and alignTo then
-                local parentLeft = (relativeTo and relativeTo.GetLeft) and relativeTo:GetLeft() or (UIParent:GetLeft() or 0)
-                if alignTo == "left" and math.abs(selfRight - alignX) < snapThreshold then
-                    finalX = alignX - parentLeft - selfWidth + (selfRight - selfLeft)
-                elseif alignTo == "right" and math.abs(selfLeft - alignX) < snapThreshold then
-                    finalX = alignX - parentLeft
-                end
-            end
-            -- Debug print to chat
-            if snapDebug and DEFAULT_CHAT_FRAME then
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] " .. barKey .. " " .. snapDebug)
-            end
-            container:ClearAllPoints()
-            container:SetPoint(anchorPoint, relativeTo, relativePoint, finalX, finalY)
-            -- Debug: print SetPoint args and stack for all other snaps
-            if DEFAULT_CHAT_FRAME then
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(finalX)..", "..tostring(finalY))
-                local p, relTo, relP, px, py = container:GetPoint()
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
-            end
-        end
+        -- All snapping logic is disabled. Bar will remain exactly where dropped.
         AB:SaveBarPosition(barKey)
     end)
     container.dragFrame:SetScript("OnMouseUp", function(self, button)
