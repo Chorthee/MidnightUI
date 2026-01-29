@@ -461,29 +461,32 @@ function AB:CreateBar(barKey, config)
                     local uiRight = UIParent:GetRight()
                     local uiTop = UIParent:GetTop()
                     local uiBottom = UIParent:GetBottom()
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][UIParentCoords] left="..tostring(uiLeft)..", right="..tostring(uiRight)..", top="..tostring(uiTop)..", bottom="..tostring(uiBottom))
+                    local uiParentScale = UIParent:GetEffectiveScale()
+                    local containerScale = container:GetEffectiveScale()
+                    local contLeft, contRight = container:GetLeft(), container:GetRight()
+                    local contWidth = contLeft and contRight and (contRight - contLeft) or "nil"
+                    local dotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or "nil"
+                    local dotY = container.centerDot and container.centerDot:GetTop() and (container.centerDot:GetTop() - container.centerDot:GetHeight()/2) or "nil"
+                    local mouseX, mouseY = GetCursorPosition()
+                    local scaledMouseX = mouseX / (uiParentScale or 1)
+                    local barWidth = container:GetRight() and container:GetLeft() and (container:GetRight() - container:GetLeft()) or "nil"
                     local p, relTo, relP, px, py = container:GetPoint()
                     local parent = container:GetParent()
                     local parentName = parent and parent:GetName() or "nil"
-                    local containerScale = container:GetEffectiveScale()
-                    local parentScale = parent and parent.GetEffectiveScale and parent:GetEffectiveScale() or "nil"
-                    local uiParentScale = UIParent:GetEffectiveScale()
-                    local barWidth = container:GetRight() and container:GetLeft() and (container:GetRight() - container:GetLeft()) or "nil"
-                    local dotX = container.centerDot and container.centerDot:GetLeft() and (container.centerDot:GetLeft() + container.centerDot:GetWidth()/2) or "nil"
-                    -- Print container and MainMenuBar frame geometry for centering diagnosis
-                    local contLeft, contRight = container:GetLeft(), container:GetRight()
-                    local contWidth = contLeft and contRight and (contRight - contLeft) or "nil"
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container left="..tostring(contLeft)..", right="..tostring(contRight)..", width="..tostring(contWidth))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][UIParentCoords] left="..tostring(uiLeft)..", right="..tostring(uiRight)..", top="..tostring(uiTop)..", bottom="..tostring(uiBottom)..", scale="..tostring(uiParentScale))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][Container] left="..tostring(contLeft)..", right="..tostring(contRight)..", width="..tostring(contWidth)..", scale="..tostring(containerScale))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][RedDot] centerX="..tostring(dotX)..", centerY="..tostring(dotY))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][Mouse] rawX="..tostring(mouseX)..", rawY="..tostring(mouseY)..", scaledX="..tostring(scaledMouseX))
                     if container.blizzBar then
                         local barLeft, barRight = container.blizzBar:GetLeft(), container.blizzBar:GetRight()
                         local barWidth2 = barLeft and barRight and (barRight - barLeft) or "nil"
-                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] MainMenuBar left="..tostring(barLeft)..", right="..tostring(barRight)..", width="..tostring(barWidth2))
+                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][MainMenuBar] left="..tostring(barLeft)..", right="..tostring(barRight)..", width="..tostring(barWidth2))
                     end
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] After SetPoint: point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Container parent="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parentScale)..", UIParent scale="..tostring(uiParentScale))
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Bar width after SetPoint: "..tostring(barWidth))
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Red dot center X after SetPoint: "..tostring(dotX).." (should match realScreenCenterX="..tostring(realScreenCenterX)..")")
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] debugstack after SetPoint:\n"..debugstack(2, 10, 10))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][SetPoint] point="..tostring(p)..", relativeTo="..tostring(relTo and relTo:GetName() or "nil")..", relativePoint="..tostring(relP)..", x="..tostring(px)..", y="..tostring(py))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][Parent] name="..parentName..", container scale="..tostring(containerScale)..", parent scale="..tostring(parent and parent.GetEffectiveScale and parent:GetEffectiveScale() or "nil")..", UIParent scale="..tostring(uiParentScale))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][Bar] width after SetPoint: "..tostring(barWidth))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][RedDot] center X after SetPoint: "..tostring(dotX).." (should match realScreenCenterX="..tostring(realScreenCenterX)..")")
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DebugStack] after SetPoint:\n"..debugstack(2, 10, 10))
                 end
                 AB:SaveBarPosition(barKey)
                 return
