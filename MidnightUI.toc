@@ -44,5 +44,8 @@ Modules\UIButtons.lua
 Modules\Tweaks.lua
 Modules\Maps.lua
 Modules\ActionBars.lua
+Modules\Frames\Player.lua
+Modules\Frames\Target.lua
+Modules\Frames\TargetTarget.lua
 Modules\UnitFrames.lua
 Modules\Cooldowns.lua

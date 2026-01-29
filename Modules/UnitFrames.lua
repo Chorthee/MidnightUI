@@ -1,12 +1,7 @@
 -- Modular UnitFrames: Load separate option files
 
 -- Modular UnitFrames: Load separate option files from Frames subfolder
-local playerOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/Player.lua"))
-if playerOptions then playerOptions() end
-local targetOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/Target.lua"))
-if targetOptions then targetOptions() end
-local targetTargetOptions = assert(loadfile("Interface/AddOns/MidnightUI/Modules/Frames/TargetTarget.lua"))
-if targetTargetOptions then targetTargetOptions() end
+-- The Player, Target, and TargetTarget option files are loaded via the TOC and available globally.
 
 -- Helper: Safe number
 -- Remove tag parsing helpers; use direct formatting functions instead
