@@ -132,7 +132,13 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
 
     local frame = CreateFrame("Frame", "MidnightUI_"..key, UIParent, "BackdropTemplate")
     frame:SetSize(width, totalHeight)
-    frame:SetPoint(anchorPoint or db.position.point, anchorTo or UIParent, anchorPoint or db.position.point, x or db.position.x, y or db.position.y)
+    -- Ensure anchor points are always valid strings
+    local myPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
+    local relTo = anchorTo or UIParent
+    local relPoint = anchorPoint or (db.position and db.position.point) or "CENTER"
+    local px = x or (db.position and db.position.x) or 0
+    local py = y or (db.position and db.position.y) or 0
+    frame:SetPoint(myPoint, relTo, relPoint, px, py)
     frame:SetMovable(true)
     frame:EnableMouse(true)
     frame:SetClampedToScreen(true)
