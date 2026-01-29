@@ -408,7 +408,8 @@ function UnitFrames:GetPlayerOptions()
                             },
                         },
                     },
-                    target = {
+                },
+                target = {
                         type = "group",
                         name = "Target",
                         order = 2,
