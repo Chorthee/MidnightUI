@@ -65,12 +65,6 @@ end
         end
     end
 
-
-    local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-    local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
-    local LSM = LibStub("LibSharedMedia-3.0")
-    local frames = {}
-
     local defaults = {
         profile = {
             enabled = true,
