@@ -21,7 +21,8 @@ local function ParseTags(str, unit)
         -- [perhp] and math-based tags removed for safety
     }
     for tag, val in pairs(tags) do
-        str = str:gsub(tag, tostring(val or ""))
+        if val == nil then val = "" end
+        str = str:gsub(tag, tostring(val))
     end
     return str
 end
