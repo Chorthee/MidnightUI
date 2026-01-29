@@ -104,8 +104,8 @@ local function ParseTags(str, unit)
     for tag, val in pairs(tags) do
         str = str:gsub(tag, tostring(val))
     end
-    return str
-end
+        return str
+                showTargetTarget = {
 
 -- Create a single bar (health, power, info)
 local function CreateBar(parent, opts, yOffset)
