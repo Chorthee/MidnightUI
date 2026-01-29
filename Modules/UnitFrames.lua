@@ -175,12 +175,15 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     -- Make all frames secure unit buttons for click targeting
     if key == "PlayerFrame" then
         frame:SetAttribute("unit", "player")
+        frame:SetAttribute("type", "target")
         frame:RegisterForClicks("AnyUp")
     elseif key == "TargetFrame" then
         frame:SetAttribute("unit", "target")
+        frame:SetAttribute("type", "target")
         frame:RegisterForClicks("AnyUp")
     elseif key == "TargetTargetFrame" then
         frame:SetAttribute("unit", "targettarget")
+        frame:SetAttribute("type", "target")
         frame:RegisterForClicks("AnyUp")
     end
 
