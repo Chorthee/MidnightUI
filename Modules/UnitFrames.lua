@@ -346,7 +346,54 @@ function UnitFrames:GetOptions()
                 get = function() return self.db.profile.showTarget end,
                 set = function(_, v) self.db.profile.showTarget = v; ReloadUI() end
             },
-            -- ...existing code...
+            showTargetTarget = {
+                name = "Show Target of Target Frame",
+                type = "toggle",
+                order = 4,
+                get = function() return self.db.profile.showTargetTarget end,
+                set = function(_, v) self.db.profile.showTargetTarget = v; ReloadUI() end
+            },
+            spacing = {
+                name = "Bar Spacing",
+                type = "range",
+                min = 0, max = 20, step = 1,
+                order = 5,
+                get = function() return self.db.profile.spacing end,
+                set = function(_, v) self.db.profile.spacing = v; self:UpdatePlayerFrame() end
+            },
+            position = {
+                name = "Frame Position",
+                type = "group",
+                inline = true,
+                order = 6,
+                args = {
+                    point = {
+                        name = "Anchor Point",
+                        type = "select",
+                        order = 1,
+                        values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
+                        get = function() return self.db.profile.position.point end,
+                        set = function(_, v) self.db.profile.position.point = v; self:UpdatePlayerFrame() end
+                    },
+                    x = {
+                        name = "X Offset",
+                        type = "range",
+                        min = -1000, max = 1000, step = 1,
+                        order = 2,
+                        get = function() return self.db.profile.position.x end,
+                        set = function(_, v) self.db.profile.position.x = v; self:UpdatePlayerFrame() end
+                    },
+                    y = {
+                        name = "Y Offset",
+                        type = "range",
+                        min = -1000, max = 1000, step = 1,
+                        order = 3,
+                        get = function() return self.db.profile.position.y end,
+                        set = function(_, v) self.db.profile.position.y = v; self:UpdatePlayerFrame() end
+                    },
+                },
+            },
+            -- ...add any other options here...
         },
     }
 end
