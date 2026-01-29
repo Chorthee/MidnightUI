@@ -338,37 +338,7 @@ local function ParseTags(str, unit)
         str = str:gsub(tag, tostring(val))
     end
     return str
-                    color = colorOpt("Bar Color", nil,
-                        function() return unpack(self.db.profile.health.color) end,
-                        function(_,r,g,b,a) self.db.profile.health.color = {r,g,b,a}; self:UpdatePlayerFrame() end, 3),
-                    bgColor = colorOpt("Background Color", nil,
-                        function() return unpack(self.db.profile.health.bgColor) end,
-                        function(_,r,g,b,a) self.db.profile.health.bgColor = {r,g,b,a}; self:UpdatePlayerFrame() end, 4),
-                    font = fontOpt("Font",
-                        function() return self.db.profile.health.font end,
-                        function(_,v) self.db.profile.health.font = v; self:UpdatePlayerFrame() end, 5),
-                    fontSize = { type = "range", name = "Font Size", min = 8, max = 32, step = 1, order = 6,
-                        get = function() return self.db.profile.health.fontSize end,
-                        set = function(_,v) self.db.profile.health.fontSize = v; self:UpdatePlayerFrame() end },
-                    fontOutline = { type = "select", name = "Font Outline", order = 7,
-                        values = {NONE="NONE",OUTLINE="OUTLINE",THICKOUTLINE="THICKOUTLINE"},
-                        get = function() return self.db.profile.health.fontOutline end,
-                        set = function(_,v) self.db.profile.health.fontOutline = v; self:UpdatePlayerFrame() end },
-                    fontColor = colorOpt("Font Color", nil,
-                        function() return unpack(self.db.profile.health.fontColor) end,
-                        function(_,r,g,b,a) self.db.profile.health.fontColor = {r,g,b,a}; self:UpdatePlayerFrame() end, 8),
-                    text = { type = "input", name = "Text Format", order = 9,
-                        get = function() return self.db.profile.health.text end,
-                        set = function(_,v) self.db.profile.health.text = v; self:UpdatePlayerFrame() end },
-                    textPos = { type = "select", name = "Text Position", order = 10,
-                        values = {LEFT="LEFT",CENTER="CENTER",RIGHT="RIGHT"},
-                        get = function() return self.db.profile.health.textPos end,
-                        set = function(_,v) self.db.profile.health.textPos = v; self:UpdatePlayerFrame() end },
-                    texture = texOpt("Bar Texture",
-                        function() return self.db.profile.health.texture end,
-                        function(_,v) self.db.profile.health.texture = v; self:UpdatePlayerFrame() end, 11),
-                }
-            },
+end
             power = {
                 name = "Power Bar",
                 type = "group",
