@@ -1,8 +1,18 @@
 -- Hide Blizzard frames if custom frames are enabled
 local function SetBlizzardFramesHidden(self)
-    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide() else if PlayerFrame then PlayerFrame:Show() end end
-    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide() else if TargetFrame then TargetFrame:Show() end end
-    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide() else if TargetFrameToT then TargetFrameToT:Show() end end
+    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide() end
+    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide() end
+    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide() end
+end
+
+-- Keep Blizzard PlayerFrame hidden if custom is enabled
+local function HookBlizzardPlayerFrame(self)
+    if PlayerFrame and not PlayerFrame._MidnightUIHooked then
+        hooksecurefunc(PlayerFrame, "Show", function()
+            if self.db and self.db.profile and self.db.profile.showPlayer then PlayerFrame:Hide() end
+        end)
+        PlayerFrame._MidnightUIHooked = true
+    end
 end
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
@@ -148,7 +158,12 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     frame:SetFrameStrata("HIGH")
     frame:Show()
     MidnightUI:SkinFrame(frame)
-    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y)) end
+    -- DEBUG: Add a red border to the custom frame
+    frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
+    frame.debugBorder:SetAllPoints()
+    frame.debugBorder:SetColorTexture(1,0,0,0.5)
+    frame.debugBorder:SetBlendMode("ADD")
+    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y).." size "..width.."x"..totalHeight) end
 
     -- Health Bar
     local healthBar = CreateBar(frame, h, 0)
@@ -223,6 +238,7 @@ end
 -- Event-driven updates
 
 function UnitFrames:PLAYER_ENTERING_WORLD()
+    HookBlizzardPlayerFrame(self)
     if self.db.profile.showPlayer then self:CreatePlayerFrame() end
     if self.db.profile.showTarget then self:CreateTargetFrame() end
     if self.db.profile.showTargetTarget then self:CreateTargetTargetFrame() end
