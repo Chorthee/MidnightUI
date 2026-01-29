@@ -346,37 +346,42 @@ function UnitFrames:GetOptions()
                 get = function() return self.db.profile.showTarget end,
                 set = function(_, v) self.db.profile.showTarget = v; ReloadUI() end
             },
-        local function safe(val)
-            if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
-            return val
-        end
-        local function ParseTags(str, unit)
-            local curhp = safe(UnitHealth(unit))
-            local maxhp = safe(UnitHealthMax(unit))
-            local perhp = maxhp > 0 and math.floor((curhp / maxhp) * 100) or 0
-            local curpp = safe(UnitPower(unit))
-            local maxpp = safe(UnitPowerMax(unit))
-            local tags = {
-                ["[curhp]"] = curhp,
-                ["[maxhp]"] = maxhp,
-                ["[perhp]"] = perhp,
-                ["[curpp]"] = curpp,
-                ["[maxpp]"] = maxpp,
-                ["[name]"] = UnitName(unit) or "",
-                ["[level]"] = UnitLevel(unit) or "",
-                ["[class]"] = select(2, UnitClass(unit)) or "",
-                ["[shortcurhp]"] = ShortValue(curhp),
-                ["[shortmaxhp]"] = ShortValue(maxhp),
-                ["[shortcurpp]"] = ShortValue(curpp),
-                ["[shortmaxpp]"] = ShortValue(maxpp),
-                ["[classcolor]"] = ClassColor(unit),
-                ["[close]"] = "|r",
-            }
-            for tag, val in pairs(tags) do
-                str = str:gsub(tag, tostring(val))
-            end
-            return str
-        end
+            -- ...existing code...
+        },
+    }
+end
+
+local function safe(val)
+    if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
+    return val
+end
+local function ParseTags(str, unit)
+    local curhp = safe(UnitHealth(unit))
+    local maxhp = safe(UnitHealthMax(unit))
+    local perhp = maxhp > 0 and math.floor((curhp / maxhp) * 100) or 0
+    local curpp = safe(UnitPower(unit))
+    local maxpp = safe(UnitPowerMax(unit))
+    local tags = {
+        ["[curhp]"] = curhp,
+        ["[maxhp]"] = maxhp,
+        ["[perhp]"] = perhp,
+        ["[curpp]"] = curpp,
+        ["[maxpp]"] = maxpp,
+        ["[name]"] = UnitName(unit) or "",
+        ["[level]"] = UnitLevel(unit) or "",
+        ["[class]"] = select(2, UnitClass(unit)) or "",
+        ["[shortcurhp]"] = ShortValue(curhp),
+        ["[shortmaxhp]"] = ShortValue(maxhp),
+        ["[shortcurpp]"] = ShortValue(curpp),
+        ["[shortmaxpp]"] = ShortValue(maxpp),
+        ["[classcolor]"] = ClassColor(unit),
+        ["[close]"] = "|r",
+    }
+    for tag, val in pairs(tags) do
+        str = str:gsub(tag, tostring(val))
+    end
+    return str
+end
             },
             showTargetTarget = {
                 name = "Show Target of Target Frame",
