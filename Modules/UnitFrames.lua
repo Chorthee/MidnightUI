@@ -300,6 +300,12 @@ function UnitFrames:UNIT_DISPLAYPOWER(event, unit)
     SetBlizzardFramesHidden(self)
 end
 
+function UnitFrames:UNIT_TARGET(event, unit)
+    if unit == "target" and self.db.profile.showTargetTarget then
+        self:UpdateUnitFrame("TargetTargetFrame", "targettarget")
+    end
+end
+
 -- Integration with MidnightUI
 function UnitFrames:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
@@ -315,6 +321,7 @@ function UnitFrames:OnDBReady()
     self:RegisterEvent("UNIT_POWER_UPDATE")
     self:RegisterEvent("UNIT_DISPLAYPOWER")
     self:RegisterEvent("PLAYER_TARGET_CHANGED")
+    self:RegisterEvent("UNIT_TARGET")
     -- Only now call PLAYER_ENTERING_WORLD logic
     self:PLAYER_ENTERING_WORLD()
 end
