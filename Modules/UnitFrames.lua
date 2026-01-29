@@ -54,7 +54,9 @@ local defaults = {
         showTarget = true,
         showTargetTarget = true,
         spacing = 4,
-        position = { point = "CENTER", x = 0, y = -200 },
+        position = { point = "CENTER", x = 0, y = -200 }, -- Player
+        targetPosition = { point = "TOPLEFT", x = 320, y = 0 }, -- Target
+        totPosition = { point = "TOP", x = 0, y = -20 }, -- Target of Target
         health = {
             width = 220, height = 24,
             color = {0.2, 0.8, 0.2, 1},
@@ -176,18 +178,21 @@ function UnitFrames:CreatePlayerFrame()
     CreateUnitFrame(self, "PlayerFrame", "player")
 end
 
+
 function UnitFrames:CreateTargetFrame()
     if not self.db.profile.showTarget then return end
-    -- Anchor to right of player frame if exists
-    local anchorTo, x = frames.PlayerFrame, 320
-    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, "TOPLEFT", "TOPRIGHT", x, 0)
+    local db = self.db.profile
+    local anchorTo = UIParent
+    local pos = db.targetPosition or { point = "TOPLEFT", x = 320, y = 0 }
+    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
 end
 
 function UnitFrames:CreateTargetTargetFrame()
     if not self.db.profile.showTargetTarget then return end
-    -- Anchor to below target frame if exists
-    local anchorTo = frames.TargetFrame
-    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, "TOP", "BOTTOM", 0, -20)
+    local db = self.db.profile
+    local anchorTo = UIParent
+    local pos = db.totPosition or { point = "TOP", x = 0, y = -20 }
+    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
 end
 
 -- Update all bars and text
@@ -362,7 +367,7 @@ function UnitFrames:GetOptions()
                 set = function(_, v) self.db.profile.spacing = v; if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end end
             },
             position = {
-                name = "Frame Position",
+                name = "Player Frame Position",
                 type = "group",
                 inline = true,
                 order = 6,
@@ -389,6 +394,7 @@ function UnitFrames:GetOptions()
                                 local myPoint = db.position and db.position.point or "CENTER"
                                 local px = db.position and db.position.x or 0
                                 local py = db.position and db.position.y or 0
+                                frame:ClearAllPoints()
                                 frame:SetPoint(myPoint, UIParent, myPoint, px, py)
                             end
                             if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
@@ -408,9 +414,146 @@ function UnitFrames:GetOptions()
                                 local myPoint = db.position and db.position.point or "CENTER"
                                 local px = db.position and db.position.x or 0
                                 local py = db.position and db.position.y or 0
+                                frame:ClearAllPoints()
                                 frame:SetPoint(myPoint, UIParent, myPoint, px, py)
                             end
                             if self.UpdateUnitFrame then self:UpdateUnitFrame('PlayerFrame', 'player') end
+                        end
+                    },
+                },
+            },
+            targetPosition = {
+                name = "Target Frame Position",
+                type = "group",
+                inline = true,
+                order = 7,
+                args = {
+                    point = {
+                        name = "Anchor Point",
+                        type = "select",
+                        order = 1,
+                        values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
+                        get = function() return self.db.profile.targetPosition.point end,
+                        set = function(_, v)
+                            self.db.profile.targetPosition.point = v;
+                            local frame = frames and frames.TargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.targetPosition and db.targetPosition.point or "TOPLEFT"
+                                local px = db.targetPosition and db.targetPosition.x or 320
+                                local py = db.targetPosition and db.targetPosition.y or 0
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetFrame', 'target') end
+                        end
+                    },
+                    x = {
+                        name = "X Offset",
+                        type = "range",
+                        min = -2000, max = 2000, step = 1,
+                        order = 2,
+                        get = function() return self.db.profile.targetPosition.x end,
+                        set = function(_, v)
+                            self.db.profile.targetPosition.x = v;
+                            local frame = frames and frames.TargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.targetPosition and db.targetPosition.point or "TOPLEFT"
+                                local px = db.targetPosition and db.targetPosition.x or 320
+                                local py = db.targetPosition and db.targetPosition.y or 0
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetFrame', 'target') end
+                        end
+                    },
+                    y = {
+                        name = "Y Offset",
+                        type = "range",
+                        min = -2000, max = 2000, step = 1,
+                        order = 3,
+                        get = function() return self.db.profile.targetPosition.y end,
+                        set = function(_, v)
+                            self.db.profile.targetPosition.y = v;
+                            local frame = frames and frames.TargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.targetPosition and db.targetPosition.point or "TOPLEFT"
+                                local px = db.targetPosition and db.targetPosition.x or 320
+                                local py = db.targetPosition and db.targetPosition.y or 0
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetFrame', 'target') end
+                        end
+                    },
+                },
+            },
+            totPosition = {
+                name = "Target of Target Frame Position",
+                type = "group",
+                inline = true,
+                order = 8,
+                args = {
+                    point = {
+                        name = "Anchor Point",
+                        type = "select",
+                        order = 1,
+                        values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
+                        get = function() return self.db.profile.totPosition.point end,
+                        set = function(_, v)
+                            self.db.profile.totPosition.point = v;
+                            local frame = frames and frames.TargetTargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.totPosition and db.totPosition.point or "TOP"
+                                local px = db.totPosition and db.totPosition.x or 0
+                                local py = db.totPosition and db.totPosition.y or -20
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetTargetFrame', 'targettarget') end
+                        end
+                    },
+                    x = {
+                        name = "X Offset",
+                        type = "range",
+                        min = -2000, max = 2000, step = 1,
+                        order = 2,
+                        get = function() return self.db.profile.totPosition.x end,
+                        set = function(_, v)
+                            self.db.profile.totPosition.x = v;
+                            local frame = frames and frames.TargetTargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.totPosition and db.totPosition.point or "TOP"
+                                local px = db.totPosition and db.totPosition.x or 0
+                                local py = db.totPosition and db.totPosition.y or -20
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetTargetFrame', 'targettarget') end
+                        end
+                    },
+                    y = {
+                        name = "Y Offset",
+                        type = "range",
+                        min = -2000, max = 2000, step = 1,
+                        order = 3,
+                        get = function() return self.db.profile.totPosition.y end,
+                        set = function(_, v)
+                            self.db.profile.totPosition.y = v;
+                            local frame = frames and frames.TargetTargetFrame
+                            if frame then
+                                local db = self.db.profile
+                                local myPoint = db.totPosition and db.totPosition.point or "TOP"
+                                local px = db.totPosition and db.totPosition.x or 0
+                                local py = db.totPosition and db.totPosition.y or -20
+                                frame:ClearAllPoints()
+                                frame:SetPoint(myPoint, UIParent, myPoint, px, py)
+                            end
+                            if self.UpdateUnitFrame then self:UpdateUnitFrame('TargetTargetFrame', 'targettarget') end
                         end
                     },
                 },
