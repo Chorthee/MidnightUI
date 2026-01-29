@@ -145,7 +145,10 @@ local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x
     frame:SetMovable(true)
     frame:EnableMouse(true)
     frame:SetClampedToScreen(true)
+    frame:SetFrameStrata("HIGH")
+    frame:Show()
     MidnightUI:SkinFrame(frame)
+    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(x or db.position.x)..","..(y or db.position.y)) end
 
     -- Health Bar
     local healthBar = CreateBar(frame, h, 0)
@@ -231,18 +234,21 @@ function UnitFrames:UNIT_HEALTH(event, unit)
     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+    SetBlizzardFramesHidden(self)
 end
 
 function UnitFrames:UNIT_POWER_UPDATE(event, unit)
     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+    SetBlizzardFramesHidden(self)
 end
 
 function UnitFrames:UNIT_DISPLAYPOWER(event, unit)
     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+    SetBlizzardFramesHidden(self)
 end
 
 -- Integration with MidnightUI
