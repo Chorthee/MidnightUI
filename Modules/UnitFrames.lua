@@ -204,7 +204,10 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     frame.healthBar:SetValue(curhp)
     frame.healthBar.text:SetFont(LSM:Fetch("font", h.font), h.fontSize, h.fontOutline)
     frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
-    frame.healthBar.text:SetText(h.text)  -- Update health text using robust formatting (no tag parsing)
+    local hpPct = nil
+    pcall(function() hpPct = (maxhp and maxhp > 0) and math.floor((curhp / maxhp) * 100) or 0 end)
+    local healthStr = string.format("%s / %s (%s%%)", tostring(curhp or 0), tostring(maxhp or 0), tostring(hpPct or 0))
+    frame.healthBar.text:SetText(healthStr)
 
     -- Power
     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
@@ -212,13 +215,19 @@ function UnitFrames:UpdateUnitFrame(key, unit)
     frame.powerBar:SetValue(curpp)
     frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
     frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
-    frame.powerBar.text:SetText(p.text)  -- Update power text using robust formatting (no tag parsing)
+    local powerStr = string.format("%s / %s", tostring(curpp or 0), tostring(maxpp or 0))
+    frame.powerBar.text:SetText(powerStr)
 
     -- Info
     if frame.infoBar then
         frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
         frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
-        frame.infoBar.text:SetText(i.text)  -- Update info text using robust formatting (no tag parsing)
+        local name = UnitName(unit) or ""
+        local level = UnitLevel(unit) or ""
+        local _, class = UnitClass(unit)
+        class = class or ""
+        local infoStr = string.format("%s %s %s", name, level, class)
+        frame.infoBar.text:SetText(infoStr)
     end
 end
 
