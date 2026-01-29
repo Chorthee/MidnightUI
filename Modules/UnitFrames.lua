@@ -345,6 +345,7 @@ function UnitFrames:GetOptions()
                 order = 3,
                 get = function() return self.db.profile.showTarget end,
                 set = function(_, v) self.db.profile.showTarget = v; ReloadUI() end
+            },
         local function safe(val)
             if type(val) ~= "number" or not val or val ~= val or val == math.huge or val == -math.huge then return 0 end
             return val
