@@ -20,9 +20,12 @@ local function ParseTags(str, unit)
         ["[class]"] = select(2, UnitClass(unit)) or "",
         -- [perhp] and math-based tags removed for safety
     }
+    local stringTags = {}
     for tag, val in pairs(tags) do
-        if val == nil then val = "" end
-        str = str:gsub(tag, tostring(val))
+        stringTags[tag] = (val ~= nil and tostring(val)) or ""
+    end
+    for tag, sval in pairs(stringTags) do
+        str = str:gsub(tag, sval)
     end
     return str
 end
