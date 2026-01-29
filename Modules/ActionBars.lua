@@ -439,16 +439,12 @@ function AB:CreateBar(barKey, config)
                 anchorPoint = "CENTER"
                 relativeTo = UIParent
                 relativePoint = "CENTER"
-                -- Calculate both X and Y offsets from red dot to screen center
-                local snapReferenceY = nil
-                if container.centerDot and container.centerDot:GetTop() and container.centerDot:GetHeight() then
-                    snapReferenceY = container.centerDot:GetTop() - (container.centerDot:GetHeight()/2)
-                else
-                    snapReferenceY = (selfTop + selfBottom) / 2
-                end
+                -- Only snap X, preserve Y position
                 bestSnapX = realScreenCenterX - snapReferenceX
-                bestSnapY = realScreenCenterY - snapReferenceY
-                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT)"
+                -- Calculate Y offset from current position (where dropped)
+                local _, _, _, _, currentY = container:GetPoint()
+                bestSnapY = currentY or 0
+                snapDebug = "snap: center to REAL screen (CENTER anchor, RED DOT, X only)"
                 -- Debug: print SetPoint args and anchor info
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] SetPoint: "..tostring(anchorPoint)..", "..tostring(relativeTo and relativeTo:GetName() or "nil")..", "..tostring(relativePoint)..", "..tostring(bestSnapX)..", "..tostring(bestSnapY or y))
