@@ -53,7 +53,7 @@ function Movable:CreateGrid()
             table.insert(gridFrame.lines, line)
         end
     end
-    
+
     for y = 0, screenHeight, GRID_SIZE do
         if (y % 80) ~= 0 then  -- Skip multiples of 80
             local line = gridFrame:CreateTexture(nil, "BACKGROUND")
@@ -65,26 +65,49 @@ function Movable:CreateGrid()
             table.insert(gridFrame.lines, line)
         end
     end
-    
-    -- Now draw green emphasis lines every 80 pixels
+
+    -- Draw perfect vertical and horizontal center lines (bright green)
+    local centerX = math.floor(screenWidth / 2)
+    local centerY = math.floor(screenHeight / 2)
+    local vCenter = gridFrame:CreateTexture(nil, "OVERLAY")
+    vCenter:SetTexture("Interface\\Buttons\\WHITE8X8")
+    vCenter:SetVertexColor(0, 1, 0, 1)
+    vCenter:SetWidth(2)
+    vCenter:SetHeight(screenHeight)
+    vCenter:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", centerX, 0)
+    table.insert(gridFrame.lines, vCenter)
+
+    local hCenter = gridFrame:CreateTexture(nil, "OVERLAY")
+    hCenter:SetTexture("Interface\\Buttons\\WHITE8X8")
+    hCenter:SetVertexColor(0, 1, 0, 1)
+    hCenter:SetWidth(screenWidth)
+    hCenter:SetHeight(2)
+    hCenter:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -centerY)
+    table.insert(gridFrame.lines, hCenter)
+
+    -- Now draw green emphasis lines every 80 pixels (excluding center lines)
     for x = 0, screenWidth, 80 do
-        local line = gridFrame:CreateTexture(nil, "OVERLAY")
-        line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0, 0.6, 0, 0.8)
-        line:SetWidth(2)
-        line:SetHeight(screenHeight)
-        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
-        table.insert(gridFrame.lines, line)
+        if x ~= centerX then
+            local line = gridFrame:CreateTexture(nil, "OVERLAY")
+            line:SetTexture("Interface\\Buttons\\WHITE8X8")
+            line:SetVertexColor(0, 0.6, 0, 0.8)
+            line:SetWidth(2)
+            line:SetHeight(screenHeight)
+            line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", x, 0)
+            table.insert(gridFrame.lines, line)
+        end
     end
-    
+
     for y = 0, screenHeight, 80 do
-        local line = gridFrame:CreateTexture(nil, "OVERLAY")
-        line:SetTexture("Interface\\Buttons\\WHITE8X8")
-        line:SetVertexColor(0, 0.6, 0, 0.8)
-        line:SetWidth(screenWidth)
-        line:SetHeight(2)
-        line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
-        table.insert(gridFrame.lines, line)
+        if y ~= centerY then
+            local line = gridFrame:CreateTexture(nil, "OVERLAY")
+            line:SetTexture("Interface\\Buttons\\WHITE8X8")
+            line:SetVertexColor(0, 0.6, 0, 0.8)
+            line:SetWidth(screenWidth)
+            line:SetHeight(2)
+            line:SetPoint("TOPLEFT", gridFrame, "TOPLEFT", 0, -y)
+            table.insert(gridFrame.lines, line)
+        end
     end
     
     return gridFrame
