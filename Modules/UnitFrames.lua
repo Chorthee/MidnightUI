@@ -4,28 +4,21 @@ local function safe(val)
     return val
 end
 
--- Helper: Tag parsing for text overlays
+-- Helper: Tag parsing for text overlays (safe for secret values)
 local function ParseTags(str, unit)
-    local curhp = safe(UnitHealth(unit))
-    local maxhp = safe(UnitHealthMax(unit))
-    local perhp = maxhp > 0 and math.floor((curhp / maxhp) * 100) or 0
-    local curpp = safe(UnitPower(unit))
-    local maxpp = safe(UnitPowerMax(unit))
+    local curhp = UnitHealth(unit)
+    local maxhp = UnitHealthMax(unit)
+    local curpp = UnitPower(unit)
+    local maxpp = UnitPowerMax(unit)
     local tags = {
-        ["[curhp]"] = curhp,
-        ["[maxhp]"] = maxhp,
-        ["[perhp]"] = perhp,
-        ["[curpp]"] = curpp,
-        ["[maxpp]"] = maxpp,
+        ["[curhp]"] = curhp or "",
+        ["[maxhp]"] = maxhp or "",
+        ["[curpp]"] = curpp or "",
+        ["[maxpp]"] = maxpp or "",
         ["[name]"] = UnitName(unit) or "",
         ["[level]"] = UnitLevel(unit) or "",
         ["[class]"] = select(2, UnitClass(unit)) or "",
-        ["[shortcurhp]"] = ShortValue(curhp),
-        ["[shortmaxhp]"] = ShortValue(maxhp),
-        ["[shortcurpp]"] = ShortValue(curpp),
-        ["[shortmaxpp]"] = ShortValue(maxpp),
-        ["[classcolor]"] = ClassColor(unit),
-        ["[close]"] = "|r",
+        -- [perhp] and math-based tags removed for safety
     }
     for tag, val in pairs(tags) do
         str = str:gsub(tag, tostring(val))
