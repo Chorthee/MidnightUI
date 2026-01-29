@@ -338,66 +338,6 @@ local function ParseTags(str, unit)
         str = str:gsub(tag, tostring(val))
     end
     return str
-end
-            },
-            showTargetTarget = {
-                name = "Show Target of Target Frame",
-                type = "toggle",
-                order = 4,
-                get = function() return self.db.profile.showTargetTarget end,
-                set = function(_, v) self.db.profile.showTargetTarget = v; ReloadUI() end
-            },
-            spacing = {
-                name = "Bar Spacing",
-                type = "range",
-                min = 0, max = 20, step = 1,
-                order = 2,
-                get = function() return self.db.profile.spacing end,
-                set = function(_, v) self.db.profile.spacing = v; self:UpdatePlayerFrame() end
-            },
-            position = {
-                name = "Frame Position",
-                type = "group",
-                inline = true,
-                order = 3,
-                args = {
-                    point = {
-                        name = "Anchor Point",
-                        type = "select",
-                        order = 1,
-                        values = {CENTER="CENTER",TOP="TOP",BOTTOM="BOTTOM",LEFT="LEFT",RIGHT="RIGHT",TOPLEFT="TOPLEFT",TOPRIGHT="TOPRIGHT",BOTTOMLEFT="BOTTOMLEFT",BOTTOMRIGHT="BOTTOMRIGHT"},
-                        get = function() return self.db.profile.position.point end,
-                        set = function(_, v) self.db.profile.position.point = v; self:UpdatePlayerFrame() end
-                    },
-                    x = {
-                        name = "X Offset",
-                        type = "range",
-                        min = -1000, max = 1000, step = 1,
-                        order = 2,
-                        get = function() return self.db.profile.position.x end,
-                        set = function(_, v) self.db.profile.position.x = v; self:UpdatePlayerFrame() end
-                    },
-                    y = {
-                        name = "Y Offset",
-                        type = "range",
-                        min = -1000, max = 1000, step = 1,
-                        order = 3,
-                        get = function() return self.db.profile.position.y end,
-                        set = function(_, v) self.db.profile.position.y = v; self:UpdatePlayerFrame() end
-                    },
-                }
-            },
-            health = {
-                name = "Health Bar",
-                type = "group",
-                order = 10,
-                args = {
-                    width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 1,
-                        get = function() return self.db.profile.health.width end,
-                        set = function(_, v) self.db.profile.health.width = v; self:UpdatePlayerFrame() end },
-                    height = { type = "range", name = "Height", min = 8, max = 60, step = 1, order = 2,
-                        get = function() return self.db.profile.health.height end,
-                        set = function(_, v) self.db.profile.health.height = v; self:UpdatePlayerFrame() end },
                     color = colorOpt("Bar Color", nil,
                         function() return unpack(self.db.profile.health.color) end,
                         function(_,r,g,b,a) self.db.profile.health.color = {r,g,b,a}; self:UpdatePlayerFrame() end, 3),
