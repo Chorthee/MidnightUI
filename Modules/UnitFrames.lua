@@ -4,7 +4,7 @@
 -- The Player, Target, and TargetTarget option files are loaded via the TOC and available globally.
 
 -- ...existing code...
-}
+
 -- target, tot, etc. should be added here as siblings, not nested
 -- target = { ... },
 
