@@ -88,6 +88,32 @@ end
 
     local defaults = {
         profile = {
+            enabled = true,
+            showPlayer = true,
+            showTarget = true,
+            showTargetTarget = true,
+            spacing = 4,
+            position = { point = "CENTER", x = 0, y = -200 },
+            targetPosition = { point = "TOPLEFT", x = 320, y = 0 },
+            totPosition = { point = "TOP", x = 0, y = -20 },
+            health = {
+                enabled = true,
+                width = 220, height = 24,
+                color = {0.2, 0.8, 0.2, 1},
+                bgColor = {0, 0, 0, 0.5},
+                font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                texture = "Flat"
+            },
+            power = {
+                enabled = true,
+                width = 220, height = 12,
+                color = {0.2, 0.4, 0.8, 1},
+                bgColor = {0, 0, 0, 0.5},
+                font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                text = "[curpp] / [maxpp]", textPos = "CENTER",
+                texture = "Flat"
+            },
             info = {
                 enabled = true, width = 220, height = 10,
                 color = {0.8, 0.8, 0.2, 1},
@@ -95,29 +121,8 @@ end
                 font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                 text = "[name] [level] [class]", textPos = "CENTER",
                 texture = "Flat"
-
-                local defaults = {
-                    profile = {
-                        enabled = true,
-                        showPlayer = true,
-                        showTarget = true,
-                        showTargetTarget = true,
-                        spacing = 4,
-                        position = { point = "CENTER", x = 0, y = -200 },
-                        targetPosition = { point = "TOPLEFT", x = 320, y = 0 },
-                        totPosition = { point = "TOP", x = 0, y = -20 },
-                        health = {
-                            enabled = true,
-                            width = 220, height = 24,
-                            color = {0.2, 0.8, 0.2, 1},
-                            bgColor = {0, 0, 0, 0.5},
-                            font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                            text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
-                            texture = "Flat"
-                        },
-                        power = {
-                            enabled = true,
-                            width = 220, height = 12,
+            }
+        }
                             color = {0.2, 0.4, 0.8, 1},
                             bgColor = {0, 0, 0, 0.5},
                             font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
