@@ -2296,3 +2296,5 @@ function UnitFrames:GetOptions()
 
                     end
                 end
+
+            end
