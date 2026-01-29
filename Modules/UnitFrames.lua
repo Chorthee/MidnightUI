@@ -1420,7 +1420,6 @@ function UnitFrames:GetOptions()
             function UnitFrames:GetOptions()
                 -- Helper: Safe number
                 -- Remove tag parsing helpers; use direct formatting functions instead
-
                 -- Helper: Tag parsing for text overlays (safe for secret values)
                 local function ParseTags(str, unit)
                     local curhp = UnitHealth(unit)
@@ -2296,5 +2295,4 @@ function UnitFrames:GetOptions()
                         end
 
                     end
-
                 end
