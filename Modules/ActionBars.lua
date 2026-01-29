@@ -345,7 +345,7 @@ function AB:CreateBar(barKey, config)
         local dot = container.dragFrame:CreateTexture(nil, "OVERLAY")
         dot:SetColorTexture(1, 0, 0, 1) -- Solid red
         dot:SetSize(10, 10)
-        dot:SetPoint("TOP", container.dragFrame, "TOP", 0, 0)
+        dot:SetPoint("CENTER", container.dragFrame, "CENTER", 0, 0)
         container.centerDot = dot
     end
     
