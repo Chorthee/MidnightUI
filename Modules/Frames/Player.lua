@@ -334,17 +334,7 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.info and db.info.fontSize or 10 end, set = function(_, v) db.info.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.info and db.info.fontOutline or "OUTLINE" end, set = function(_, v) db.info.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.info and db.info.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.info.fontColor = {r,g,b,a}; update() end },
-                    textPreset = {
-                        -- Text Preset removed (static text only)
-                    textLeft = {
-                        -- Left Text input removed (static text only)
-                    },
-                    textCenter = {
-                        -- Center Text input removed (static text only)
-                    },
-                    textRight = {
-                        -- Right Text input removed (static text only)
-                    },
+                    -- Text Preset and custom text fields removed (static text only)
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.info and db.info.textPos or "CENTER" end, set = function(_, v) db.info.textPos = v; update() end },
                     texture = {
                         type = "select",
