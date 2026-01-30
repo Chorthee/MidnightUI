@@ -545,10 +545,10 @@ end
                         if maxhp == nil or type(maxhp) ~= "number" or tostring(maxhp):find("secret") then
                             maxhp = 0
                         end
-                        safeCurhp = tonumber(curhp) or 0
-                        if safeCurhp == nil then safeCurhp = 0 end
-                        safeMaxhp = tonumber(maxhp) or 0
-                        if safeMaxhp == nil then safeMaxhp = 0 end
+                        safeCurhp = tonumber(curhp)
+                        if safeCurhp == nil or type(safeCurhp) ~= "number" then safeCurhp = 0 end
+                        safeMaxhp = tonumber(maxhp)
+                        if safeMaxhp == nil or type(safeMaxhp) ~= "number" then safeMaxhp = 0 end
                     else
                         safeCurhp = 0
                         if isSafeNumber(curhp) then
