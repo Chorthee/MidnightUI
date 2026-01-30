@@ -28,16 +28,6 @@ function UnitFrames:GetPlayerOptions_Real()
             -- ...existing code for other bars and options...
         },
     }
-                name = "Info Bar",
-                order = 3,
-                inline = true,
-                args = {
-                    -- Show Available Tags button removed
-                    enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.info and db.info.enabled end, set = function(_, v) db.info.enabled = v; update() end },
-                    attachTo = {
-                        type = "select",
-                        name = "Attach To",
-                        desc = "Attach the Info Bar to another bar. If hidden, attached bars will follow the selected bar.",
                         order = 1.5,
                         values = { health = "Health Bar", power = "Power Bar", info = "Info Bar", none = "None" },
                         get = function() return db.info and db.info.attachTo or "health" end,
