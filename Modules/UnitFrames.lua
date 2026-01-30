@@ -516,8 +516,14 @@ end
                     CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
                 end
 
+
                 function UnitFrames:UpdateUnitFrame(key, unit)
                     local db = self.db.profile
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local frameDB = db[frameKey]
+                    if not frameDB then return end
+                    local h, p, i = frameDB.health, frameDB.power, frameDB.info
+
                     -- Calculate health percent robustly
                     local hpPct = GetHealthPct(unit)
                     if hpPct then
