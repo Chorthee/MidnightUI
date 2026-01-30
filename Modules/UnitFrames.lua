@@ -437,13 +437,7 @@ end
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
                     local function safeNumber(val)
-                        if type(val, 1) == "number" then
-                            return val
-                        elseif type(val) == "string" then
-                            local n = tonumber(val)
-                            if n then return n end
-                        end
-                        return 0
+                        return tonumber(val) or 0
                     end
                     local safeCurhp = safeNumber(curhp)
                     local safeMaxhp = safeNumber(maxhp)
