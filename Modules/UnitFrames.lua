@@ -567,6 +567,7 @@ end
                         barRefs.info = infoBar
                     end
 
+
                     if key == "PlayerFrame" then
                         frame:SetAttribute("unit", "player")
                         frame:SetAttribute("type", "target")
@@ -579,7 +580,22 @@ end
                         frame:SetAttribute("unit", "targettarget")
                         frame:SetAttribute("type", "target")
                         frame:RegisterForClicks("AnyUp")
+                    elseif key == "FocusFrame" then
+                        frame:SetAttribute("unit", "focus")
+                        frame:SetAttribute("type", "target")
+                        frame:RegisterForClicks("AnyUp")
                     end
+
+                    -- Handle both left and right clicks
+                    frame:SetScript("OnClick", function(self, button)
+                        if button == "LeftButton" then
+                            print("[MidnightUI] "..key.." left clicked")
+                        elseif button == "RightButton" then
+                            print("[MidnightUI] "..key.." right clicked")
+                        else
+                            print("[MidnightUI] "..key.." "..tostring(button).." clicked")
+                        end
+                    end)
 
                     frames[key] = frame
                     self:UpdateUnitFrame(key, unit)
