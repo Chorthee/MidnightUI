@@ -31,47 +31,7 @@ function UnitFrames:GetPlayerOptions_Real()
                 type = "group",
                 name = "Frame Movement",
                 order = 0.5,
-                inline = true,
-                args = {
-                    movable = {
-                        type = "toggle",
-                        name = "Lock Frame",
-                        desc = "Prevent the Player Frame from being moved.",
-                        order = 1,
-                        get = function() return not (db.movable == false or db.movable == nil) end,
-                        set = function(_, v) db.movable = not v; update() end,
-                    },
-                    posX = {
-                        type = "range",
-                        name = "X Position",
-                        desc = "Horizontal position of the Player Frame.",
-                        min = -1000, max = 1000, step = 1,
-                        order = 1.5,
-                        get = function() return db.posX or 0 end,
-                        set = function(_, v) db.posX = v; update() end,
-                    },
-                    posY = {
-                        type = "range",
-                        name = "Y Position",
-                        desc = "Vertical position of the Player Frame.",
-                        min = -1000, max = 1000, step = 1,
-                        order = 1.6,
-                        get = function() return db.posY or 0 end,
-                        set = function(_, v) db.posY = v; update() end,
-                    },
-                    reset = {
-                        type = "execute",
-                        name = "Reset Position",
-                        desc = "Reset the Player Frame to its default position.",
-                        order = 2,
-                        func = function() if self.ResetUnitFramePosition then self:ResetUnitFramePosition("PlayerFrame") end end,
-                    },
-                },
-            },
-
-            -- Health Bar
-            health = {
-                type = "group",
+                    -- ...existing code...
                 name = "Health Bar",
                 order = 1,
                 inline = true,
@@ -208,24 +168,29 @@ function UnitFrames:GetPlayerOptions_Real()
                         get = function() return db.health and db.health.texture or "Flat" end,
                         set = function(_, v) db.health.texture = v; update() end,
                     },
-                },
-            },
-            -- Power Bar
-            power = {
-                type = "group",
-                name = "Power Bar",
-                order = 2,
-                inline = true,
-                args = {
                     showTags = {
                         type = "execute",
                         name = "Show Available Tags",
-                        order = 0.1,
+                        order = 99,
+                        hidden = function()
+                            local presetSel = (db.health and db.health.textPreset) or nil
+                            if not presetSel then
+                                local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
+                                presetSel = (t == "[curhp]" and "cur") or (t == "[curhp] / [maxhp]" and "curmax") or (t == "[curhp] / [maxhp] ([perhp]%)" and "curmaxpct") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
+                        end,
                         func = function()
                             if not _G.MidnightUI_TagHelp then
                                 local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
                                 f:SetSize(340, 220)
-                                f:SetPoint("CENTER")
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:SetPoint("CENTER")
+                                end
                                 f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
                                 f:SetBackdropColor(0,0,0,0.9)
                                 f:SetFrameStrata("DIALOG")
@@ -243,6 +208,79 @@ function UnitFrames:GetPlayerOptions_Real()
                                 tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
                                 local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
                                 close:SetPoint("TOPRIGHT", 0, 0)
+                            else
+                                local f = _G.MidnightUI_TagHelp
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:ClearAllPoints()
+                                    f:SetPoint("CENTER")
+                                end
+                            end
+                            _G.MidnightUI_TagHelp:Show()
+                        end,
+                    },
+                },
+            },
+            -- Power Bar
+            power = {
+                type = "group",
+                name = "Power Bar",
+                order = 2,
+                inline = true,
+                args = {
+                    showTags = {
+                        type = "execute",
+                        name = "Show Available Tags",
+                        order = 99,
+                        hidden = function()
+                            local presetSel = (db.power and db.power.textPreset) or nil
+                            if not presetSel then
+                                local t = db.power and db.power.text or "[curpp] / [maxpp]"
+                                presetSel = (t == "[curpp]" and "cur") or (t == "[curpp] / [maxpp]" and "curmax") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
+                        end,
+                        func = function()
+                            if not _G.MidnightUI_TagHelp then
+                                local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
+                                f:SetSize(340, 220)
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:SetPoint("CENTER")
+                                end
+                                f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
+                                f:SetBackdropColor(0,0,0,0.9)
+                                f:SetFrameStrata("DIALOG")
+                                f:SetMovable(true)
+                                f:EnableMouse(true)
+                                f:RegisterForDrag("LeftButton")
+                                f:SetScript("OnDragStart", f.StartMoving)
+                                f:SetScript("OnDragStop", f.StopMovingOrSizing)
+                                local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+                                title:SetPoint("TOP", 0, -10)
+                                title:SetText("Available Tags")
+                                local tags = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+                                tags:SetPoint("TOPLEFT", 16, -40)
+                                tags:SetJustifyH("LEFT")
+                                tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
+                                local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+                                close:SetPoint("TOPRIGHT", 0, 0)
+                            else
+                                local f = _G.MidnightUI_TagHelp
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:ClearAllPoints()
+                                    f:SetPoint("CENTER")
+                                end
                             end
                             _G.MidnightUI_TagHelp:Show()
                         end,
@@ -346,12 +384,26 @@ function UnitFrames:GetPlayerOptions_Real()
                     showTags = {
                         type = "execute",
                         name = "Show Available Tags",
-                        order = 0.1,
+                        order = 99,
+                        hidden = function()
+                            local presetSel = (db.info and db.info.textPreset) or nil
+                            if not presetSel then
+                                local t = db.info and db.info.text or "[name] [level] [class]"
+                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
+                        end,
                         func = function()
                             if not _G.MidnightUI_TagHelp then
                                 local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
                                 f:SetSize(340, 220)
-                                f:SetPoint("CENTER")
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:SetPoint("CENTER")
+                                end
                                 f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
                                 f:SetBackdropColor(0,0,0,0.9)
                                 f:SetFrameStrata("DIALOG")
@@ -369,6 +421,16 @@ function UnitFrames:GetPlayerOptions_Real()
                                 tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
                                 local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
                                 close:SetPoint("TOPRIGHT", 0, 0)
+                            else
+                                local f = _G.MidnightUI_TagHelp
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:ClearAllPoints()
+                                    f:SetPoint("CENTER")
+                                end
                             end
                             _G.MidnightUI_TagHelp:Show()
                         end,
