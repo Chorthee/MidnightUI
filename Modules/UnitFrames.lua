@@ -642,6 +642,10 @@ end
                         -- fallback: just show current
                         healthStr = string.format("%d", safeCurhp)
                     end
+
+                    -- Update health bar fill to reflect current health
+                    frame.healthBar:SetMinMaxValues(0, safeMaxhp)
+                    frame.healthBar:SetValue(safeCurhp)
                     frame.healthBar.text:SetText(healthStr)
 
                     -- Set health bar color: class color if enabled, else hostility color, else custom/static color (no gradient, no arithmetic)
