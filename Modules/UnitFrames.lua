@@ -271,7 +271,23 @@ end
                     bar:SetPoint("TOP", 0, yOffset)
                     bar.bg = bar:CreateTexture(nil, "BACKGROUND")
                     bar.bg:SetAllPoints()
-                    bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                    -- Use Bar settings for InfoBar background if this is the InfoBar
+                    if opts._infoBar then
+                        local Bar = MidnightUI:GetModule("Bar", true)
+                        local barTexture, barAlpha
+                        if Bar and Bar.db and Bar.db.profile and Bar.db.profile.bars and Bar.db.profile.bars["MainBar"] then
+                            local barSettings = Bar.db.profile.bars["MainBar"]
+                            barTexture = LSM:Fetch("statusbar", barSettings.texture or "Flat")
+                            barAlpha = barSettings.alpha or 0.6
+                            local c = barSettings.color or {r=0.1,g=0.1,b=0.1}
+                            bar.bg:SetTexture(barTexture)
+                            bar.bg:SetVertexColor(c.r, c.g, c.b, barAlpha)
+                        else
+                            bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                        end
+                    else
+                        bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                    end
                     -- Info bar: create three FontStrings for left, center, right
                     if opts._infoBar then
                         bar.textLeft = bar:CreateFontString(nil, "OVERLAY")
