@@ -436,8 +436,12 @@ end
                     else
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
-                    local hpPct = nil
-                    pcall(function() hpPct = (maxhp and maxhp > 0) and math.floor((curhp / maxhp) * 100) or 0 end)
+                    local safeCurhp = tonumber(curhp) or 0
+                    local safeMaxhp = tonumber(maxhp) or 0
+                    local hpPct = 0
+                    if safeMaxhp > 0 then
+                        hpPct = math.floor((safeCurhp / safeMaxhp) * 100)
+                    end
                     local healthFormat = h.text or "[curhp] / [maxhp] ([perhp]%)"
                     local healthStr = tostring(healthFormat)
                     local name = tostring(UnitName(unit) or "")
@@ -448,15 +452,19 @@ end
                     healthStr = healthStr:gsub("%[name%]", name)
                     healthStr = healthStr:gsub("%[level%]", level)
                     healthStr = healthStr:gsub("%[class%]", className ~= '' and className or classToken)
-                    healthStr = healthStr:gsub("%[curhp%]", tostring(curhp or 0))
-                    healthStr = healthStr:gsub("%[maxhp%]", tostring(maxhp or 0))
-                    healthStr = healthStr:gsub("%[perhp%]", tostring(hpPct or 0))
+                    healthStr = healthStr:gsub("%[curhp%]", tostring(safeCurhp))
+                    healthStr = healthStr:gsub("%[maxhp%]", tostring(safeMaxhp))
+                    healthStr = healthStr:gsub("%[perhp%]", tostring(hpPct))
                     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
-                    local ppPct = nil
-                    pcall(function() ppPct = (maxpp and maxpp > 0) and math.floor((curpp / maxpp) * 100) or 0 end)
-                    healthStr = healthStr:gsub("%[curpp%]", tostring(curpp or 0))
-                    healthStr = healthStr:gsub("%[maxpp%]", tostring(maxpp or 0))
-                    healthStr = healthStr:gsub("%[perpp%]", tostring(ppPct or 0))
+                    local safeCurpp = tonumber(curpp) or 0
+                    local safeMaxpp = tonumber(maxpp) or 0
+                    local ppPct = 0
+                    if safeMaxpp > 0 then
+                        ppPct = math.floor((safeCurpp / safeMaxpp) * 100)
+                    end
+                    healthStr = healthStr:gsub("%[curpp%]", tostring(safeCurpp))
+                    healthStr = healthStr:gsub("%[maxpp%]", tostring(safeMaxpp))
+                    healthStr = healthStr:gsub("%[perpp%]", tostring(ppPct))
                     frame.healthBar.text:SetText(healthStr)
 
                     -- Power Bar
@@ -480,12 +488,12 @@ end
                     powerStr = powerStr:gsub("%[name%]", name)
                     powerStr = powerStr:gsub("%[level%]", level)
                     powerStr = powerStr:gsub("%[class%]", className ~= '' and className or classToken)
-                    powerStr = powerStr:gsub("%[curhp%]", tostring(curhp or 0))
-                    powerStr = powerStr:gsub("%[maxhp%]", tostring(maxhp or 0))
-                    powerStr = powerStr:gsub("%[perhp%]", tostring(hpPct or 0))
-                    powerStr = powerStr:gsub("%[curpp%]", tostring(curpp or 0))
-                    powerStr = powerStr:gsub("%[maxpp%]", tostring(maxpp or 0))
-                    powerStr = powerStr:gsub("%[perpp%]", tostring(ppPct or 0))
+                    powerStr = powerStr:gsub("%[curhp%]", tostring(safeCurhp))
+                    powerStr = powerStr:gsub("%[maxhp%]", tostring(safeMaxhp))
+                    powerStr = powerStr:gsub("%[perhp%]", tostring(hpPct))
+                    powerStr = powerStr:gsub("%[curpp%]", tostring(safeCurpp))
+                    powerStr = powerStr:gsub("%[maxpp%]", tostring(safeMaxpp))
+                    powerStr = powerStr:gsub("%[perpp%]", tostring(ppPct))
                     frame.powerBar.text:SetText(powerStr)
 
                     -- Info Bar
@@ -506,12 +514,12 @@ end
                         infoStr = infoStr:gsub("%[name%]", name)
                         infoStr = infoStr:gsub("%[level%]", level)
                         infoStr = infoStr:gsub("%[class%]", className ~= '' and className or classToken)
-                        infoStr = infoStr:gsub("%[curhp%]", tostring(curhp or 0))
-                        infoStr = infoStr:gsub("%[maxhp%]", tostring(maxhp or 0))
-                        infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct or 0))
-                        infoStr = infoStr:gsub("%[curpp%]", tostring(curpp or 0))
-                        infoStr = infoStr:gsub("%[maxpp%]", tostring(maxpp or 0))
-                        infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct or 0))
+                        infoStr = infoStr:gsub("%[curhp%]", tostring(safeCurhp))
+                        infoStr = infoStr:gsub("%[maxhp%]", tostring(safeMaxhp))
+                        infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
+                        infoStr = infoStr:gsub("%[curpp%]", tostring(safeCurpp))
+                        infoStr = infoStr:gsub("%[maxpp%]", tostring(safeMaxpp))
+                        infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct))
                         frame.infoBar.text:SetText(infoStr)
                     end
                 end
