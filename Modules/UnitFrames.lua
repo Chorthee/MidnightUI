@@ -462,6 +462,9 @@ end
                         safeCurhp = tonumber(curhp)
                         if type(safeCurhp) ~= "number" or safeCurhp ~= safeCurhp then
                             safeCurhp = 0
+                        else
+                            local ok = pcall(function() return safeCurhp > -math.huge end)
+                            if not ok then safeCurhp = 0 end
                         end
                     else
                         safeCurhp = 0
@@ -471,6 +474,9 @@ end
                         safeMaxhp = tonumber(maxhp)
                         if type(safeMaxhp) ~= "number" or safeMaxhp ~= safeMaxhp then
                             safeMaxhp = 0
+                        else
+                            local ok = pcall(function() return safeMaxhp > -math.huge end)
+                            if not ok then safeMaxhp = 0 end
                         end
                     else
                         safeMaxhp = 0
