@@ -5,10 +5,7 @@ if not UnitFrames then return end
 _G.UnitFrames = UnitFrames
 local LSM = LibStub("LibSharedMedia-3.0")
 
-function UnitFrames:CreateFocusFrame()
-    if not self.db.profile.showFocus then return end
-    CreateUnitFrame(self, "FocusFrame", "focus")
-end
+
 -- Utility: Sanitize a color table to ensure all values are plain numbers (not secret values)
 local function SanitizeColorTable(color, fallback)
     fallback = fallback or {1, 1, 1, 1}
@@ -622,7 +619,11 @@ end
                     local pos = db.totPosition or { point = "TOP", x = 0, y = -20 }
                     CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
                 end
-
+                
+                function UnitFrames:CreateFocusFrame()
+                    if not self.db or not self.db.profile or not self.db.profile.showFocus then return end
+                    CreateUnitFrame(self, "FocusFrame", "focus")
+                end
 
                 function UnitFrames:UpdateUnitFrame(key, unit)
                     local db = self.db.profile
