@@ -1,4 +1,4 @@
-if _G.UnitFrames then UnitFrames = _G.UnitFrames end
+
 
 -- Create the Focus Frame in-game, mirroring PlayerFrame logic
 function UnitFrames:CreateFocusFrame()
