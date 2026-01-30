@@ -539,6 +539,18 @@ end
                         hpPct = nil
                     end
 
+                    -- Defensive: ensure all variables used in gsub are strings or numbers, never nil
+                    local name = UnitName and UnitName(unit) or ""
+                    local level = UnitLevel and UnitLevel(unit) or ""
+                    local className = (UnitClass and select(1, UnitClass(unit))) or ""
+                    local classToken = (UnitClass and select(2, UnitClass(unit))) or ""
+                    local safeCurhp = (UnitHealth and UnitHealth(unit)) or 0
+                    local safeMaxhp = (UnitHealthMax and UnitHealthMax(unit)) or 0
+                    local safeCurpp = (UnitPower and UnitPower(unit)) or 0
+                    local safeMaxpp = (UnitPowerMax and UnitPowerMax(unit)) or 0
+                    local ppPct = (safeMaxpp > 0) and math.floor((safeCurpp / safeMaxpp) * 100) or 0
+                    if hpPct == nil then hpPct = 0 end
+
                     -- Format health text directly, not using tag parsing
                     local healthStr = ""
                     local showCur = h.text and h.text:find("curhp")
