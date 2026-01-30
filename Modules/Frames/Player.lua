@@ -16,6 +16,15 @@ function UnitFrames:GetPlayerOptions_Real()
         name = "Player Frame",
         args = {
             header = { type = "header", name = "Player Frame Bars", order = 0 },
+            spacing = {
+                type = "range",
+                name = "Bar Spacing",
+                desc = "Vertical space between bars.",
+                min = 0, max = 32, step = 1,
+                order = 0.9,
+                get = function() return self.db and self.db.profile and self.db.profile.spacing or 2 end,
+                set = function(_, v) if self.db and self.db.profile then self.db.profile.spacing = v; update() end end,
+            },
 
             -- Frame Movement
             movement = {
