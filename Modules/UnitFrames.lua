@@ -518,72 +518,54 @@ end
 
                 function UnitFrames:UpdateUnitFrame(key, unit)
                     local db = self.db.profile
-                    local frame = frames[key]
-                    if not frame then return end
-                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
-                    local h, p, i = db[frameKey].health, db[frameKey].power, db[frameKey].info
-
-                    if key == "TargetFrame" then
-                        if not UnitExists("target") then
-                            frame:Hide()
-                            return
+                    -- Calculate health percent robustly
+                    local hpPct = GetHealthPct(unit)
+                    if hpPct then
+                        local ok, floored = pcall(math.floor, hpPct)
+                        if ok and floored then
+                            hpPct = floored
                         else
-                            frame:Show()
+                            hpPct = nil
                         end
+                    else
+                        hpPct = nil
                     end
-                    if key == "TargetTargetFrame" then
-                        if not UnitExists("targettarget") then
-                            frame:Hide()
-                            return
+
+                    -- Format health text directly, not using tag parsing
+                    local healthStr = ""
+                    local showCur = h.text and h.text:find("curhp")
+                    local showMax = h.text and h.text:find("maxhp")
+                    local showPct = h.text and h.text:find("perhp")
+                    -- Default: show current / max (percent)
+                    if showCur and showMax and showPct then
+                        if hpPct then
+                            healthStr = string.format("%d / %d (%d%%)", safeCurhp, safeMaxhp, hpPct)
                         else
-                            frame:Show()
+                            healthStr = string.format("%d / %d", safeCurhp, safeMaxhp)
                         end
-                    end
-
-                    local curhp, maxhp = UnitHealth(unit), UnitHealthMax(unit)
-                    -- Class color logic
-                    local _, classToken = UnitClass(unit)
-                    local classColor = RAID_CLASS_COLORS and classToken and RAID_CLASS_COLORS[classToken] or { r = 1, g = 1, b = 1 }
-
-                    -- Health Bar
-                    frame.healthBar:SetMinMaxValues(0, maxhp)
-                    frame.healthBar:SetValue(curhp)
-                    frame.healthBar.text:SetFont(LSM:Fetch("font", h.font), h.fontSize, h.fontOutline)
-                    if h.fontClassColor then
-                        frame.healthBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
-                    else
-                        frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
-                    end
-                    if h.classColor then
-                        frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
-                    else
-                        frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
-                    end
-                    local function safeNumber(val)
-                        local n = tonumber(val)
-                        if n then return n end
-                        return 0
-                    end
-                    local function isSafeNumber(val)
-                        if val == nil then return false end
-                        -- Safely try tostring
-                        local ok, sval = pcall(tostring, val)
-                        if not ok or not sval or type(sval) ~= "string" then return false end
-                        local safeFind = function(str, pattern)
-                            local okf, res = pcall(function() return str:find(pattern) end)
-                            if okf and res then return true end
-                            return false
+                    elseif showCur and showMax then
+                        healthStr = string.format("%d / %d", safeCurhp, safeMaxhp)
+                    elseif showCur and showPct then
+                        if hpPct then
+                            healthStr = string.format("%d (%d%%)", safeCurhp, hpPct)
+                        else
+                            healthStr = string.format("%d", safeCurhp)
                         end
-                        if safeFind(sval, 'secret') or safeFind(sval, 'no value') then return false end
-                        -- Safely try tonumber
-                        local ok2, n = pcall(tonumber, val)
-                        if not ok2 or not n then return false end
-                        return true
+                    elseif showCur then
+                        healthStr = string.format("%d", safeCurhp)
+                    elseif showMax then
+                        healthStr = string.format("%d", safeMaxhp)
+                    elseif showPct then
+                        if hpPct then
+                            healthStr = string.format("%d%%", hpPct)
+                        else
+                            healthStr = ""
+                        end
+                    else
+                        -- fallback: just show current
+                        healthStr = string.format("%d", safeCurhp)
                     end
-                    local safeCurhp = 0
-                    if isSafeNumber(curhp) then
-                        local ok, n = pcall(function()
-                            local v = tonumber(curhp)
+                    frame.healthBar.text:SetText(healthStr)
                             if type(v) ~= "number" or v ~= v then return nil end
                             -- try a comparison to force error if secret value
                             if not (v > -math.huge) then return nil end
@@ -708,7 +690,7 @@ end
                     powerStr = powerStr:gsub("%[perpp%]", tostring(ppPct))
                     frame.powerBar.text:SetText(powerStr)
 
-                    -- Info Bar
+                    -- Info Bar (remove tag parsing for health percent)
                     if frame.infoBar then
                         local infoBar = frame.infoBar
                         local font, fontSize, fontOutline = LSM:Fetch("font", i.font), i.fontSize, i.fontOutline
@@ -725,8 +707,8 @@ end
                             else
                                 infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
                             end
-                            -- Tag replacement helper
-                            local function parseTags(fmt)
+                            -- Only replace tags that are not health percent
+                            local function parseTagsNoPercent(fmt)
                                 if not fmt or fmt == "" then return "" end
                                 local s = tostring(fmt)
                                 s = s:gsub("%[name%]", name)
@@ -734,15 +716,25 @@ end
                                 s = s:gsub("%[class%]", className ~= '' and className or classToken)
                                 s = s:gsub("%[curhp%]", tostring(safeCurhp))
                                 s = s:gsub("%[maxhp%]", tostring(safeMaxhp))
-                                s = s:gsub("%[perhp%]", tostring(hpPct))
                                 s = s:gsub("%[curpp%]", tostring(safeCurpp))
                                 s = s:gsub("%[maxpp%]", tostring(safeMaxpp))
                                 s = s:gsub("%[perpp%]", tostring(ppPct))
                                 return s
                             end
-                            infoBar.textLeft:SetText(parseTags(i.textLeft or ""))
-                            infoBar.textCenter:SetText(parseTags(i.textCenter or ""))
-                            infoBar.textRight:SetText(parseTags(i.textRight or ""))
+                            -- Insert health percent robustly
+                            local function insertPercent(str)
+                                if str:find("%[perhp%]") then
+                                    if hpPct then
+                                        return str:gsub("%[perhp%]", tostring(hpPct))
+                                    else
+                                        return str:gsub("%[perhp%]", "")
+                                    end
+                                end
+                                return str
+                            end
+                            infoBar.textLeft:SetText(insertPercent(parseTagsNoPercent(i.textLeft or "")))
+                            infoBar.textCenter:SetText(insertPercent(parseTagsNoPercent(i.textCenter or "")))
+                            infoBar.textRight:SetText(insertPercent(parseTagsNoPercent(i.textRight or "")))
                         elseif infoBar.text then
                             infoBar.text:SetFont(font, fontSize, fontOutline)
                             infoBar.text:SetTextColor(unpack(color))
@@ -752,16 +744,14 @@ end
                                 infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
                             end
                             local infoFormat = i.text or "[name] [level] [class]"
-                            local infoStr = tostring(infoFormat)
-                            infoStr = infoStr:gsub("%[name%]", name)
-                            infoStr = infoStr:gsub("%[level%]", level)
-                            infoStr = infoStr:gsub("%[class%]", className ~= '' and className or classToken)
-                            infoStr = infoStr:gsub("%[curhp%]", tostring(safeCurhp))
-                            infoStr = infoStr:gsub("%[maxhp%]", tostring(safeMaxhp))
-                            infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
-                            infoStr = infoStr:gsub("%[curpp%]", tostring(safeCurpp))
-                            infoStr = infoStr:gsub("%[maxpp%]", tostring(safeMaxpp))
-                            infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct))
+                            local infoStr = parseTagsNoPercent(infoFormat)
+                            if infoFormat:find("%[perhp%]") then
+                                if hpPct then
+                                    infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
+                                else
+                                    infoStr = infoStr:gsub("%[perhp%]", "")
+                                end
+                            end
                             infoBar.text:SetText(infoStr)
                         end
                     end
