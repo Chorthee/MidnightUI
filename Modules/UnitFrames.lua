@@ -174,7 +174,7 @@ end
                     enabled = true,
                     width = 220, height = 24,
                     color = {0.2, 0.8, 0.2, 1},
-                    bgColor = {0, 0, 0, 1},
+                    bgColor = {0, 0, 0, 0},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
                     textPresets = {
@@ -367,7 +367,7 @@ end
                     else
                         -- Always use solid black for health bar background
                         if opts and opts.bgColor and opts.bgColor[1] == 0 and opts.bgColor[2] == 0 and opts.bgColor[3] == 0 then
-                            bar.bg:SetColorTexture(0, 0, 0, 1)
+                            bar.bg:SetColorTexture(0, 0, 0, opts.bgColor[4] or 0)
                         else
                             bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
                         end
