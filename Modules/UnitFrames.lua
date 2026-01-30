@@ -639,21 +639,35 @@ end
                     end
                     frame.healthBar.text:SetText(healthStr)
 
-                    -- Set class color for healthBar if enabled
-                    print("[MidnightUI] UpdateUnitFrame: h.classColor=", tostring(h.classColor), "db.health.classColor=", tostring((self.db and self.db.profile and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'] and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health.classColor)))
+                    -- Set health bar color: class color if enabled, else dynamic gradient (green to red)
                     local classColorValue = classColor
                     if h.classColor then
                         local _, classToken = UnitClass(unit)
                         if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                             classColorValue = RAID_CLASS_COLORS[classToken]
                         end
-                    end
-                    if h.classColor and classColorValue then
-                        print("[MidnightUI] Setting healthBar to classColor")
-                        frame.healthBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
-                    elseif h.color then
-                        print("[MidnightUI] Setting healthBar to custom color")
-                        frame.healthBar:SetStatusBarColor(unpack(h.color))
+                        if classColorValue then
+                            frame.healthBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                        end
+                    else
+                        -- Dynamic gradient: green (full) to red (low)
+                        local pct = 0
+                        if safeCurhp and safeMaxhp and safeMaxhp > 0 then
+                            pct = safeCurhp / safeMaxhp
+                        end
+                        -- Clamp pct between 0 and 1
+                        if pct < 0 then pct = 0 elseif pct > 1 then pct = 1 end
+                        -- Gradient: green to yellow to red
+                        local r, g, b = 0, 0, 0
+                        if pct > 0.5 then
+                            r = (1.0 - pct) * 2
+                            g = 1.0
+                        else
+                            r = 1.0
+                            g = pct * 2
+                        end
+                        b = 0
+                        frame.healthBar:SetStatusBarColor(r, g, b, h.color and h.color[4] or 1)
                     end
 
                     -- Power Bar
@@ -666,12 +680,26 @@ end
                     else
                         frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
                     end
-                    -- Use Blizzard default color if not overridden
+                    -- Dynamic color for power bar: gradient if not user-set color, else use user color
                     local powerColor = p.color
-                    if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
-                        powerColor = GetPowerTypeColor(unit)
+                    local useDynamic = not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8))
+                    if useDynamic then
+                        -- Dynamic gradient: blue (full) to yellow (low)
+                        local cur, max = safeCurpp or 0, safeMaxpp or 0
+                        local pct = 0
+                        if max > 0 then pct = cur / max end
+                        if pct < 0 then pct = 0 elseif pct > 1 then pct = 1 end
+                        -- Blue (full) to yellow (low): blue = 0,0.44,0.87; yellow = 1,1,0
+                        local r = (1 - pct) * 1 + pct * 0.00
+                        local g = (1 - pct) * 1 + pct * 0.44
+                        local b = (1 - pct) * 0 + pct * 0.87
+                        frame.powerBar:SetStatusBarColor(r, g, b, p.color and p.color[4] or 1)
+                    else
+                        if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
+                            powerColor = GetPowerTypeColor(unit)
+                        end
+                        frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
                     end
-                    frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
                     -- Set static power bar text: current power percent
                     frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
 
