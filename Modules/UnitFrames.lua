@@ -672,46 +672,15 @@ end
                         powerColor = GetPowerTypeColor(unit)
                     end
                     frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
-                    local powerFormat = p.text or "[curpp] / [maxpp]"
-                    -- Defensive: ensure all values are strings, never nil
-                    local function safeStr(val)
-                        if type(val) == "string" then
-                            return val
-                        elseif type(val) == "number" then
-                            return tostring(val)
-                        elseif val == nil or val == false then
-                            return ""
-                        else
-                            local str = tostring(val or "")
-                            if str == nil then return "" end
-                            return str
-                        end
-                    end
-                    -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
-                    -- Only assign once, right before use, and never shadow with nil
-                    local function safeGsub(str, pattern, repl)
-                        local ok, result = pcall(function()
-                            return str:gsub(pattern, repl)
-                        end)
-                        if ok then return result else return str end
-                    end
-                    local powerStr = (type(powerFormat) == "string") and powerFormat or ""
-                    powerStr = safeGsub(powerStr, "%[name%]", tostring(safeStr(name)))
-                    powerStr = safeGsub(powerStr, "%[level%]", tostring(safeStr(level)))
-                    powerStr = safeGsub(powerStr, "%[class%]", tostring(safeStr((className ~= '' and className) or classToken)))
-                    powerStr = safeGsub(powerStr, "%[curhp%]", tostring(safeStr(safeCurhp)))
-                    powerStr = safeGsub(powerStr, "%[maxhp%]", tostring(safeStr(safeMaxhp)))
-                    powerStr = safeGsub(powerStr, "%[perhp%]", tostring(safeStr(hpPct)))
-                    powerStr = safeGsub(powerStr, "%[curpp%]", tostring(safeStr(safeCurpp)))
-                    powerStr = safeGsub(powerStr, "%[maxpp%]", tostring(safeStr(safeMaxpp)))
-                    powerStr = safeGsub(powerStr, "%[perpp%]", tostring(safeStr(ppPct)))
-                    frame.powerBar.text:SetText(powerStr)
+                    -- Set static power bar text: current power percent
+                    frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
 
-                    -- Info Bar (remove tag parsing for health percent)
+                    -- Set static info bar text: character name and level
                     if frame.infoBar then
                         local infoBar = frame.infoBar
                         local font, fontSize, fontOutline = LSM:Fetch("font", i.font), i.fontSize, i.fontOutline
                         local color = i.fontClassColor and {classColor.r, classColor.g, classColor.b, 1} or (i.fontColor or {1,1,1,1})
+                        local infoText = name .. " " .. tostring(level)
                         if infoBar.textLeft and infoBar.textCenter and infoBar.textRight then
                             infoBar.textLeft:SetFont(font, fontSize, fontOutline)
                             infoBar.textLeft:SetTextColor(unpack(color))
@@ -719,74 +688,13 @@ end
                             infoBar.textCenter:SetTextColor(unpack(color))
                             infoBar.textRight:SetFont(font, fontSize, fontOutline)
                             infoBar.textRight:SetTextColor(unpack(color))
-                            local infoClassColorValue = classColor
-                            if i.classColor then
-                                local _, classToken = UnitClass(unit)
-                                if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                                    infoClassColorValue = RAID_CLASS_COLORS[classToken]
-                                end
-                            end
-                            if i.classColor and infoClassColorValue then
-                                print("[MidnightUI] UpdateUnitFrame: i.classColor=", tostring(i.classColor), "db.info.classColor=", tostring((self.db and self.db.profile and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'] and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].info and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].info.classColor)))
-                                print("[MidnightUI] Setting infoBar to classColor")
-                                infoBar:SetStatusBarColor(infoClassColorValue.r, infoClassColorValue.g, infoClassColorValue.b, 1)
-                            elseif i.color then
-                                infoBar:SetStatusBarColor(unpack(i.color))
-                            else
-                                infoBar:SetStatusBarColor(0.8,0.8,0.2,1)
-                            end
-                            -- Only replace tags that are not health percent
-                            local function parseTagsNoPercent(fmt)
-                                if not fmt or fmt == "" then return "" end
-                                local function safeGsub(str, pattern, repl)
-                                    local ok, result = pcall(function()
-                                        return str:gsub(pattern, tostring(repl))
-                                    end)
-                                    if ok then return result else return str end
-                                end
-                                local s = tostring(fmt)
-                                s = safeGsub(s, "%[name%]", name)
-                                s = safeGsub(s, "%[level%]", level)
-                                s = safeGsub(s, "%[class%]", (className ~= '' and className) or classToken)
-                                s = safeGsub(s, "%[curhp%]", safeCurhp)
-                                s = safeGsub(s, "%[maxhp%]", safeMaxhp)
-                                s = safeGsub(s, "%[curpp%]", safeCurpp)
-                                s = safeGsub(s, "%[maxpp%]", safeMaxpp)
-                                s = safeGsub(s, "%[perpp%]", ppPct)
-                                return s
-                            end
-                            -- Insert health percent robustly
-                            local function insertPercent(str)
-                                if str:find("%[perhp%]") then
-                                    if hpPct then
-                                        return str:gsub("%[perhp%]", tostring(hpPct))
-                                    else
-                                        return str:gsub("%[perhp%]", "")
-                                    end
-                                end
-                                return str
-                            end
-                            infoBar.textLeft:SetText(insertPercent(parseTagsNoPercent(i.textLeft or "")))
-                            infoBar.textCenter:SetText(insertPercent(parseTagsNoPercent(i.textCenter or "")))
-                            infoBar.textRight:SetText(insertPercent(parseTagsNoPercent(i.textRight or "")))
+                            infoBar.textLeft:SetText("")
+                            infoBar.textCenter:SetText(infoText)
+                            infoBar.textRight:SetText("")
                         elseif infoBar.text then
                             infoBar.text:SetFont(font, fontSize, fontOutline)
                             infoBar.text:SetTextColor(unpack(color))
-                            if i.classColor then
-                                infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
-                            else
-                                infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
-                            end
-                            local infoFormat = i.text or "[name] [level] [class]"
-                            local infoStr = parseTagsNoPercent(infoFormat)
-                            if infoFormat:find("%[perhp%]") then
-                                if hpPct then
-                                    infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
-                                else
-                                    infoStr = infoStr:gsub("%[perhp%]", "")
-                                end
-                            end
-                            infoBar.text:SetText(infoStr)
+                            infoBar.text:SetText(infoText)
                         end
                     end
                 end
