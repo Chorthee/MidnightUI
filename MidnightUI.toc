@@ -49,3 +49,4 @@ Modules\Frames\Player.lua
 Modules\Frames\Target.lua
 Modules\Frames\TargetTarget.lua
 Modules\Cooldowns.lua
+Modules\Frames\Focus.lua

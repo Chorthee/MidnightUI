@@ -114,6 +114,12 @@ function UnitFrames:GetOptions()
                 order = 3,
                 args = self.GetTargetTargetOptions_Real and self:GetTargetTargetOptions_Real().args or {},
             },
+            focus = {
+                name = "Focus",
+                type = "group",
+                order = 4,
+                args = self.GetFocusOptions_Real and self:GetFocusOptions_Real().args or {},
+            },
         },
     }
 end

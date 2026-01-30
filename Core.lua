@@ -56,6 +56,11 @@ function MidnightUI:OnEnable()
             AceConfigDialog:SetDefaultSize("MidnightUI", 900, 700)
         end
     end)
+    
+    -- Load Focus Frame if present
+    if UnitFrames and UnitFrames.CreateFocusFrame then
+        UnitFrames:CreateFocusFrame()
+    end
 end
 
 function MidnightUI:SlashCommand(input)
