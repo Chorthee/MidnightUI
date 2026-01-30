@@ -395,6 +395,7 @@ function Bar:CreateVolumeFrame()
         vTitle:SetTextColor(r, g, b)
     end)
 end
+end
 
     volFrame:SetScript("OnUpdate", function(self, elapsed)
         if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then 
