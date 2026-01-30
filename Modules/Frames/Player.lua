@@ -26,11 +26,11 @@ function UnitFrames:GetPlayerOptions_Real()
                 args = {
                     movable = {
                         type = "toggle",
-                        name = "Unlock Frame",
-                        desc = "Allow the Player Frame to be moved.",
+                        name = "Lock Frame",
+                        desc = "Prevent the Player Frame from being moved.",
                         order = 1,
-                        get = function() return db.movable or false end,
-                        set = function(_, v) db.movable = v; update() end,
+                        get = function() return not (db.movable == false or db.movable == nil) end,
+                        set = function(_, v) db.movable = not v; update() end,
                     },
                     posX = {
                         type = "range",
