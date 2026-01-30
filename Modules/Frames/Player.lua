@@ -251,60 +251,7 @@ function UnitFrames:GetPlayerOptions_Real()
                 order = 2,
                 inline = true,
                 args = {
-                    showTags = {
-                        type = "execute",
-                        name = "Show Available Tags",
-                        order = 99,
-                        hidden = function()
-                            local presetSel = (db.power and db.power.textPreset) or nil
-                            if not presetSel then
-                                local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                                presetSel = (t == "[curpp]" and "cur") or (t == "[curpp] / [maxpp]" and "curmax") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        func = function()
-                            if not _G.MidnightUI_TagHelp then
-                                local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
-                                f:SetSize(340, 220)
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:SetPoint("CENTER")
-                                end
-                                f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
-                                f:SetBackdropColor(0,0,0,0.9)
-                                f:SetFrameStrata("DIALOG")
-                                f:SetMovable(true)
-                                f:EnableMouse(true)
-                                f:RegisterForDrag("LeftButton")
-                                f:SetScript("OnDragStart", f.StartMoving)
-                                f:SetScript("OnDragStop", f.StopMovingOrSizing)
-                                local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-                                title:SetPoint("TOP", 0, -10)
-                                title:SetText("Available Tags")
-                                local tags = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-                                tags:SetPoint("TOPLEFT", 16, -40)
-                                tags:SetJustifyH("LEFT")
-                                tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
-                                local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-                                close:SetPoint("TOPRIGHT", 0, 0)
-                            else
-                                local f = _G.MidnightUI_TagHelp
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:ClearAllPoints()
-                                    f:SetPoint("CENTER")
-                                end
-                            end
-                            _G.MidnightUI_TagHelp:Show()
-                        end,
-                    },
+                    -- Show Available Tags button removed
                     enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.power and db.power.enabled end, set = function(_, v) db.power.enabled = v; update() end },
                     attachTo = {
                         type = "select",
@@ -355,47 +302,9 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.power and db.power.fontOutline or "OUTLINE" end, set = function(_, v) db.power.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.power and db.power.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.power.fontColor = {r,g,b,a}; update() end },
                     textPreset = {
-                        type = "select",
-                        name = "Text Preset",
-                        order = 9.8,
-                        values = {
-                            none = "None",
-                            cur = "Current Only",
-                            curmax = "Current / Max",
-                            advanced = "Advanced (Custom Format)"
-                        },
-                        get = function()
-                            local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                            if t == "" then return "none"
-                            elseif t == "[curpp]" then return "cur"
-                            elseif t == "[curpp] / [maxpp]" then return "curmax"
-                            else return "advanced" end
-                        end,
-                        set = function(_, v)
-                            if v == "none" then db.power.text = ""
-                            elseif v == "cur" then db.power.text = "[curpp]"
-                            elseif v == "curmax" then db.power.text = "[curpp] / [maxpp]"
-                            elseif v == "advanced" then
-                                local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                                if t == "[curpp]" or t == "[curpp] / [maxpp]" then
-                                    db.power.text = "[curpp] / [maxpp] - custom"
-                                end
-                            end
-                            update()
-                        end,
-                    },
+                        -- Text Preset removed (static text only)
                     text = {
-                        type = "input",
-                        name = "Text Format",
-                        order = 10,
-                        hidden = function()
-                            local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                            local preset = t == "[curpp]" or t == "[curpp] / [maxpp]"
-                            local presetSel = (db.power and db.power.textPreset) or nil
-                            return preset and (not (presetSel == "advanced"))
-                        end,
-                        get = function() return db.power and db.power.text or "[curpp] / [maxpp]" end,
-                        set = function(_, v) db.power.text = v; update() end
+                        -- Text Format input removed (static text only)
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.power and db.power.textPos or "CENTER" end, set = function(_, v) db.power.textPos = v; update() end },
                     texture = {
@@ -421,60 +330,7 @@ function UnitFrames:GetPlayerOptions_Real()
                 order = 3,
                 inline = true,
                 args = {
-                    showTags = {
-                        type = "execute",
-                        name = "Show Available Tags",
-                        order = 99,
-                        hidden = function()
-                            local presetSel = (db.info and db.info.textPreset) or nil
-                            if not presetSel then
-                                local t = db.info and db.info.text or "[name] [level] [class]"
-                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        func = function()
-                            if not _G.MidnightUI_TagHelp then
-                                local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
-                                f:SetSize(340, 220)
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:SetPoint("CENTER")
-                                end
-                                f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
-                                f:SetBackdropColor(0,0,0,0.9)
-                                f:SetFrameStrata("DIALOG")
-                                f:SetMovable(true)
-                                f:EnableMouse(true)
-                                f:RegisterForDrag("LeftButton")
-                                f:SetScript("OnDragStart", f.StartMoving)
-                                f:SetScript("OnDragStop", f.StopMovingOrSizing)
-                                local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-                                title:SetPoint("TOP", 0, -10)
-                                title:SetText("Available Tags")
-                                local tags = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-                                tags:SetPoint("TOPLEFT", 16, -40)
-                                tags:SetJustifyH("LEFT")
-                                tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
-                                local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-                                close:SetPoint("TOPRIGHT", 0, 0)
-                            else
-                                local f = _G.MidnightUI_TagHelp
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:ClearAllPoints()
-                                    f:SetPoint("CENTER")
-                                end
-                            end
-                            _G.MidnightUI_TagHelp:Show()
-                        end,
-                    },
+                    -- Show Available Tags button removed
                     enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.info and db.info.enabled end, set = function(_, v) db.info.enabled = v; update() end },
                     attachTo = {
                         type = "select",
@@ -526,98 +382,15 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.info and db.info.fontOutline or "OUTLINE" end, set = function(_, v) db.info.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.info and db.info.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.info.fontColor = {r,g,b,a}; update() end },
                     textPreset = {
-                        type = "select",
-                        name = "Text Preset",
-                        order = 9.8,
-                        values = {
-                            none = "None",
-                            name = "Name Only",
-                            namelevel = "Name + Level",
-                            all = "All Info",
-                            advanced = "Advanced (Custom Format)"
-                        },
-                        get = function()
-                            local t = db.info and db.info.text or "[name] [level] [class]"
-                            if t == "" then return "none"
-                            elseif t == "[name]" then return "name"
-                            elseif t == "[name] [level]" then return "namelevel"
-                            elseif t == "[name] [level] [class]" then return "all"
-                            else return "advanced" end
-                        end,
-                        set = function(_, v)
-                            if v == "none" then
-                                db.info.text = ""
-                                db.info.textLeft = ""
-                                db.info.textCenter = ""
-                                db.info.textRight = ""
-                            elseif v == "name" then
-                                db.info.text = "[name]"
-                                db.info.textLeft = "[name]"
-                                db.info.textCenter = ""
-                                db.info.textRight = ""
-                            elseif v == "namelevel" then
-                                db.info.text = "[name] [level]"
-                                db.info.textLeft = "[name]"
-                                db.info.textCenter = "[level]"
-                                db.info.textRight = ""
-                            elseif v == "all" then
-                                db.info.text = "[name] [level] [class]"
-                                db.info.textLeft = "[name]"
-                                db.info.textCenter = "[level]"
-                                db.info.textRight = "[class]"
-                            elseif v == "advanced" then
-                                local t = db.info and db.info.text or "[name] [level] [class]"
-                                if t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]" then
-                                    db.info.text = "[name] [level] [class] - custom"
-                                end
-                            end
-                            update()
-                        end,
-                    },
+                        -- Text Preset removed (static text only)
                     textLeft = {
-                        type = "input",
-                        name = "Left Text",
-                        order = 10,
-                        hidden = function()
-                            local presetSel = (db.info and db.info.textPreset) or nil
-                            if not presetSel then
-                                local t = db.info and db.info.text or "[name] [level] [class]"
-                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        get = function() return db.info and db.info.textLeft or "[name]" end,
-                        set = function(_, v) db.info.textLeft = v; update() end
+                        -- Left Text input removed (static text only)
                     },
                     textCenter = {
-                        type = "input",
-                        name = "Center Text",
-                        order = 10.1,
-                        hidden = function()
-                            local presetSel = (db.info and db.info.textPreset) or nil
-                            if not presetSel then
-                                local t = db.info and db.info.text or "[name] [level] [class]"
-                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        get = function() return db.info and db.info.textCenter or "" end,
-                        set = function(_, v) db.info.textCenter = v; update() end
+                        -- Center Text input removed (static text only)
                     },
                     textRight = {
-                        type = "input",
-                        name = "Right Text",
-                        order = 10.2,
-                        hidden = function()
-                            local presetSel = (db.info and db.info.textPreset) or nil
-                            if not presetSel then
-                                local t = db.info and db.info.text or "[name] [level] [class]"
-                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        get = function() return db.info and db.info.textRight or "[level]" end,
-                        set = function(_, v) db.info.textRight = v; update() end
+                        -- Right Text input removed (static text only)
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.info and db.info.textPos or "CENTER" end, set = function(_, v) db.info.textPos = v; update() end },
                     texture = {
