@@ -172,27 +172,11 @@ local defaults = {
                 skin = "Midnight",    
                 padding = 10, 
                 point = "TOP", 
-                x = 0, y = 0
-            },
-        },
-        bars = {
-            ["MainBar"] = { 
-                enabled = true, 
-                fullWidth = true, 
-                width = 600, 
-                height = 24, 
-                scale = 1.0,
-                alpha = 0.6, 
-                color = {r = 0.1, g = 0.1, b = 0.1}, 
-                texture = "Blizzard", 
-                skin = "Midnight",    
-                padding = 10, 
-                point = "TOP", 
                 x = 0, y = 0,
                 font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT",
             },
         },
-end
+    }
 
 local function ShortenValue(text)
     if not text or text == "" then 
