@@ -84,13 +84,15 @@ end
 function AB:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
     -- Use OnUpdate polling to detect cursor changes for showing empty buttons
+    -- Show empty buttons whenever any icon is being dragged from any UI page (Spellbook, Talents, Macros, Mounts, Pets, Heirlooms, Bags, etc.)
     if not self.cursorUpdateFrame then
         self.cursorUpdateFrame = CreateFrame("Frame")
-        self.cursorUpdateFrame.lastCursorType = nil
+        self.cursorUpdateFrame.lastCursorActive = false
         self.cursorUpdateFrame:SetScript("OnUpdate", function()
-            local type = GetCursorInfo and GetCursorInfo()
-            if type ~= self.cursorUpdateFrame.lastCursorType then
-                self.cursorUpdateFrame.lastCursorType = type
+            local cursorType = GetCursorInfo and GetCursorInfo()
+            local dragging = cursorType ~= nil
+            if dragging ~= self.cursorUpdateFrame.lastCursorActive then
+                self.cursorUpdateFrame.lastCursorActive = dragging
                 AB:CURSOR_UPDATE()
             end
         end)
@@ -1100,9 +1102,9 @@ function AB:UpdateEmptyButtons(barKey)
 end
 
 function AB:CURSOR_UPDATE()
-    -- Show empty buttons if dragging a spell, macro, or item from the spellbook or bags
-    local type = GetCursorInfo and GetCursorInfo()
-    if type == "spell" or type == "macro" or type == "item" then
+    -- Show empty buttons if anything is being dragged from any UI page (spell, macro, item, mount, pet, heirloom, etc.)
+    local dragging = (GetCursorInfo and GetCursorInfo()) ~= nil
+    if dragging then
         if not forceShowEmpty then
             forceShowEmpty = true
             AB:UpdateAllEmptyButtons()
