@@ -493,6 +493,10 @@ end
                     end
 
                     local curhp, maxhp = UnitHealth(unit), UnitHealthMax(unit)
+                    if unit == "player" then
+                        if curhp == nil then curhp = 0 end
+                        if maxhp == nil then maxhp = 0 end
+                    end
                     -- Class color logic
                     local _, classToken = UnitClass(unit)
                     local classColor = RAID_CLASS_COLORS and classToken and RAID_CLASS_COLORS[classToken] or { r = 1, g = 1, b = 1 }
