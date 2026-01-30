@@ -544,10 +544,26 @@ end
                     local level = UnitLevel and UnitLevel(unit) or ""
                     local className = (UnitClass and select(1, UnitClass(unit))) or ""
                     local classToken = (UnitClass and select(2, UnitClass(unit))) or ""
-                    local safeCurhp = (UnitHealth and UnitHealth(unit)) or 0
-                    local safeMaxhp = (UnitHealthMax and UnitHealthMax(unit)) or 0
-                    local safeCurpp = (UnitPower and UnitPower(unit)) or 0
-                    local safeMaxpp = (UnitPowerMax and UnitPowerMax(unit)) or 0
+                    local safeCurhp = 0
+                    if UnitHealth then
+                        local ok, val = pcall(UnitHealth, unit)
+                        if ok and val then safeCurhp = val end
+                    end
+                    local safeMaxhp = 0
+                    if UnitHealthMax then
+                        local ok, val = pcall(UnitHealthMax, unit)
+                        if ok and val then safeMaxhp = val end
+                    end
+                    local safeCurpp = 0
+                    if UnitPower then
+                        local ok, val = pcall(UnitPower, unit)
+                        if ok and val then safeCurpp = val end
+                    end
+                    local safeMaxpp = 0
+                    if UnitPowerMax then
+                        local ok, val = pcall(UnitPowerMax, unit)
+                        if ok and val then safeMaxpp = val end
+                    end
                     local ppPct = 0
                     if safeMaxpp > 0 then
                         local ok, pct = pcall(function() return math.floor((safeCurpp / safeMaxpp) * 100) end)
