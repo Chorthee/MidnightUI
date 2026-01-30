@@ -639,6 +639,13 @@ end
                     end
                     frame.healthBar.text:SetText(healthStr)
 
+                    -- Set class color for healthBar if enabled
+                    if h.classColor and classColor then
+                        frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                    elseif h.color then
+                        frame.healthBar:SetStatusBarColor(unpack(h.color))
+                    end
+
                     -- Power Bar
                     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
                     frame.powerBar:SetMinMaxValues(0, maxpp)
@@ -702,10 +709,12 @@ end
                             infoBar.textCenter:SetTextColor(unpack(color))
                             infoBar.textRight:SetFont(font, fontSize, fontOutline)
                             infoBar.textRight:SetTextColor(unpack(color))
-                            if i.classColor then
+                            if i.classColor and classColor then
                                 infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                            elseif i.color then
+                                infoBar:SetStatusBarColor(unpack(i.color))
                             else
-                                infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
+                                infoBar:SetStatusBarColor(0.8,0.8,0.2,1)
                             end
                             -- Only replace tags that are not health percent
                             local function parseTagsNoPercent(fmt)
