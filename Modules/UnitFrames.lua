@@ -1,3 +1,13 @@
+-- Utility: Sanitize a color table to ensure all values are plain numbers (not secret values)
+local function SanitizeColorTable(color, fallback)
+    fallback = fallback or {1, 1, 1, 1}
+    if type(color) ~= "table" then return fallback end
+    local r = tonumber(color[1]) or fallback[1] or 1
+    local g = tonumber(color[2]) or fallback[2] or 1
+    local b = tonumber(color[3]) or fallback[3] or 1
+    local a = tonumber(color[4]) or fallback[4] or 1
+    return {r, g, b, a}
+end
 -- Helper: Health percent with 12.0+ API compatibility (QUI-style)
 local tocVersion = tonumber((select(4, GetBuildInfo()))) or 0
 local function GetHealthPct(unit, usePredicted)
@@ -332,7 +342,8 @@ end
                 local function CreateBar(parent, opts, yOffset)
                     local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
                     bar:SetStatusBarTexture(LSM:Fetch("statusbar", opts.texture or "Flat"))
-                    bar:SetStatusBarColor(unpack(opts.color))
+                    local safeColor = SanitizeColorTable(opts.color, {0.2, 0.8, 0.2, 1})
+                    bar:SetStatusBarColor(unpack(safeColor))
                     bar:SetMinMaxValues(0, 1)
                     bar:SetValue(1)
                     bar:SetHeight(opts.height)
@@ -368,12 +379,14 @@ end
                         -- Always use solid black for health bar background
                         -- For power bar, use foreground color with 20% alpha for background
                         if opts and opts.bgColor and opts.bgColor[4] == 0.2 then
-                            local fg = opts.color or {0.2, 0.4, 0.8, 1}
+                            local fg = SanitizeColorTable(opts.color, {0.2, 0.4, 0.8, 1})
                             bar.bg:SetColorTexture(fg[1], fg[2], fg[3], 0.2)
                         elseif opts and opts.bgColor and opts.bgColor[1] == 0 and opts.bgColor[2] == 0 and opts.bgColor[3] == 0 then
-                            bar.bg:SetColorTexture(0, 0, 0, opts.bgColor[4] or 0)
+                            local safeBG = SanitizeColorTable(opts.bgColor, {0, 0, 0, 0})
+                            bar.bg:SetColorTexture(safeBG[1], safeBG[2], safeBG[3], safeBG[4])
                         else
-                            bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                            local safeBG = SanitizeColorTable(opts.bgColor, {0,0,0,0.5})
+                            bar.bg:SetColorTexture(safeBG[1], safeBG[2], safeBG[3], safeBG[4])
                         end
                     end
                     -- Info bar: create three FontStrings for left, center, right
@@ -658,7 +671,11 @@ end
                         local _, classToken = UnitClass(unit)
                         if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                             local classColorValue = RAID_CLASS_COLORS[classToken]
-                            frame.healthBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                            frame.healthBar:SetStatusBarColor(
+                                tonumber(classColorValue.r) or 1,
+                                tonumber(classColorValue.g) or 1,
+                                tonumber(classColorValue.b) or 1,
+                                1)
                             colorSet = true
                         end
                     elseif h.hostilityColor then
@@ -675,7 +692,7 @@ end
                         end
                     end
                     if not colorSet then
-                        local c = h.color or {0.2, 0.2, 0.2, 1}
+                        local c = SanitizeColorTable(h.color, {0.2, 0.2, 0.2, 1})
                         frame.healthBar:SetStatusBarColor(c[1], c[2], c[3], c[4] or 1)
                     end
 
@@ -694,7 +711,8 @@ end
                     if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
                         powerColor = GetPowerTypeColor(unit)
                     end
-                    frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
+                    local safePowerColor = SanitizeColorTable(powerColor, {0.2,0.4,0.8,1})
+                    frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
                     -- Set static power bar text: current power percent
                     frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
 
