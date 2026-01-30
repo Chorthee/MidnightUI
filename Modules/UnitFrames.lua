@@ -265,6 +265,7 @@ end
                     frame:SetFrameStrata("HIGH")
                     frame:Show()
                     MidnightUI:SkinFrame(frame)
+                    -- DEBUG: Red border for frame boundary visualization. Remove for release!
                     frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
                     frame.debugBorder:SetAllPoints()
                     frame.debugBorder:SetColorTexture(1,0,0,0.5)
