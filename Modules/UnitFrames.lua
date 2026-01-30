@@ -441,13 +441,21 @@ end
                         if n then return n end
                         return 0
                     end
+                    local function isSafeNumber(val)
+                        if val == nil then return false end
+                        local n = tonumber(val)
+                        if not n then return false end
+                        -- Blizzard 'secret value' check: not a plain number
+                        if tostring(val):find('secret') or tostring(val):find('no value') then return false end
+                        return true
+                    end
                     local safeCurhp = 0
-                    if curhp ~= nil then
-                        safeCurhp = tonumber(curhp) or 0
+                    if isSafeNumber(curhp) then
+                        safeCurhp = tonumber(curhp)
                     end
                     local safeMaxhp = 0
-                    if maxhp ~= nil then
-                        safeMaxhp = tonumber(maxhp) or 0
+                    if isSafeNumber(maxhp) then
+                        safeMaxhp = tonumber(maxhp)
                     end
                     local hpPct = 0
                     if safeMaxhp > 0 then
