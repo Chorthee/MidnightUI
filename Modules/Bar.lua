@@ -390,22 +390,21 @@ function Bar:CreateVolumeFrame()
         local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
         local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.ttf"
         local r, g, b = GetColor()
-        
         vTitle:SetFont(fontPath, db.fontSize + 2, "OUTLINE")
         vTitle:SetTextColor(r, g, b)
     end)
-end
 
     volFrame:SetScript("OnUpdate", function(self, elapsed)
-        if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then 
+        if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then
             self.timer = 0
-        else 
+        else
             self.timer = (self.timer or 0) + elapsed
-            if self.timer > 0.2 then 
-                self:Hide() 
-            end 
+            if self.timer > 0.2 then
+                self:Hide()
+            end
         end
     end)
+end
 
     local function CreateSlider(name, label, cvar, parent, yOffset)
         local s = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
@@ -447,8 +446,7 @@ end
     -- UPDATED CHECKBOX LABELS
     CreateCheck("Loop Music", "Sound_ZoneMusicNoDelay", volFrame, -210)
     CreateCheck("Sound in Background", "Sound_EnableSoundWhenGameIsInBG", volFrame, -240) 
-	CreateCheck("Play Error Speech", "Sound_EnableErrorSpeech", volFrame, -270)
-end
+    CreateCheck("Play Error Speech", "Sound_EnableErrorSpeech", volFrame, -270)
 
 -- FRIENDS LIST
 function Bar:CreateFriendsFrame()
