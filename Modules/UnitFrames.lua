@@ -183,7 +183,7 @@ end
                         { name = "Max Only", value = "[maxhp]" },
                         { name = "Percent Only", value = "[perhp]%" },
                     },
-                    texture = "Flat"
+                    texture = "Blizzard Raid Bar"
                 },
                 power = {
                     enabled = true,
@@ -192,7 +192,7 @@ end
                     bgColor = {0, 0, 0, 0.5},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curpp] / [maxpp]", textPos = "CENTER",
-                    texture = "Flat"
+                    texture = "Blizzard Raid Bar"
                 },
                 info = {
                     enabled = true, width = 220, height = 10,
@@ -203,7 +203,7 @@ end
                     textLeft = nil,
                     textCenter = "[name] [level] [class]",
                     textRight = nil,
-                    texture = "Flat"
+                    texture = "Blizzard Raid Bar"
                 }
             },
             target = {
