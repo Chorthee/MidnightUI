@@ -670,7 +670,7 @@ end
                     end
                     -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
                     -- Only assign once, right before use, and never shadow with nil
-                    local powerStr = tostring(powerFormat)
+                    local powerStr = (type(powerFormat) == "string") and powerFormat or ""
                     powerStr = powerStr:gsub("%[name%]", safeStr(name))
                     powerStr = powerStr:gsub("%[level%]", safeStr(level))
                     powerStr = powerStr:gsub("%[class%]", safeStr((className ~= '' and className) or classToken))
