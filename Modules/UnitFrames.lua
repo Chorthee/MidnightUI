@@ -549,7 +549,7 @@ end
                 -- Reset position function for PlayerFrame
                 function UnitFrames:ResetUnitFramePosition(key)
                     local db = self.db.profile
-                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget") or (key == "FocusFrame" and "focus")
                     if not db[frameKey] then return end
                     db[frameKey].posX = 0
                     db[frameKey].posY = 0
@@ -584,7 +584,7 @@ end
 
                 function UnitFrames:UpdateUnitFrame(key, unit)
                     local db = self.db.profile
-                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget") or (key == "FocusFrame" and "focus")
                     local frameDB = db[frameKey]
                     if not frameDB then return end
                     local h, p, i = frameDB.health, frameDB.power, frameDB.info
@@ -792,18 +792,21 @@ end
                     if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
                     if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
                     if self.db.profile.showTargetTarget then print("[MidnightUI] Creating TargetTargetFrame"); self:CreateTargetTargetFrame() end
+                    if self.db.profile.showFocus then print("[MidnightUI] Creating FocusFrame"); self:CreateFocusFrame() end
                     SetBlizzardFramesHidden(self)
                 end
 
                 function UnitFrames:PLAYER_TARGET_CHANGED()
                     if self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
                     if self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+                    if self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
                 end
 
                 function UnitFrames:UNIT_HEALTH(event, unit)
                     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
                     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
                     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+                    if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
                     SetBlizzardFramesHidden(self)
                 end
 
@@ -811,6 +814,7 @@ end
                     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
                     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
                     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+                    if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
                     SetBlizzardFramesHidden(self)
                 end
 
@@ -818,12 +822,16 @@ end
                     if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
                     if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
                     if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+                    if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
                     SetBlizzardFramesHidden(self)
                 end
 
                 function UnitFrames:UNIT_TARGET(event, unit)
                     if unit == "target" and self.db.profile.showTargetTarget then
                         self:UpdateUnitFrame("TargetTargetFrame", "targettarget")
+                    end
+                    if unit == "focus" and self.db.profile.showFocus then
+                        self:UpdateUnitFrame("FocusFrame", "focus")
                     end
                 end
 
