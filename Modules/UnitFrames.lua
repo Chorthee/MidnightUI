@@ -232,6 +232,7 @@ end
                     return bar
                 end
 
+
                 local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
                     if frames[key] then return end
                     local db = self.db.profile
@@ -246,11 +247,13 @@ end
                     local template = "SecureUnitButtonTemplate,BackdropTemplate"
                     local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
                     frame:SetSize(width, totalHeight)
+
+                    -- Use posX/posY if present, else fallback to position table, else 0
+                    local px = frameDB.posX or (frameDB.position and frameDB.position.x) or 0
+                    local py = frameDB.posY or (frameDB.position and frameDB.position.y) or 0
                     local myPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
                     local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
                     local relPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
-                    local px = x or (frameDB.position and frameDB.position.x) or 0
-                    local py = y or (frameDB.position and frameDB.position.y) or 0
                     frame:SetPoint(myPoint, relTo, relPoint, px, py)
                     frame:SetMovable(true)
                     frame:EnableMouse(true)
@@ -264,21 +267,52 @@ end
                     frame.debugBorder:SetBlendMode("ADD")
                     if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(px)..","..(py).." size "..width.."x"..totalHeight) end
 
+                    -- Drag to move if unlocked
+                    frame:RegisterForDrag("LeftButton")
+                    frame:SetScript("OnDragStart", function(self)
+                        if frameDB.movable then self:StartMoving() end
+                    end)
+                    frame:SetScript("OnDragStop", function(self)
+                        self:StopMovingOrSizing()
+                        local point, _, _, xOfs, yOfs = self:GetPoint()
+                        frameDB.posX = xOfs or 0
+                        frameDB.posY = yOfs or 0
+                    end)
+
+                    -- Bar attachment logic
                     local yOffset = 0
+                    local barRefs = {}
                     if h.enabled then
                         local healthBar = CreateBar(frame, h, yOffset)
                         healthBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
                         frame.healthBar = healthBar
+                        barRefs.health = healthBar
                         yOffset = yOffset - h.height - spacing
                     end
                     if p.enabled then
-                        local powerBar = CreateBar(frame, p, yOffset)
+                        local attachTo = (p.attachTo or "health")
+                        local attachBar = (attachTo ~= "none" and barRefs[attachTo]) or frame
+                        local powerBar = CreateBar(frame, p, 0)
+                        if attachBar and attachBar ~= frame then
+                            powerBar:SetPoint("TOP", attachBar, "BOTTOM", 0, -spacing)
+                        else
+                            powerBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
+                            yOffset = yOffset - p.height - spacing
+                        end
                         frame.powerBar = powerBar
-                        yOffset = yOffset - p.height - spacing
+                        barRefs.power = powerBar
                     end
                     if i.enabled then
-                        local infoBar = CreateBar(frame, i, yOffset)
+                        local attachTo = (i.attachTo or "health")
+                        local attachBar = (attachTo ~= "none" and barRefs[attachTo]) or frame
+                        local infoBar = CreateBar(frame, i, 0)
+                        if attachBar and attachBar ~= frame then
+                            infoBar:SetPoint("TOP", attachBar, "BOTTOM", 0, -spacing)
+                        else
+                            infoBar:SetPoint("TOP", frame, "TOP", 0, yOffset)
+                        end
                         frame.infoBar = infoBar
+                        barRefs.info = infoBar
                     end
 
                     if key == "PlayerFrame" then
@@ -297,6 +331,20 @@ end
 
                     frames[key] = frame
                     self:UpdateUnitFrame(key, unit)
+                end
+
+                -- Reset position function for PlayerFrame
+                function UnitFrames:ResetUnitFramePosition(key)
+                    local db = self.db.profile
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    if not db[frameKey] then return end
+                    db[frameKey].posX = 0
+                    db[frameKey].posY = 0
+                    if frames[key] then
+                        frames[key]:ClearAllPoints()
+                        frames[key]:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+                    end
+                    self:UpdateUnitFrame(key, frameKey)
                 end
 
                 function UnitFrames:CreatePlayerFrame()
