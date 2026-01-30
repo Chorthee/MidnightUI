@@ -437,7 +437,7 @@ end
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
                     local function safeNumber(val)
-                        if type(val) == "number" and tostring(val) ~= "<no value>" and tostring(val) ~= "(a secret value)" then
+                        if type(val) == "number" then
                             return val
                         elseif type(val) == "string" then
                             local n = tonumber(val)
