@@ -398,26 +398,56 @@ end
                     end
 
                     local curhp, maxhp = UnitHealth(unit), UnitHealthMax(unit)
+                    -- Class color logic
+                    local _, classToken = UnitClass(unit)
+                    local classColor = RAID_CLASS_COLORS and classToken and RAID_CLASS_COLORS[classToken] or { r = 1, g = 1, b = 1 }
+
+                    -- Health Bar
                     frame.healthBar:SetMinMaxValues(0, maxhp)
                     frame.healthBar:SetValue(curhp)
                     frame.healthBar.text:SetFont(LSM:Fetch("font", h.font), h.fontSize, h.fontOutline)
-                    frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
+                    if h.fontClassColor then
+                        frame.healthBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
+                    else
+                        frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
+                    end
+                    if h.classColor then
+                        frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                    else
+                        frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
+                    end
                     local hpPct = nil
                     pcall(function() hpPct = (maxhp and maxhp > 0) and math.floor((curhp / maxhp) * 100) or 0 end)
                     local healthStr = string.format("%s / %s (%s%%)", tostring(curhp or 0), tostring(maxhp or 0), tostring(hpPct or 0))
                     frame.healthBar.text:SetText(healthStr)
 
+                    -- Power Bar
                     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
                     frame.powerBar:SetMinMaxValues(0, maxpp)
                     frame.powerBar:SetValue(curpp)
                     frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
-                    frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
+                    if p.fontClassColor then
+                        frame.powerBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
+                    else
+                        frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
+                    end
+                    frame.powerBar:SetStatusBarColor(unpack(p.color or {0.2,0.4,0.8,1}))
                     local powerStr = string.format("%s / %s", tostring(curpp or 0), tostring(maxpp or 0))
                     frame.powerBar.text:SetText(powerStr)
 
+                    -- Info Bar
                     if frame.infoBar then
                         frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
-                        frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
+                        if i.fontClassColor then
+                            frame.infoBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
+                        else
+                            frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
+                        end
+                        if i.classColor then
+                            frame.infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                        else
+                            frame.infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
+                        end
                         local name = UnitName(unit) or ""
                         local level = UnitLevel(unit) or ""
                         local _, class = UnitClass(unit)
