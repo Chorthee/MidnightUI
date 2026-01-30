@@ -1,13 +1,96 @@
 MidnightUI/
-├── MidnightUI.toc          (Updated)
-├── Core.lua                (Updated Main Engine)
-├── LICENSE
+├── MidnightUI.toc
+├── Core.lua
+├── LICENSE.txt
+├── README.md
+├── MidnightUI Directory Structure.txt
 ├── Modules/
-│   ├── Bar.lua             (Formerly MidnightBar.lua)
-│   ├── UIButtons.lua       (Formerly MidnightUIButtons.lua)
-│   ├── Tweaks.lua          (Formerly MidnightTweaks.lua)
-│   ├── Maps.lua            (Your existing Maps module)
-│   ├── ActionBars.lua      (Your existing ActionBars module)
-│   ├── UnitFrames.lua      (Your existing UnitFrames module)
-│   └── Cooldowns.lua       (Your existing Cooldowns module)
-└── libs/                   (Your existing libs folder)
+│   ├── ActionBars.lua
+│   ├── Bar.lua
+│   ├── Chat.lua
+│   ├── Cooldowns.lua
+│   ├── Maps.lua
+│   ├── Movable.lua
+│   ├── Skins.lua
+│   ├── Tweaks.lua
+│   ├── UIButtons.lua
+│   ├── UnitFrames.lua
+│   └── Frames/
+│       ├── Player.lua
+│       ├── Target.lua
+│       └── TargetTarget.lua
+├── libs/
+│   ├── AceAddon-3.0/
+│   │   ├── AceAddon-3.0.lua
+│   │   └── AceAddon-3.0.xml
+│   ├── AceConfig-3.0/
+│   │   ├── AceConfig-3.0.lua
+│   │   ├── AceConfig-3.0.xml
+│   │   ├── AceConfigCmd-3.0/
+│   │   │   ├── AceConfigCmd-3.0.lua
+│   │   │   └── AceConfigCmd-3.0.xml
+│   │   ├── AceConfigDialog-3.0/
+│   │   │   ├── AceConfigDialog-3.0.lua
+│   │   │   └── AceConfigDialog-3.0.xml
+│   │   └── AceConfigRegistry-3.0/
+│   │       ├── AceConfigRegistry-3.0.lua
+│   │       └── AceConfigRegistry-3.0.xml
+│   ├── AceConsole-3.0/
+│   │   ├── AceConsole-3.0.lua
+│   │   └── AceConsole-3.0.xml
+│   ├── AceDB-3.0/
+│   │   ├── AceDB-3.0.lua
+│   │   └── AceDB-3.0.xml
+│   ├── AceDBOptions-3.0/
+│   │   ├── AceDBOptions-3.0.lua
+│   │   └── AceDBOptions-3.0.xml
+│   ├── AceEvent-3.0/
+│   │   ├── AceEvent-3.0.lua
+│   │   └── AceEvent-3.0.xml
+│   ├── AceGUI-3.0/
+│   │   ├── AceGUI-3.0.lua
+│   │   ├── AceGUI-3.0.xml
+│   │   └── widgets/
+│   │       ├── AceGUIContainer-BlizOptionsGroup.lua
+│   │       ├── AceGUIContainer-DropDownGroup.lua
+│   │       ├── AceGUIContainer-Frame.lua
+│   │       ├── AceGUIContainer-InlineGroup.lua
+│   │       ├── AceGUIContainer-ScrollFrame.lua
+│   │       ├── AceGUIContainer-SimpleGroup.lua
+│   │       ├── AceGUIContainer-TabGroup.lua
+│   │       ├── AceGUIContainer-TreeGroup.lua
+│   │       ├── AceGUIContainer-Window.lua
+│   │       ├── AceGUIWidget-Button.lua
+│   │       ├── AceGUIWidget-CheckBox.lua
+│   │       ├── AceGUIWidget-ColorPicker.lua
+│   │       ├── AceGUIWidget-DropDown-Items.lua
+│   │       ├── AceGUIWidget-DropDown.lua
+│   │       ├── AceGUIWidget-EditBox.lua
+│   │       ├── AceGUIWidget-Heading.lua
+│   │       ├── AceGUIWidget-Icon.lua
+│   │       ├── AceGUIWidget-InteractiveLabel.lua
+│   │       ├── AceGUIWidget-Keybinding.lua
+│   │       ├── AceGUIWidget-Label.lua
+│   │       ├── AceGUIWidget-MultiLineEditBox.lua
+│   │       └── AceGUIWidget-Slider.lua
+│   ├── AceGUI-3.0-SharedMediaWidgets/
+│   │   ├── BackgroundWidget.lua
+│   │   ├── BorderWidget.lua
+│   │   ├── FontWidget.lua
+│   │   ├── prototypes.lua
+│   │   ├── SoundWidget.lua
+│   │   ├── StatusbarWidget.lua
+│   │   └── widget.xml
+│   ├── AceHook-3.0/
+│   │   ├── AceHook-3.0.lua
+│   │   └── AceHook-3.0.xml
+│   ├── CallbackHandler-1.0/
+│   │   ├── CallbackHandler-1.0.lua
+│   │   └── CallbackHandler-1.0.xml
+│   ├── LibDatabroker-1.1/
+│   │   └── LibDataBroker-1.1.lua
+│   ├── LibSharedMedia-3.0/
+│   │   ├── lib.xml
+│   │   └── LibSharedMedia-3.0.lua
+│   └── LibStub/
+│       └── LibStub.lua
