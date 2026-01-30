@@ -538,10 +538,17 @@ end
                     end
                     local safeCurhp, safeMaxhp
                     if unit == "player" then
-                        if curhp == nil then curhp = 0 end
-                        if maxhp == nil then maxhp = 0 end
-                        safeCurhp = tonumber(curhp) or 0
-                        safeMaxhp = tonumber(maxhp) or 0
+                        -- Always use a real number for player health, never a secret value
+                        if curhp == nil or type(curhp) ~= "number" or tostring(curhp):find("secret") then
+                            safeCurhp = 0
+                        else
+                            safeCurhp = tonumber(curhp) or 0
+                        end
+                        if maxhp == nil or type(maxhp) ~= "number" or tostring(maxhp):find("secret") then
+                            safeMaxhp = 0
+                        else
+                            safeMaxhp = tonumber(maxhp) or 0
+                        end
                     else
                         safeCurhp = 0
                         if isSafeNumber(curhp) then
