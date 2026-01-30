@@ -13,6 +13,32 @@ function UnitFrames:GetPlayerOptions_Real()
         name = "Player Frame",
         args = {
             header = { type = "header", name = "Player Frame Bars", order = 0 },
+
+            -- Frame Movement
+            movement = {
+                type = "group",
+                name = "Frame Movement",
+                order = 0.5,
+                inline = true,
+                args = {
+                    movable = {
+                        type = "toggle",
+                        name = "Unlock Frame",
+                        desc = "Allow the Player Frame to be moved.",
+                        order = 1,
+                        get = function() return db.movable or false end,
+                        set = function(_, v) db.movable = v; update() end,
+                    },
+                    reset = {
+                        type = "execute",
+                        name = "Reset Position",
+                        desc = "Reset the Player Frame to its default position.",
+                        order = 2,
+                        func = function() if self.ResetUnitFramePosition then self:ResetUnitFramePosition("PlayerFrame") end end,
+                    },
+                },
+            },
+
             -- Health Bar
             health = {
                 type = "group",
@@ -42,6 +68,15 @@ function UnitFrames:GetPlayerOptions_Real()
                 inline = true,
                 args = {
                     enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.power and db.power.enabled end, set = function(_, v) db.power.enabled = v; update() end },
+                    attachTo = {
+                        type = "select",
+                        name = "Attach To",
+                        desc = "Attach the Power Bar to another bar. If hidden, attached bars will follow the selected bar.",
+                        order = 1.5,
+                        values = { health = "Health Bar", power = "Power Bar", info = "Info Bar", none = "None" },
+                        get = function() return db.power and db.power.attachTo or "health" end,
+                        set = function(_, v) db.power.attachTo = v; update() end,
+                    },
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 2, get = function() return db.power and db.power.width or 220 end, set = function(_, v) db.power.width = v; update() end },
                     height = { type = "range", name = "Height", min = 5, max = 100, step = 1, order = 3, get = function() return db.power and db.power.height or 12 end, set = function(_, v) db.power.height = v; update() end },
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.power and db.power.color or {0.2,0.4,0.8,1}) end, set = function(_, r,g,b,a) db.power.color = {r,g,b,a}; update() end },
@@ -63,6 +98,15 @@ function UnitFrames:GetPlayerOptions_Real()
                 inline = true,
                 args = {
                     enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.info and db.info.enabled end, set = function(_, v) db.info.enabled = v; update() end },
+                    attachTo = {
+                        type = "select",
+                        name = "Attach To",
+                        desc = "Attach the Info Bar to another bar. If hidden, attached bars will follow the selected bar.",
+                        order = 1.5,
+                        values = { health = "Health Bar", power = "Power Bar", info = "Info Bar", none = "None" },
+                        get = function() return db.info and db.info.attachTo or "health" end,
+                        set = function(_, v) db.info.attachTo = v; update() end,
+                    },
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 2, get = function() return db.info and db.info.width or 220 end, set = function(_, v) db.info.width = v; update() end },
                     height = { type = "range", name = "Height", min = 5, max = 100, step = 1, order = 3, get = function() return db.info and db.info.height or 10 end, set = function(_, v) db.info.height = v; update() end },
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.info and db.info.color or {0.8,0.8,0.2,1}) end, set = function(_, r,g,b,a) db.info.color = {r,g,b,a}; update() end },
