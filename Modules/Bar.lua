@@ -1871,7 +1871,7 @@ function Bar:GetOptions()
                     min = 50, 
                     max = screenWidth, 
                     step = 1, 
-                    disabled = function() return self.db.profile.brokers[id].fullWidth end, 
+                    disabled = function() return self.db.profile.brokers[id] and self.db.profile.brokers[id].fullWidth or false end, 
                     get = function() return self.db.profile.bars[id].width end, 
                     set = function(_, v) self.db.profile.bars[id].width = v; self:ApplyBarSettings(id) end 
                 },
