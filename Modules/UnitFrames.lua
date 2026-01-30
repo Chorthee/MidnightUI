@@ -1,14 +1,11 @@
--- Helper: Health percent with 12.0+ API compatibility
+-- Helper: Health percent with 12.0+ API compatibility (QUI-style)
 local tocVersion = tonumber((select(4, GetBuildInfo()))) or 0
-
 local function GetHealthPct(unit, usePredicted)
     if tocVersion >= 120000 and type(UnitHealthPercent) == "function" then
         local ok, pct
-        -- 12.0+: Use curve parameter (new API)
         if CurveConstants and CurveConstants.ScaleTo100 then
             ok, pct = pcall(UnitHealthPercent, unit, usePredicted, CurveConstants.ScaleTo100)
         end
-        -- Fallback for older builds
         if not ok or pct == nil then
             ok, pct = pcall(UnitHealthPercent, unit, usePredicted)
         end
@@ -16,15 +13,41 @@ local function GetHealthPct(unit, usePredicted)
             return pct
         end
     end
-    -- Manual calculation fallback
     if UnitHealth and UnitHealthMax then
         local cur = UnitHealth(unit)
         local max = UnitHealthMax(unit)
         if cur and max and max > 0 then
-            -- Use pcall to handle secret values
             local ok, pct = pcall(function() return (cur / max) * 100 end)
             if ok then return pct end
         end
+    end
+    return nil
+end
+
+-- Helper: Power percent with 12.0+ API compatibility (QUI-style)
+local function GetPowerPct(unit, powerType, usePredicted)
+    if tocVersion >= 120000 and type(UnitPowerPercent) == "function" then
+        local ok, pct
+        if CurveConstants and CurveConstants.ScaleTo100 then
+            ok, pct = pcall(UnitPowerPercent, unit, powerType, usePredicted, CurveConstants.ScaleTo100)
+        end
+        if not ok or pct == nil then
+            ok, pct = pcall(UnitPowerPercent, unit, powerType, usePredicted)
+        end
+        if ok and pct ~= nil then
+            return pct
+        end
+    end
+    local cur = UnitPower and UnitPower(unit, powerType) or 0
+    local max = UnitPowerMax and UnitPowerMax(unit, powerType) or 0
+    local calcOk, result = pcall(function()
+        if cur and max and max > 0 then
+            return (cur / max) * 100
+        end
+        return nil
+    end)
+    if calcOk and result then
+        return result
     end
     return nil
 end
@@ -526,7 +549,7 @@ end
                     local frame = frames[key]
                     if not frame then return end
 
-                    -- Calculate health percent robustly
+                    -- Calculate health percent robustly (QUI-style)
                     local hpPct = GetHealthPct(unit)
                     if hpPct then
                         local ok, floored = pcall(math.floor, hpPct)
@@ -537,6 +560,19 @@ end
                         end
                     else
                         hpPct = nil
+                    end
+
+                    -- Calculate power percent robustly (QUI-style)
+                    local ppPct = GetPowerPct(unit)
+                    if ppPct then
+                        local ok, floored = pcall(math.floor, ppPct)
+                        if ok and floored then
+                            ppPct = floored
+                        else
+                            ppPct = nil
+                        end
+                    else
+                        ppPct = nil
                     end
 
                     -- Defensive: ensure all variables used in gsub are strings or numbers, never nil
@@ -564,16 +600,8 @@ end
                         local ok, val = pcall(UnitPowerMax, unit)
                         if ok and val then safeMaxpp = val end
                     end
-                    local ppPct = 0
-                    if safeMaxpp > 0 then
-                        local ok, pct = pcall(function() return math.floor((safeCurpp / safeMaxpp) * 100) end)
-                        if ok and pct then
-                            ppPct = pct
-                        else
-                            ppPct = 0
-                        end
-                    end
                     if hpPct == nil then hpPct = 0 end
+                    if ppPct == nil then ppPct = 0 end
 
                     -- Format health text directly, not using tag parsing
                     local healthStr = ""
