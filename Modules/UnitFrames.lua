@@ -672,16 +672,22 @@ end
                     end
                     -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
                     -- Only assign once, right before use, and never shadow with nil
+                    local function safeGsub(str, pattern, repl)
+                        local ok, result = pcall(function()
+                            return str:gsub(pattern, repl)
+                        end)
+                        if ok then return result else return str end
+                    end
                     local powerStr = (type(powerFormat) == "string") and powerFormat or ""
-                    powerStr = powerStr:gsub("%[name%]", tostring(safeStr(name)))
-                    powerStr = powerStr:gsub("%[level%]", tostring(safeStr(level)))
-                    powerStr = powerStr:gsub("%[class%]", tostring(safeStr((className ~= '' and className) or classToken)))
-                    powerStr = powerStr:gsub("%[curhp%]", tostring(safeStr(safeCurhp)))
-                    powerStr = powerStr:gsub("%[maxhp%]", tostring(safeStr(safeMaxhp)))
-                    powerStr = powerStr:gsub("%[perhp%]", tostring(safeStr(hpPct)))
-                    powerStr = powerStr:gsub("%[curpp%]", tostring(safeStr(safeCurpp)))
-                    powerStr = powerStr:gsub("%[maxpp%]", tostring(safeStr(safeMaxpp)))
-                    powerStr = powerStr:gsub("%[perpp%]", tostring(safeStr(ppPct)))
+                    powerStr = safeGsub(powerStr, "%[name%]", tostring(safeStr(name)))
+                    powerStr = safeGsub(powerStr, "%[level%]", tostring(safeStr(level)))
+                    powerStr = safeGsub(powerStr, "%[class%]", tostring(safeStr((className ~= '' and className) or classToken)))
+                    powerStr = safeGsub(powerStr, "%[curhp%]", tostring(safeStr(safeCurhp)))
+                    powerStr = safeGsub(powerStr, "%[maxhp%]", tostring(safeStr(safeMaxhp)))
+                    powerStr = safeGsub(powerStr, "%[perhp%]", tostring(safeStr(hpPct)))
+                    powerStr = safeGsub(powerStr, "%[curpp%]", tostring(safeStr(safeCurpp)))
+                    powerStr = safeGsub(powerStr, "%[maxpp%]", tostring(safeStr(safeMaxpp)))
+                    powerStr = safeGsub(powerStr, "%[perpp%]", tostring(safeStr(ppPct)))
                     frame.powerBar.text:SetText(powerStr)
 
                     -- Info Bar (remove tag parsing for health percent)
