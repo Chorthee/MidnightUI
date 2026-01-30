@@ -20,44 +20,14 @@ function UnitFrames:GetPlayerOptions_Real()
                 type = "range",
                 name = "Bar Spacing",
                 desc = "Vertical space between bars.",
-                    -- All tag/text format options and Show Available Tags button removed (static text only)
-                        end,
-                        get = function() return db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)" end,
-                        set = function(_, v) db.health.text = v; update() end
-                    },
-                    textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.health and db.health.textPos or "CENTER" end, set = function(_, v) db.health.textPos = v; update() end },
-                    texture = {
-                        type = "select",
-                        name = "Texture",
-                        order = 12,
-                        values = function()
-                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
-                            local textures = LSM and LSM:List("statusbar") or {}
-                            local out = {}
-                            for _, tex in ipairs(textures) do out[tex] = tex end
-                            return out
-                        end,
-                        get = function() return db.health and db.health.texture or "Flat" end,
-                        set = function(_, v) db.health.texture = v; update() end,
-                    },
-                    showTags = {
-                        type = "execute",
-                        name = "Show Available Tags",
-                        order = 99,
-                        hidden = function()
-                            local presetSel = (db.health and db.health.textPreset) or nil
-                            if not presetSel then
-                                local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
-                                presetSel = (t == "[curhp]" and "cur") or (t == "[curhp] / [maxhp]" and "curmax") or (t == "[curhp] / [maxhp] ([perhp]%)" and "curmaxpct") or "advanced"
-                            end
-                            return presetSel ~= "advanced"
-                        end,
-                        func = function()
-                            if not _G.MidnightUI_TagHelp then
-                                local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
-                                f:SetSize(340, 220)
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
+                min = 0, max = 32, step = 1,
+                order = 0.9,
+                get = function() return self.db and self.db.profile and self.db.profile.spacing or 2 end,
+                set = function(_, v) if self.db and self.db.profile then self.db.profile.spacing = v; update() end end,
+            },
+            -- ...existing code for other bars and options...
+        },
+    }
                                     f:ClearAllPoints()
                                     f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
                                 else
