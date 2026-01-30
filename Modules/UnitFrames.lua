@@ -211,31 +211,31 @@ end
                     texture = "Flat"
                 }
             }
-UnitFrames.defaults = defaults
-    UnitFrames.defaults = defaults
--- Migrate legacy info bar text to new left/center/right fields for backward compatibility
-            local function MigrateInfoBarText(opts)
-                if opts and opts.info then
-                    if opts.info.text and not (opts.info.textLeft or opts.info.textCenter or opts.info.textRight) then
-                        opts.info.textCenter = opts.info.text
-                        opts.info.text = nil
-                    end
-                    if opts.info.textPos then opts.info.textPos = nil end
-                end
-            end
-
-            -- Call migration for all default unit frame options
-            do
-                local defaults = UnitFrames and UnitFrames.defaults or nil
-                if defaults then
-                    MigrateInfoBarText(defaults.player)
-                    MigrateInfoBarText(defaults.target)
-                    MigrateInfoBarText(defaults.targettarget)
-                end
-            end
-            }
         }
     }
+
+UnitFrames.defaults = defaults
+
+-- Migrate legacy info bar text to new left/center/right fields for backward compatibility
+local function MigrateInfoBarText(opts)
+    if opts and opts.info then
+        if opts.info.text and not (opts.info.textLeft or opts.info.textCenter or opts.info.textRight) then
+            opts.info.textCenter = opts.info.text
+            opts.info.text = nil
+        end
+        if opts.info.textPos then opts.info.textPos = nil end
+    end
+end
+
+-- Call migration for all default unit frame options
+do
+    local defaults = UnitFrames and UnitFrames.defaults or nil
+    if defaults then
+        MigrateInfoBarText(defaults.player)
+        MigrateInfoBarText(defaults.target)
+        MigrateInfoBarText(defaults.targettarget)
+    end
+end
 
                 local function SetBlizzardFramesHidden(self)
                     if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide(); PlayerFrame:UnregisterAllEvents(); PlayerFrame:Hide() end
