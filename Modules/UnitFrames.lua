@@ -1,10 +1,30 @@
 -- Modular UnitFrames: Load separate option files from Frames subfolder
 -- The Player, Target, and TargetTarget option files are loaded via the TOC and available globally.
 
+
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 _G.UnitFrames = UnitFrames
 local LSM = LibStub("LibSharedMedia-3.0")
+
+-- Blizzard power type colors
+local POWER_TYPE_COLORS = {
+    MANA = {0.00, 0.44, 0.87, 1},
+    RAGE = {0.78, 0.21, 0.21, 1},
+    FOCUS = {1.00, 0.50, 0.25, 1},
+    ENERGY = {1.00, 0.85, 0.10, 1},
+    RUNIC_POWER = {0.00, 0.82, 1.00, 1},
+    FURY = {0.788, 0.259, 0.992, 1},
+    PAIN = {1.00, 0.61, 0.00, 1},
+}
+
+local function GetPowerTypeColor(unit)
+    local powerType, powerToken = UnitPowerType(unit)
+    if powerToken and POWER_TYPE_COLORS[powerToken] then
+        return POWER_TYPE_COLORS[powerToken]
+    end
+    return {0.2, 0.4, 0.8, 1} -- fallback (blue)
+end
 
 
 local frames = {}
@@ -431,7 +451,12 @@ end
                     else
                         frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
                     end
-                    frame.powerBar:SetStatusBarColor(unpack(p.color or {0.2,0.4,0.8,1}))
+                    -- Use Blizzard default color if not overridden
+                    local powerColor = p.color
+                    if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
+                        powerColor = GetPowerTypeColor(unit)
+                    end
+                    frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
                     local powerStr = string.format("%s / %s", tostring(curpp or 0), tostring(maxpp or 0))
                     frame.powerBar.text:SetText(powerStr)
 
