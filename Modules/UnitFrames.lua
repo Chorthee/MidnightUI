@@ -1,3 +1,33 @@
+-- Helper: Health percent with 12.0+ API compatibility
+local tocVersion = tonumber((select(4, GetBuildInfo()))) or 0
+
+local function GetHealthPct(unit, usePredicted)
+    if tocVersion >= 120000 and type(UnitHealthPercent) == "function" then
+        local ok, pct
+        -- 12.0+: Use curve parameter (new API)
+        if CurveConstants and CurveConstants.ScaleTo100 then
+            ok, pct = pcall(UnitHealthPercent, unit, usePredicted, CurveConstants.ScaleTo100)
+        end
+        -- Fallback for older builds
+        if not ok or pct == nil then
+            ok, pct = pcall(UnitHealthPercent, unit, usePredicted)
+        end
+        if ok and pct ~= nil then
+            return pct
+        end
+    end
+    -- Manual calculation fallback
+    if UnitHealth and UnitHealthMax then
+        local cur = UnitHealth(unit)
+        local max = UnitHealthMax(unit)
+        if cur and max and max > 0 then
+            -- Use pcall to handle secret values
+            local ok, pct = pcall(function() return (cur / max) * 100 end)
+            if ok then return pct end
+        end
+    end
+    return nil
+end
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
