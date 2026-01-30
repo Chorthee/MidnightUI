@@ -113,8 +113,31 @@ local function AddChatCopyButton(chatFrameNum)
         ChatCopy:OpenCopyFrame(chatFrameNum)
     end)
     chatFrame.copyButton = btn
-    chatFrame:HookScript("OnEnter", function() btn:Show() end)
-    chatFrame:HookScript("OnLeave", function() btn:Hide() end)
+    -- Track mouseover state for both chatFrame and btn
+    local mouseOver = { chat = false, btn = false }
+    local function updateButtonVisibility()
+        if mouseOver.chat or mouseOver.btn then
+            btn:Show()
+        else
+            btn:Hide()
+        end
+    end
+    chatFrame:HookScript("OnEnter", function()
+        mouseOver.chat = true
+        updateButtonVisibility()
+    end)
+    chatFrame:HookScript("OnLeave", function()
+        mouseOver.chat = false
+        C_Timer.After(0.05, updateButtonVisibility) -- slight delay for smoothness
+    end)
+    btn:SetScript("OnEnter", function()
+        mouseOver.btn = true
+        updateButtonVisibility()
+    end)
+    btn:SetScript("OnLeave", function()
+        mouseOver.btn = false
+        C_Timer.After(0.05, updateButtonVisibility)
+    end)
 end
 
 function ChatCopy:OpenCopyFrame(chatFrameNum)
