@@ -437,7 +437,10 @@ end
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
                     local function safeNumber(val)
-                        return tonumber(val) or 0
+                        if val == nil then return 0 end
+                        local n = tonumber(val)
+                        if n then return n end
+                        return 0
                     end
                     local safeCurhp = safeNumber(curhp)
                     local safeMaxhp = safeNumber(maxhp)
