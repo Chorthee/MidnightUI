@@ -36,54 +36,7 @@ function UnitFrames:GetPlayerOptions_Real()
                 order = 1,
                 inline = true,
                 args = {
-                    showTags = {
-                        type = "execute",
-                        name = "Show Available Tags",
-                        order = 0.1,
-                        func = function()
-                            if not _G.MidnightUI_TagHelp then
-                                local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
-                                f:SetSize(340, 220)
-                                -- Position to the right of the options window if possible
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:SetPoint("CENTER")
-                                end
-                                f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
-                                f:SetBackdropColor(0,0,0,0.9)
-                                f:SetFrameStrata("DIALOG")
-                                f:SetMovable(true)
-                                f:EnableMouse(true)
-                                f:RegisterForDrag("LeftButton")
-                                f:SetScript("OnDragStart", f.StartMoving)
-                                f:SetScript("OnDragStop", f.StopMovingOrSizing)
-                                local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-                                title:SetPoint("TOP", 0, -10)
-                                title:SetText("Available Tags")
-                                local tags = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-                                tags:SetPoint("TOPLEFT", 16, -40)
-                                tags:SetJustifyH("LEFT")
-                                tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
-                                local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-                                close:SetPoint("TOPRIGHT", 0, 0)
-                            else
-                                -- Reposition if already created
-                                local f = _G.MidnightUI_TagHelp
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:ClearAllPoints()
-                                    f:SetPoint("CENTER")
-                                end
-                            end
-                            _G.MidnightUI_TagHelp:Show()
-                        end,
-                    },
+                    -- Removed duplicate Show Available Tags button (syntax fix)
                     enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.health and db.health.enabled end, set = function(_, v) db.health.enabled = v; update() end },
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 2, get = function() return db.health and db.health.width or 220 end, set = function(_, v) db.health.width = v; update() end },
                     height = { type = "range", name = "Height", min = 5, max = 100, step = 1, order = 3, get = function() return db.health and db.health.height or 24 end, set = function(_, v) db.health.height = v; update() end },
