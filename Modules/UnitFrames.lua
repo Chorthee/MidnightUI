@@ -234,7 +234,11 @@ end
 
 
                 local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
-                    if frames[key] then return end
+                    if frames[key] then
+                        frames[key]:Hide()
+                        frames[key]:SetParent(nil)
+                        frames[key] = nil
+                    end
                     local db = self.db.profile
                     local spacing = db.spacing
                     local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
