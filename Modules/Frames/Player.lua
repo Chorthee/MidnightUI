@@ -89,7 +89,24 @@ function UnitFrames:GetPlayerOptions_Real()
                     height = { type = "range", name = "Height", min = 5, max = 100, step = 1, order = 3, get = function() return db.health and db.health.height or 24 end, set = function(_, v) db.health.height = v; update() end },
                     classColor = { type = "toggle", name = "Class Colored Bar", desc = "Use your class color for the health bar.", order = 3.9, get = function() return db.health and db.health.classColor end, set = function(_, v) db.health.classColor = v; update() end },
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.health and db.health.color or {0.2,0.8,0.2,1}) end, set = function(_, r,g,b,a) db.health.color = {r,g,b,a}; update() end },
-                    alpha = { type = "range", name = "Bar Transparency", desc = "Set the transparency of the health bar.", min = 0, max = 1, step = 0.01, order = 4.1, get = function() return db.health and db.health.alpha or (db.health and db.health.color and db.health.color[4]) or 1 end, set = function(_, v) db.health.alpha = v; if db.health and db.health.color then db.health.color[4] = v; end; update() end },
+                    alpha = {
+                        type = "range",
+                        name = "Bar Transparency",
+                        desc = "Set the transparency of the health bar.",
+                        min = 0, max = 100, step = 1, order = 4.1,
+                        get = function() return math.floor(100 * (db.health and db.health.alpha or (db.health and db.health.color and db.health.color[4]) or 1) + 0.5) end,
+                        set = function(_, v)
+                            local alpha = v / 100
+                            db.health.alpha = alpha
+                            if db.health and db.health.color then
+                                db.health.color[4] = alpha
+                            else
+                                db.health.color = {0.2, 0.8, 0.2, alpha}
+                            end
+                            update()
+                        end,
+                        bigStep = 5,
+                    },
                     fontClassColor = { type = "toggle", name = "Class Colored Font", desc = "Use your class color for the health bar text.", order = 9.5, get = function() return db.health and db.health.fontClassColor end, set = function(_, v) db.health.fontClassColor = v; update() end },
                     bgColor = { type = "color", name = "Background Color", hasAlpha = true, order = 5, get = function() return unpack(db.health and db.health.bgColor or {0,0,0,0.5}) end, set = function(_, r,g,b,a) db.health.bgColor = {r,g,b,a}; update() end },
                     font = {
@@ -301,7 +318,24 @@ function UnitFrames:GetPlayerOptions_Real()
                     width = { type = "range", name = "Width", min = 50, max = 600, step = 1, order = 2, get = function() return db.power and db.power.width or 220 end, set = function(_, v) db.power.width = v; update() end },
                     height = { type = "range", name = "Height", min = 5, max = 100, step = 1, order = 3, get = function() return db.power and db.power.height or 12 end, set = function(_, v) db.power.height = v; update() end },
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.power and db.power.color or {0.2,0.4,0.8,1}) end, set = function(_, r,g,b,a) db.power.color = {r,g,b,a}; db.power._userSetColor = true; update() end },
-                    alpha = { type = "range", name = "Bar Transparency", desc = "Set the transparency of the power bar.", min = 0, max = 1, step = 0.01, order = 4.1, get = function() return db.power and db.power.alpha or (db.power and db.power.color and db.power.color[4]) or 1 end, set = function(_, v) db.power.alpha = v; if db.power and db.power.color then db.power.color[4] = v; end; update() end },
+                    alpha = {
+                        type = "range",
+                        name = "Bar Transparency",
+                        desc = "Set the transparency of the power bar.",
+                        min = 0, max = 100, step = 1, order = 4.1,
+                        get = function() return math.floor(100 * (db.power and db.power.alpha or (db.power and db.power.color and db.power.color[4]) or 1) + 0.5) end,
+                        set = function(_, v)
+                            local alpha = v / 100
+                            db.power.alpha = alpha
+                            if db.power and db.power.color then
+                                db.power.color[4] = alpha
+                            else
+                                db.power.color = {0.2, 0.4, 0.8, alpha}
+                            end
+                            update()
+                        end,
+                        bigStep = 5,
+                    },
                     fontClassColor = { type = "toggle", name = "Class Colored Font", desc = "Use your class color for the power bar text.", order = 9.5, get = function() return db.power and db.power.fontClassColor end, set = function(_, v) db.power.fontClassColor = v; update() end },
                     bgColor = { type = "color", name = "Background Color", hasAlpha = true, order = 5, get = function() return unpack(db.power and db.power.bgColor or {0,0,0,0.5}) end, set = function(_, r,g,b,a) db.power.bgColor = {r,g,b,a}; update() end },
                     font = {
@@ -464,7 +498,11 @@ function UnitFrames:GetPlayerOptions_Real()
                         set = function(_, v)
                             local alpha = v / 100
                             db.info.alpha = alpha
-                            if db.info and db.info.color then db.info.color[4] = alpha end
+                            if db.info and db.info.color then
+                                db.info.color[4] = alpha
+                            else
+                                db.info.color = {0.8, 0.8, 0.2, alpha}
+                            end
                             update()
                         end,
                         bigStep = 5,
