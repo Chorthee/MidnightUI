@@ -1,14 +1,16 @@
+
+local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
+local Bar = MidnightUI:NewModule("Bar", "AceEvent-3.0")
+local LDB = LibStub("LibDataBroker-1.1")
+local LSM = LibStub("LibSharedMedia-3.0")
+local Masque = LibStub("Masque", true)
+
 -- Update all bar widgets' fonts when the global font changes
 function Bar:UpdateAllFonts()
     for barID, bar in pairs(bars) do
         self:UpdateBarLayout(barID)
     end
 end
-local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-local Bar = MidnightUI:NewModule("Bar", "AceEvent-3.0")
-local LDB = LibStub("LibDataBroker-1.1")
-local LSM = LibStub("LibSharedMedia-3.0")
-local Masque = LibStub("Masque", true) 
 
 -- ============================================================================
 -- 1. LOCAL VARIABLES & DATA CACHES
