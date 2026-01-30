@@ -127,6 +127,47 @@ function MidnightUI:GetOptions()
                 args = {
                     header = { type = "header", order = 1, name = "Modules" },
                     desc = { type = "description", order = 2, name = "Toggle modules. Requires Reload." },
+                    globalFont = {
+                        type = "select",
+                        name = "Global Font",
+                        desc = "Select a font to apply to all MidnightUI elements.",
+                        order = 2.1,
+                        values = function()
+                            local fonts = LSM:List("font")
+                            local out = {}
+                            for _, font in ipairs(fonts) do out[font] = font end
+                            return out
+                        end,
+                        get = function() return self.db.profile.theme.font or "Friz Quadrata TT" end,
+                        set = function(_, v) self.db.profile.theme.font = v end,
+                    },
+                    applyGlobalFont = {
+                        type = "execute",
+                        name = "Apply to All",
+                        desc = "Apply the selected global font to all MidnightUI modules and bars.",
+                        order = 2.2,
+                        func = function()
+                            local font = MidnightUI.db.profile.theme.font or "Friz Quadrata TT"
+                            -- UnitFrames
+                            if _G.UnitFrames and _G.UnitFrames.db and _G.UnitFrames.db.profile then
+                                local uf = _G.UnitFrames.db.profile
+                                for _, frame in pairs({"player", "target", "targettarget"}) do
+                                    for _, bar in pairs({"health", "power", "info"}) do
+                                        if uf[frame] and uf[frame][bar] then
+                                            uf[frame][bar].font = font
+                                        end
+                                    end
+                                end
+                            end
+                            -- Add similar logic for other modules here if needed
+                            -- Force UI update
+                            if _G.UnitFrames and _G.UnitFrames.UpdateUnitFrame then
+                                _G.UnitFrames:UpdateUnitFrame("PlayerFrame", "player")
+                                _G.UnitFrames:UpdateUnitFrame("TargetFrame", "target")
+                                _G.UnitFrames:UpdateUnitFrame("TargetTargetFrame", "targettarget")
+                            end
+                        end,
+                    },
                     bar = { name = "Data Brokers", type = "toggle", order = 3, width = "full",
                         get = function() return self.db.profile.modules.bar end,
                         set = function(_, v) self.db.profile.modules.bar = v; C_UI.Reload() end },
