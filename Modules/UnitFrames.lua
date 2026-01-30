@@ -74,12 +74,7 @@ local function GetPowerPct(unit, powerType, usePredicted)
     end
     return nil
 end
-local LSM = LibStub("LibSharedMedia-3.0")
 
-local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
-local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
-_G.UnitFrames = UnitFrames
-local LSM = LibStub("LibSharedMedia-3.0")
 
 -- Blizzard power type colors
 local POWER_TYPE_COLORS = {
