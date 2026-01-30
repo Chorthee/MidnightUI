@@ -1836,7 +1836,7 @@ function Bar:GetOptions()
                         get = function() return self.db.profile.locked end, 
                         set = function(_, v) self.db.profile.locked = v; for id in pairs(bars) do self:ApplyBarSettings(id) end end 
                     },
-            }},
+            },
             bars = { 
                 name = "Bars", 
                 type = "group", 
