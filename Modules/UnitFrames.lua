@@ -663,9 +663,9 @@ end
                         elseif type(val) == "number" then
                             return tostring(val)
                         elseif val == nil or val == false then
-                            return "0"
+                            return ""
                         else
-                            return tostring(val)
+                            return tostring(val or "")
                         end
                     end
                     -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
