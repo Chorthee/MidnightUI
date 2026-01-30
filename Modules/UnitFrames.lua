@@ -548,7 +548,15 @@ end
                     local safeMaxhp = (UnitHealthMax and UnitHealthMax(unit)) or 0
                     local safeCurpp = (UnitPower and UnitPower(unit)) or 0
                     local safeMaxpp = (UnitPowerMax and UnitPowerMax(unit)) or 0
-                    local ppPct = (safeMaxpp > 0) and math.floor((safeCurpp / safeMaxpp) * 100) or 0
+                    local ppPct = 0
+                    if safeMaxpp > 0 then
+                        local ok, pct = pcall(function() return math.floor((safeCurpp / safeMaxpp) * 100) end)
+                        if ok and pct then
+                            ppPct = pct
+                        else
+                            ppPct = 0
+                        end
+                    end
                     if hpPct == nil then hpPct = 0 end
 
                     -- Format health text directly, not using tag parsing
