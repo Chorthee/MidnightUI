@@ -2,12 +2,7 @@
 if not UnitFrames then return end
 
 
--- Delegate Focus frame creation to UnitFrames:CreateFocusFrame in UnitFrames.lua
-function UnitFrames:CreateFocusFrame()
-    if UnitFrames and UnitFrames.CreateFocusFrame then
-        return UnitFrames.CreateFocusFrame(UnitFrames)
-    end
-end
+
 
 function UnitFrames:GetFocusOptions_Real()
 	local db = self.db and self.db.profile and self.db.profile.focus or {}
