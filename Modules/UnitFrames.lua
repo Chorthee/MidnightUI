@@ -439,11 +439,15 @@ end
                     local hpPct = nil
                     pcall(function() hpPct = (maxhp and maxhp > 0) and math.floor((curhp / maxhp) * 100) or 0 end)
                     local healthFormat = h.text or "[curhp] / [maxhp] ([perhp]%)"
-                    local healthStr = healthFormat
-                    healthStr = healthStr:gsub("%[name%]", UnitName(unit) or "")
-                    healthStr = healthStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
-                    local _, classToken, className = UnitClass(unit)
-                    healthStr = healthStr:gsub("%[class%]", className or classToken or "")
+                    local healthStr = tostring(healthFormat)
+                    local name = tostring(UnitName(unit) or "")
+                    local level = tostring(UnitLevel(unit) or "")
+                    local className, classToken = UnitClass(unit)
+                    className = tostring(className or "")
+                    classToken = tostring(classToken or "")
+                    healthStr = healthStr:gsub("%[name%]", name)
+                    healthStr = healthStr:gsub("%[level%]", level)
+                    healthStr = healthStr:gsub("%[class%]", className ~= '' and className or classToken)
                     healthStr = healthStr:gsub("%[curhp%]", tostring(curhp or 0))
                     healthStr = healthStr:gsub("%[maxhp%]", tostring(maxhp or 0))
                     healthStr = healthStr:gsub("%[perhp%]", tostring(hpPct or 0))
@@ -472,11 +476,10 @@ end
                     end
                     frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
                     local powerFormat = p.text or "[curpp] / [maxpp]"
-                    local powerStr = powerFormat
-                    powerStr = powerStr:gsub("%[name%]", UnitName(unit) or "")
-                    powerStr = powerStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
-                    local _, classToken, className = UnitClass(unit)
-                    powerStr = powerStr:gsub("%[class%]", className or classToken or "")
+                    local powerStr = tostring(powerFormat)
+                    powerStr = powerStr:gsub("%[name%]", name)
+                    powerStr = powerStr:gsub("%[level%]", level)
+                    powerStr = powerStr:gsub("%[class%]", className ~= '' and className or classToken)
                     powerStr = powerStr:gsub("%[curhp%]", tostring(curhp or 0))
                     powerStr = powerStr:gsub("%[maxhp%]", tostring(maxhp or 0))
                     powerStr = powerStr:gsub("%[perhp%]", tostring(hpPct or 0))
@@ -499,11 +502,10 @@ end
                             frame.infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
                         end
                         local infoFormat = i.text or "[name] [level] [class]"
-                        local infoStr = infoFormat
-                        infoStr = infoStr:gsub("%[name%]", UnitName(unit) or "")
-                        infoStr = infoStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
-                        local _, classToken, className = UnitClass(unit)
-                        infoStr = infoStr:gsub("%[class%]", className or classToken or "")
+                        local infoStr = tostring(infoFormat)
+                        infoStr = infoStr:gsub("%[name%]", name)
+                        infoStr = infoStr:gsub("%[level%]", level)
+                        infoStr = infoStr:gsub("%[class%]", className ~= '' and className or classToken)
                         infoStr = infoStr:gsub("%[curhp%]", tostring(curhp or 0))
                         infoStr = infoStr:gsub("%[maxhp%]", tostring(maxhp or 0))
                         infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct or 0))
