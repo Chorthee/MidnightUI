@@ -438,7 +438,21 @@ end
                     end
                     local hpPct = nil
                     pcall(function() hpPct = (maxhp and maxhp > 0) and math.floor((curhp / maxhp) * 100) or 0 end)
-                    local healthStr = string.format("%s / %s (%s%%)", tostring(curhp or 0), tostring(maxhp or 0), tostring(hpPct or 0))
+                    local healthFormat = h.text or "[curhp] / [maxhp] ([perhp]%)"
+                    local healthStr = healthFormat
+                    healthStr = healthStr:gsub("%[name%]", UnitName(unit) or "")
+                    healthStr = healthStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
+                    local _, classToken, className = UnitClass(unit)
+                    healthStr = healthStr:gsub("%[class%]", className or classToken or "")
+                    healthStr = healthStr:gsub("%[curhp%]", tostring(curhp or 0))
+                    healthStr = healthStr:gsub("%[maxhp%]", tostring(maxhp or 0))
+                    healthStr = healthStr:gsub("%[perhp%]", tostring(hpPct or 0))
+                    local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
+                    local ppPct = nil
+                    pcall(function() ppPct = (maxpp and maxpp > 0) and math.floor((curpp / maxpp) * 100) or 0 end)
+                    healthStr = healthStr:gsub("%[curpp%]", tostring(curpp or 0))
+                    healthStr = healthStr:gsub("%[maxpp%]", tostring(maxpp or 0))
+                    healthStr = healthStr:gsub("%[perpp%]", tostring(ppPct or 0))
                     frame.healthBar.text:SetText(healthStr)
 
                     -- Power Bar
@@ -457,7 +471,18 @@ end
                         powerColor = GetPowerTypeColor(unit)
                     end
                     frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
-                    local powerStr = string.format("%s / %s", tostring(curpp or 0), tostring(maxpp or 0))
+                    local powerFormat = p.text or "[curpp] / [maxpp]"
+                    local powerStr = powerFormat
+                    powerStr = powerStr:gsub("%[name%]", UnitName(unit) or "")
+                    powerStr = powerStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
+                    local _, classToken, className = UnitClass(unit)
+                    powerStr = powerStr:gsub("%[class%]", className or classToken or "")
+                    powerStr = powerStr:gsub("%[curhp%]", tostring(curhp or 0))
+                    powerStr = powerStr:gsub("%[maxhp%]", tostring(maxhp or 0))
+                    powerStr = powerStr:gsub("%[perhp%]", tostring(hpPct or 0))
+                    powerStr = powerStr:gsub("%[curpp%]", tostring(curpp or 0))
+                    powerStr = powerStr:gsub("%[maxpp%]", tostring(maxpp or 0))
+                    powerStr = powerStr:gsub("%[perpp%]", tostring(ppPct or 0))
                     frame.powerBar.text:SetText(powerStr)
 
                     -- Info Bar
@@ -473,15 +498,18 @@ end
                         else
                             frame.infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
                         end
-                        local name = UnitName(unit) or ""
-                        local level = UnitLevel(unit) or ""
-                        local _, class = UnitClass(unit)
-                        class = class or ""
-                        local textFormat = i.text or "[name] [level] [class]"
-                        local infoStr = textFormat
-                        infoStr = infoStr:gsub("%[name%]", name)
-                        infoStr = infoStr:gsub("%[level%]", tostring(level))
-                        infoStr = infoStr:gsub("%[class%]", class)
+                        local infoFormat = i.text or "[name] [level] [class]"
+                        local infoStr = infoFormat
+                        infoStr = infoStr:gsub("%[name%]", UnitName(unit) or "")
+                        infoStr = infoStr:gsub("%[level%]", tostring(UnitLevel(unit) or ""))
+                        local _, classToken, className = UnitClass(unit)
+                        infoStr = infoStr:gsub("%[class%]", className or classToken or "")
+                        infoStr = infoStr:gsub("%[curhp%]", tostring(curhp or 0))
+                        infoStr = infoStr:gsub("%[maxhp%]", tostring(maxhp or 0))
+                        infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct or 0))
+                        infoStr = infoStr:gsub("%[curpp%]", tostring(curpp or 0))
+                        infoStr = infoStr:gsub("%[maxpp%]", tostring(maxpp or 0))
+                        infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct or 0))
                         frame.infoBar.text:SetText(infoStr)
                     end
                 end
