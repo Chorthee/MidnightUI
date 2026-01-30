@@ -657,15 +657,20 @@ end
                     frame.powerBar:SetStatusBarColor(unpack(powerColor or {0.2,0.4,0.8,1}))
                     local powerFormat = p.text or "[curpp] / [maxpp]"
                     -- Defensive: ensure all values are strings, never nil
-                    local safeName = tostring(name or "")
-                    local safeLevel = tostring(level or "")
-                    local safeClass = tostring((className ~= '' and className) or classToken or "")
-                    local safeCurppStr = (safeCurpp ~= nil and tostring(safeCurpp)) or "0"
-                    local safeMaxppStr = (safeMaxpp ~= nil and tostring(safeMaxpp)) or "0"
-                    local safePpPctStr = (ppPct ~= nil and tostring(ppPct)) or "0"
-                    local safeCurhpStr = (safeCurhp ~= nil and tostring(safeCurhp)) or "0"
-                    local safeMaxhpStr = (safeMaxhp ~= nil and tostring(safeMaxhp)) or "0"
-                    local safeHpPctStr = (hpPct ~= nil and tostring(hpPct)) or "0"
+                    local function safeStr(val)
+                        if type(val) == "string" then return val
+                        elseif type(val) == "number" then return tostring(val)
+                        else return "0" end
+                    end
+                    local safeName = safeStr(name)
+                    local safeLevel = safeStr(level)
+                    local safeClass = safeStr((className ~= '' and className) or classToken)
+                    local safeCurppStr = safeStr(safeCurpp)
+                    local safeMaxppStr = safeStr(safeMaxpp)
+                    local safePpPctStr = safeStr(ppPct)
+                    local safeCurhpStr = safeStr(safeCurhp)
+                    local safeMaxhpStr = safeStr(safeMaxhp)
+                    local safeHpPctStr = safeStr(hpPct)
                     local powerStr = tostring(powerFormat)
                     powerStr = powerStr:gsub("%[name%]", safeName)
                     powerStr = powerStr:gsub("%[level%]", safeLevel)
