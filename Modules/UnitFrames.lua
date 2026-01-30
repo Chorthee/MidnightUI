@@ -668,9 +668,12 @@ end
                     local safeCurppStr = safeStr(safeCurpp)
                     local safeMaxppStr = safeStr(safeMaxpp)
                     local safePpPctStr = safeStr(ppPct)
+                    -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
                     local safeCurhpStr = safeStr(safeCurhp)
                     local safeMaxhpStr = safeStr(safeMaxhp)
                     local safeHpPctStr = safeStr(hpPct)
+                    local safeCurppStr = safeStr(safeCurpp)
+                    local safeMaxppStr = safeStr(safeMaxpp)
                     local powerStr = tostring(powerFormat)
                     powerStr = powerStr:gsub("%[name%]", safeName)
                     powerStr = powerStr:gsub("%[level%]", safeLevel)
