@@ -658,9 +658,15 @@ end
                     local powerFormat = p.text or "[curpp] / [maxpp]"
                     -- Defensive: ensure all values are strings, never nil
                     local function safeStr(val)
-                        if type(val) == "string" then return val
-                        elseif type(val) == "number" then return tostring(val)
-                        else return "0" end
+                        if type(val) == "string" then
+                            return val
+                        elseif type(val) == "number" then
+                            return tostring(val)
+                        elseif val == nil or val == false then
+                            return "0"
+                        else
+                            return tostring(val)
+                        end
                     end
                     local safeName = safeStr(name)
                     local safeLevel = safeStr(level)
@@ -675,6 +681,9 @@ end
                     local safeCurppStr = safeStr(safeCurpp)
                     local safeMaxppStr = safeStr(safeMaxpp)
                     local safePpPctStr = safeStr(ppPct)
+                    local safeName = safeStr(name)
+                    local safeLevel = safeStr(level)
+                    local safeClass = safeStr((className ~= '' and className) or classToken)
                     local powerStr = tostring(powerFormat)
                     powerStr = powerStr:gsub("%[name%]", safeName)
                     powerStr = powerStr:gsub("%[level%]", safeLevel)
