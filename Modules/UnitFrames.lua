@@ -189,7 +189,7 @@ end
                     enabled = true,
                     width = 220, height = 12,
                     color = {0.2, 0.4, 0.8, 1},
-                    bgColor = {0, 0, 0, 1},
+                    bgColor = {0.2, 0.4, 0.8, 0.2},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curpp] / [maxpp]", textPos = "CENTER",
                     texture = "Blizzard Raid Bar"
@@ -366,7 +366,11 @@ end
                         end
                     else
                         -- Always use solid black for health bar background
-                        if opts and opts.bgColor and opts.bgColor[1] == 0 and opts.bgColor[2] == 0 and opts.bgColor[3] == 0 then
+                        -- For power bar, use foreground color with 20% alpha for background
+                        if opts and opts.bgColor and opts.bgColor[4] == 0.2 then
+                            local fg = opts.color or {0.2, 0.4, 0.8, 1}
+                            bar.bg:SetColorTexture(fg[1], fg[2], fg[3], 0.2)
+                        elseif opts and opts.bgColor and opts.bgColor[1] == 0 and opts.bgColor[2] == 0 and opts.bgColor[3] == 0 then
                             bar.bg:SetColorTexture(0, 0, 0, opts.bgColor[4] or 0)
                         else
                             bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
