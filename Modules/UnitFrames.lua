@@ -538,6 +538,8 @@ end
                     end
                     local safeCurhp, safeMaxhp
                     if unit == "player" then
+                        if curhp == nil then curhp = 0 end
+                        if maxhp == nil then maxhp = 0 end
                         safeCurhp = tonumber(curhp) or 0
                         safeMaxhp = tonumber(maxhp) or 0
                     else
