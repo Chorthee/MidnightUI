@@ -540,16 +540,13 @@ end
                     if unit == "player" then
                         -- Always use a real number for player health, never a secret value
                         if curhp == nil or type(curhp) ~= "number" or tostring(curhp):find("secret") then
-                            safeCurhp = 0
-                        else
-                            safeCurhp = tonumber(curhp) or 0
+                            curhp = 0
                         end
                         if maxhp == nil or type(maxhp) ~= "number" or tostring(maxhp):find("secret") then
-                            safeMaxhp = 0
-                        else
-                            safeMaxhp = tonumber(maxhp) or 0
+                            maxhp = 0
                         end
-                        -- Ensure safeCurhp and safeMaxhp are always numbers
+                        safeCurhp = tonumber(curhp) or 0
+                        safeMaxhp = tonumber(maxhp) or 0
                         if safeCurhp == nil then safeCurhp = 0 end
                         if safeMaxhp == nil then safeMaxhp = 0 end
                     else
