@@ -315,6 +315,45 @@ end
                     textRight = nil,
                     texture = "Flat"
                 }
+            },
+            focus = {
+                position = { point = "CENTER", x = 0, y = -100 },
+                health = {
+                    enabled = true,
+                    width = 220, height = 24,
+                    color = {0.2, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 0},
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    textPresets = {
+                        { name = "Current / Max (Percent)", value = "[curhp] / [maxhp] ([perhp]%)" },
+                        { name = "Current Only", value = "[curhp]" },
+                        { name = "Max Only", value = "[maxhp]" },
+                        { name = "Percent Only", value = "[perhp]%" },
+                    },
+                    texture = "Blizzard Raid Bar"
+                },
+                power = {
+                    enabled = true,
+                    width = 220, height = 12,
+                    color = {0.2, 0.4, 0.8, 1},
+                    bgColor = {0.2, 0.4, 0.8, 0.2},
+                    classColor = false,
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = "[curpp] / [maxpp]", textPos = "CENTER",
+                    texture = "Blizzard Raid Bar"
+                },
+                info = {
+                    enabled = true, width = 220, height = 10,
+                    color = {0.8, 0.8, 0.2, 1},
+                    bgColor = {0, 0, 0, 1},
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    text = nil, textPos = nil, -- migrated to textCenter
+                    textLeft = nil,
+                    textCenter = "[name] [level] [class]",
+                    textRight = nil,
+                    texture = "Blizzard Raid Bar"
+                }
             }
         }
     }
