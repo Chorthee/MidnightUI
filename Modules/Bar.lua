@@ -422,13 +422,16 @@ function Bar:CreateVolumeFrame()
     local function CreateSlider(name, label, cvar, parent, yOffset)
         local s = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
         s:SetPoint("TOP", parent, "TOP", 0, yOffset); s:SetWidth(180)
-        s:SetMinMaxValues(0, 1); s:SetValueStep(0.01)
+        s:SetMinMaxValues(0, 1); s:SetValueStep(0.05) -- Snap to 5% steps
         _G[s:GetName().."Text"]:SetText(label)
         s:SetScript("OnShow", function(self) 
             self:SetValue(tonumber(GetCVar(cvar)) or 0) 
         end)
         s:SetScript("OnValueChanged", function(self, value) 
-            SetCVar(cvar, value) 
+            -- Snap to nearest multiple of 5% (0.05)
+            value = math.max(0, math.min(1, value))
+            value = math.floor((value * 20) + 0.5) / 20
+            SetCVar(cvar, value)
             if cvar == "Sound_MasterVolume" then 
                 Bar:UpdateAllModules() 
             end 
@@ -992,7 +995,10 @@ function Bar:InitializeBrokers()
         end,
         OnMouseWheel = function(_, d) 
             local v = (tonumber(GetCVar("Sound_MasterVolume")) or 0) + (d>0 and 0.05 or -0.05)
-            SetCVar("Sound_MasterVolume", math.max(0, math.min(1, v)))
+            -- Snap to nearest multiple of 5% (0.05)
+            v = math.max(0, math.min(1, v))
+            v = math.floor((v * 20) + 0.5) / 20 -- 20 steps in 0-1, each is 0.05
+            SetCVar("Sound_MasterVolume", v)
             Bar:UpdateAllModules() 
         end
     })

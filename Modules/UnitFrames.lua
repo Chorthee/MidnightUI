@@ -274,7 +274,7 @@ end
                     -- Use Bar settings for InfoBar background if this is the InfoBar
                     if opts._infoBar then
                         -- Use per-frame InfoBar alpha if available (Player frame only for now)
-                        local parentFrame = parent and parent:GetName and parent:GetName() or ""
+                        local parentFrame = (parent and parent.GetName and parent:GetName()) or ""
                         local infoAlpha = nil
                         if parentFrame == "MidnightUI_PlayerFrame" and UnitFrames and UnitFrames.db and UnitFrames.db.profile and UnitFrames.db.profile.player and UnitFrames.db.profile.player.info then
                             infoAlpha = UnitFrames.db.profile.player.info.alpha or (UnitFrames.db.profile.player.info.color and UnitFrames.db.profile.player.info.color[4]) or 1
