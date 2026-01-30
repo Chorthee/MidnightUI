@@ -1,3 +1,5 @@
+
+if not UnitFrames then return end
 -- MidnightUI UnitFrames: Player Frame Module
 
 
