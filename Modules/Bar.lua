@@ -406,6 +406,7 @@ function Bar:CreateVolumeFrame()
         vTitle:SetTextColor(r, g, b)
     end)
 
+
     volFrame:SetScript("OnUpdate", function(self, elapsed)
         if MouseIsOver(self) or (self.owner and MouseIsOver(self.owner)) then
             self.timer = 0
@@ -416,8 +417,8 @@ function Bar:CreateVolumeFrame()
             end
         end
     end)
-end
 
+    -- Move slider and checkbox creation inside the function
     local function CreateSlider(name, label, cvar, parent, yOffset)
         local s = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
         s:SetPoint("TOP", parent, "TOP", 0, yOffset); s:SetWidth(180)
@@ -437,7 +438,7 @@ end
     CreateSlider("MUI_VolMusic", "Music", "Sound_MusicVolume", volFrame, -90)
     CreateSlider("MUI_VolAmbience", "Ambience", "Sound_AmbienceVolume", volFrame, -130)
     CreateSlider("MUI_VolDialog", "Dialog", "Sound_DialogVolume", volFrame, -170)
-    
+
     local function CreateCheck(label, cvar, parent, yOffset)
         local cb = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
         cb:SetPoint("TOPLEFT", 20, yOffset)
@@ -446,7 +447,6 @@ end
         elseif cb.text then 
             cb.text:SetText(label) 
         end
-        
         cb:SetScript("OnShow", function(self) 
             self:SetChecked(GetCVar(cvar)=="1") 
         end)
@@ -454,11 +454,11 @@ end
             SetCVar(cvar, self:GetChecked() and "1" or "0") 
         end)
     end
-    
     -- UPDATED CHECKBOX LABELS
     CreateCheck("Loop Music", "Sound_ZoneMusicNoDelay", volFrame, -210)
     CreateCheck("Sound in Background", "Sound_EnableSoundWhenGameIsInBG", volFrame, -240) 
     CreateCheck("Play Error Speech", "Sound_EnableErrorSpeech", volFrame, -270)
+end
 
 -- FRIENDS LIST
 function Bar:CreateFriendsFrame()
