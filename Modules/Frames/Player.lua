@@ -498,18 +498,50 @@ function UnitFrames:GetPlayerOptions_Real()
                             update()
                         end,
                     },
-                    text = {
+                    textLeft = {
                         type = "input",
-                        name = "Text Format",
+                        name = "Left Text",
                         order = 10,
                         hidden = function()
-                            local t = db.info and db.info.text or "[name] [level] [class]"
-                            local preset = t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]"
                             local presetSel = (db.info and db.info.textPreset) or nil
-                            return preset and (not (presetSel == "advanced"))
+                            if not presetSel then
+                                local t = db.info and db.info.text or "[name] [level] [class]"
+                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
                         end,
-                        get = function() return db.info and db.info.text or "[name] [level] [class]" end,
-                        set = function(_, v) db.info.text = v; update() end
+                        get = function() return db.info and db.info.textLeft or "[name]" end,
+                        set = function(_, v) db.info.textLeft = v; update() end
+                    },
+                    textCenter = {
+                        type = "input",
+                        name = "Center Text",
+                        order = 10.1,
+                        hidden = function()
+                            local presetSel = (db.info and db.info.textPreset) or nil
+                            if not presetSel then
+                                local t = db.info and db.info.text or "[name] [level] [class]"
+                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
+                        end,
+                        get = function() return db.info and db.info.textCenter or "" end,
+                        set = function(_, v) db.info.textCenter = v; update() end
+                    },
+                    textRight = {
+                        type = "input",
+                        name = "Right Text",
+                        order = 10.2,
+                        hidden = function()
+                            local presetSel = (db.info and db.info.textPreset) or nil
+                            if not presetSel then
+                                local t = db.info and db.info.text or "[name] [level] [class]"
+                                presetSel = (t == "[name]" and "name") or (t == "[name] [level]" and "namelevel") or (t == "[name] [level] [class]" and "all") or "advanced"
+                            end
+                            return presetSel ~= "advanced"
+                        end,
+                        get = function() return db.info and db.info.textRight or "[level]" end,
+                        set = function(_, v) db.info.textRight = v; update() end
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.info and db.info.textPos or "CENTER" end, set = function(_, v) db.info.textPos = v; update() end },
                     texture = {

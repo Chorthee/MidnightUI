@@ -142,7 +142,10 @@ end
                     color = {0.8, 0.8, 0.2, 1},
                     bgColor = {0, 0, 0, 0.5},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                    text = "[name] [level] [class]", textPos = "CENTER",
+                    text = nil, textPos = nil, -- migrated to textCenter
+                    textLeft = nil,
+                    textCenter = "[name] [level] [class]",
+                    textRight = nil,
                     texture = "Flat"
                 }
             },
@@ -171,7 +174,10 @@ end
                     color = {0.8, 0.8, 0.2, 1},
                     bgColor = {0, 0, 0, 0.5},
                     font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                    text = "[name] [level] [class]", textPos = "CENTER",
+                    text = nil, textPos = nil, -- migrated to textCenter
+                    textLeft = nil,
+                    textCenter = "[name] [level] [class]",
+                    textRight = nil,
                     texture = "Flat"
                 }
             },
@@ -200,9 +206,32 @@ end
                     color = {0.8, 0.8, 0.2, 1},
                     bgColor = {0, 0, 0, 0.5},
                     font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
-                    text = "[name] [level] [class]", textPos = "CENTER",
+                    text = nil, textPos = nil, -- migrated to textCenter
+                    textLeft = nil,
+                    textCenter = "[name] [level] [class]",
+                    textRight = nil,
                     texture = "Flat"
                 }
+            -- Migrate legacy info bar text to new left/center/right fields for backward compatibility
+            local function MigrateInfoBarText(opts)
+                if opts and opts.info then
+                    if opts.info.text and not (opts.info.textLeft or opts.info.textCenter or opts.info.textRight) then
+                        opts.info.textCenter = opts.info.text
+                        opts.info.text = nil
+                    end
+                    if opts.info.textPos then opts.info.textPos = nil end
+                end
+            end
+
+            -- Call migration for all default unit frame options
+            do
+                local defaults = UnitFrames and UnitFrames.defaults or nil
+                if defaults then
+                    MigrateInfoBarText(defaults.player)
+                    MigrateInfoBarText(defaults.target)
+                    MigrateInfoBarText(defaults.targettarget)
+                end
+            end
             }
         }
     }
@@ -236,18 +265,31 @@ end
                     bar.bg = bar:CreateTexture(nil, "BACKGROUND")
                     bar.bg:SetAllPoints()
                     bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
-                    bar.text = bar:CreateFontString(nil, "OVERLAY")
-                    bar.text:SetFont(LSM:Fetch("font", opts.font), opts.fontSize, opts.fontOutline)
-                    bar.text:SetTextColor(unpack(opts.fontColor or {1,1,1,1}))
-                    if opts.textPos == "LEFT" then
-                        bar.text:SetPoint("LEFT", 4, 0)
-                        bar.text:SetJustifyH("LEFT")
-                    elseif opts.textPos == "RIGHT" then
-                        bar.text:SetPoint("RIGHT", -4, 0)
-                        bar.text:SetJustifyH("RIGHT")
+                    -- Info bar: create three FontStrings for left, center, right
+                    if opts._infoBar then
+                        bar.textLeft = bar:CreateFontString(nil, "OVERLAY")
+                        bar.textLeft:SetPoint("LEFT", 4, 0)
+                        bar.textLeft:SetJustifyH("LEFT")
+                        bar.textCenter = bar:CreateFontString(nil, "OVERLAY")
+                        bar.textCenter:SetPoint("CENTER", 0, 0)
+                        bar.textCenter:SetJustifyH("CENTER")
+                        bar.textRight = bar:CreateFontString(nil, "OVERLAY")
+                        bar.textRight:SetPoint("RIGHT", -4, 0)
+                        bar.textRight:SetJustifyH("RIGHT")
                     else
-                        bar.text:SetPoint("CENTER")
-                        bar.text:SetJustifyH("CENTER")
+                        bar.text = bar:CreateFontString(nil, "OVERLAY")
+                        bar.text:SetFont(LSM:Fetch("font", opts.font), opts.fontSize, opts.fontOutline)
+                        bar.text:SetTextColor(unpack(opts.fontColor or {1,1,1,1}))
+                        if opts.textPos == "LEFT" then
+                            bar.text:SetPoint("LEFT", 4, 0)
+                            bar.text:SetJustifyH("LEFT")
+                        elseif opts.textPos == "RIGHT" then
+                            bar.text:SetPoint("RIGHT", -4, 0)
+                            bar.text:SetJustifyH("RIGHT")
+                        else
+                            bar.text:SetPoint("CENTER")
+                            bar.text:SetJustifyH("CENTER")
+                        end
                     end
                     return bar
                 end
@@ -330,7 +372,9 @@ end
                     if i.enabled then
                         local attachTo = (i.attachTo or "health")
                         local attachBar = (attachTo ~= "none" and barRefs[attachTo]) or frame
+                        i._infoBar = true -- flag for CreateBar
                         local infoBar = CreateBar(frame, i, 0)
+                        i._infoBar = nil
                         if attachBar and attachBar ~= frame then
                             infoBar:SetPoint("TOP", attachBar, "BOTTOM", 0, -spacing)
                         else
@@ -580,29 +624,60 @@ end
 
                     -- Info Bar
                     if frame.infoBar then
-                        frame.infoBar.text:SetFont(LSM:Fetch("font", i.font), i.fontSize, i.fontOutline)
-                        if i.fontClassColor then
-                            frame.infoBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
-                        else
-                            frame.infoBar.text:SetTextColor(unpack(i.fontColor or {1,1,1,1}))
+                        local infoBar = frame.infoBar
+                        local font, fontSize, fontOutline = LSM:Fetch("font", i.font), i.fontSize, i.fontOutline
+                        local color = i.fontClassColor and {classColor.r, classColor.g, classColor.b, 1} or (i.fontColor or {1,1,1,1})
+                        if infoBar.textLeft and infoBar.textCenter and infoBar.textRight then
+                            infoBar.textLeft:SetFont(font, fontSize, fontOutline)
+                            infoBar.textLeft:SetTextColor(unpack(color))
+                            infoBar.textCenter:SetFont(font, fontSize, fontOutline)
+                            infoBar.textCenter:SetTextColor(unpack(color))
+                            infoBar.textRight:SetFont(font, fontSize, fontOutline)
+                            infoBar.textRight:SetTextColor(unpack(color))
+                            if i.classColor then
+                                infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                            else
+                                infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
+                            end
+                            -- Tag replacement helper
+                            local function parseTags(fmt)
+                                if not fmt or fmt == "" then return "" end
+                                local s = tostring(fmt)
+                                s = s:gsub("%[name%]", name)
+                                s = s:gsub("%[level%]", level)
+                                s = s:gsub("%[class%]", className ~= '' and className or classToken)
+                                s = s:gsub("%[curhp%]", tostring(safeCurhp))
+                                s = s:gsub("%[maxhp%]", tostring(safeMaxhp))
+                                s = s:gsub("%[perhp%]", tostring(hpPct))
+                                s = s:gsub("%[curpp%]", tostring(safeCurpp))
+                                s = s:gsub("%[maxpp%]", tostring(safeMaxpp))
+                                s = s:gsub("%[perpp%]", tostring(ppPct))
+                                return s
+                            end
+                            infoBar.textLeft:SetText(parseTags(i.textLeft or ""))
+                            infoBar.textCenter:SetText(parseTags(i.textCenter or ""))
+                            infoBar.textRight:SetText(parseTags(i.textRight or ""))
+                        elseif infoBar.text then
+                            infoBar.text:SetFont(font, fontSize, fontOutline)
+                            infoBar.text:SetTextColor(unpack(color))
+                            if i.classColor then
+                                infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
+                            else
+                                infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
+                            end
+                            local infoFormat = i.text or "[name] [level] [class]"
+                            local infoStr = tostring(infoFormat)
+                            infoStr = infoStr:gsub("%[name%]", name)
+                            infoStr = infoStr:gsub("%[level%]", level)
+                            infoStr = infoStr:gsub("%[class%]", className ~= '' and className or classToken)
+                            infoStr = infoStr:gsub("%[curhp%]", tostring(safeCurhp))
+                            infoStr = infoStr:gsub("%[maxhp%]", tostring(safeMaxhp))
+                            infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
+                            infoStr = infoStr:gsub("%[curpp%]", tostring(safeCurpp))
+                            infoStr = infoStr:gsub("%[maxpp%]", tostring(safeMaxpp))
+                            infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct))
+                            infoBar.text:SetText(infoStr)
                         end
-                        if i.classColor then
-                            frame.infoBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
-                        else
-                            frame.infoBar:SetStatusBarColor(unpack(i.color or {0.8,0.8,0.2,1}))
-                        end
-                        local infoFormat = i.text or "[name] [level] [class]"
-                        local infoStr = tostring(infoFormat)
-                        infoStr = infoStr:gsub("%[name%]", name)
-                        infoStr = infoStr:gsub("%[level%]", level)
-                        infoStr = infoStr:gsub("%[class%]", className ~= '' and className or classToken)
-                        infoStr = infoStr:gsub("%[curhp%]", tostring(safeCurhp))
-                        infoStr = infoStr:gsub("%[maxhp%]", tostring(safeMaxhp))
-                        infoStr = infoStr:gsub("%[perhp%]", tostring(hpPct))
-                        infoStr = infoStr:gsub("%[curpp%]", tostring(safeCurpp))
-                        infoStr = infoStr:gsub("%[maxpp%]", tostring(safeMaxpp))
-                        infoStr = infoStr:gsub("%[perpp%]", tostring(ppPct))
-                        frame.infoBar.text:SetText(infoStr)
                     end
                 end
 
