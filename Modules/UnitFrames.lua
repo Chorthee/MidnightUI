@@ -708,6 +708,18 @@ end
                     end
                     -- Use Blizzard default color if not overridden
                     local powerColor = p.color
+                    local useClassColor = p.classColor
+                    if useClassColor then
+                        local _, classToken = UnitClass(unit)
+                        if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                            local classColorValue = RAID_CLASS_COLORS[classToken]
+                            powerColor = { tonumber(classColorValue.r) or 1, tonumber(classColorValue.g) or 1, tonumber(classColorValue.b) or 1, 0.6 }
+                            -- Set background to class color at 0.2 alpha
+                            if frame.powerBar.bg then
+                                frame.powerBar.bg:SetColorTexture(powerColor[1], powerColor[2], powerColor[3], 0.2)
+                            end
+                        end
+                    end
                     if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
                         powerColor = GetPowerTypeColor(unit)
                     end
