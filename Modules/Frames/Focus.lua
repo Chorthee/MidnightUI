@@ -36,6 +36,14 @@ function UnitFrames:CreateFocusFrame()
 
 	_G.MidnightUI_FocusFrame = frame
 end
+function UnitFrames:CreateFocusFrame()
+    if not self.db.profile.showFocus then return end
+    if _G.MidnightUI_FocusFrame then _G.MidnightUI_FocusFrame:Hide(); _G.MidnightUI_FocusFrame:SetParent(nil) end
+    -- Use the same logic as CreateUnitFrame for Focus
+    if self.CreateUnitFrame then
+        self:CreateUnitFrame("FocusFrame", "focus")
+    end
+end
 
 function UnitFrames:GetFocusOptions_Real()
 	local db = self.db and self.db.profile and self.db.profile.focus or {}

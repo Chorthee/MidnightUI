@@ -109,6 +109,45 @@ function UnitFrames:GetOptions()
                 args = self.GetTargetOptions_Real and self:GetTargetOptions_Real().args or {},
             },
             targettarget = {
+                            },
+                            focus = {
+                                position = { point = "CENTER", x = 0, y = -100 },
+                                health = {
+                                    enabled = true,
+                                    width = 220, height = 24,
+                                    color = {0.2, 0.8, 0.2, 1},
+                                    bgColor = {0, 0, 0, 0.5},
+                                    font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                                    text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                                    textPresets = {
+                                        { name = "Current / Max (Percent)", value = "[curhp] / [maxhp] ([perhp]%)" },
+                                        { name = "Current Only", value = "[curhp]" },
+                                        { name = "Max Only", value = "[maxhp]" },
+                                        { name = "Percent Only", value = "[perhp]%" },
+                                    },
+                                    texture = "Flat"
+                                },
+                                power = {
+                                    enabled = true,
+                                    width = 220, height = 12,
+                                    color = {0.2, 0.4, 0.8, 1},
+                                    bgColor = {0, 0, 0, 0.5},
+                                    font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                                    text = "[curpp] / [maxpp]", textPos = "CENTER",
+                                    texture = "Flat"
+                                },
+                                info = {
+                                    enabled = true, width = 220, height = 10,
+                                    color = {0.8, 0.8, 0.2, 1},
+                                    bgColor = {0, 0, 0, 0.5},
+                                    font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                                    text = nil, textPos = nil, -- migrated to textCenter
+                                    textLeft = nil,
+                                    textCenter = "[name] [level] [class]",
+                                    textRight = nil,
+                                    texture = "Flat"
+                                }
+                            },
                 name = "Target of Target",
                 type = "group",
                 order = 3,
