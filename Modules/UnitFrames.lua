@@ -1,3 +1,9 @@
+if not LibStub then return end
+local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
+local UnitFrames = MidnightUI and MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
+if not UnitFrames then return end
+_G.UnitFrames = UnitFrames
+-- ...existing code...
 function UnitFrames:CreateFocusFrame()
     if not self.db.profile.showFocus then return end
     local db = self.db.profile
