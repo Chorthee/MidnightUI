@@ -174,7 +174,7 @@ end
                     enabled = true,
                     width = 220, height = 24,
                     color = {0.2, 0.8, 0.2, 1},
-                    bgColor = {0, 0, 0, 0.5},
+                    bgColor = {0, 0, 0, 1},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
                     textPresets = {
@@ -189,7 +189,7 @@ end
                     enabled = true,
                     width = 220, height = 12,
                     color = {0.2, 0.4, 0.8, 1},
-                    bgColor = {0, 0, 0, 0.5},
+                    bgColor = {0, 0, 0, 1},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curpp] / [maxpp]", textPos = "CENTER",
                     texture = "Blizzard Raid Bar"
@@ -197,7 +197,7 @@ end
                 info = {
                     enabled = true, width = 220, height = 10,
                     color = {0.8, 0.8, 0.2, 1},
-                    bgColor = {0, 0, 0, 0.5},
+                    bgColor = {0, 0, 0, 1},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = nil, textPos = nil, -- migrated to textCenter
                     textLeft = nil,
@@ -365,7 +365,12 @@ end
                             bar.bg:SetColorTexture(bg[1], bg[2], bg[3], alpha)
                         end
                     else
-                        bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                        -- Always use solid black for health bar background
+                        if opts and opts.bgColor and opts.bgColor[1] == 0 and opts.bgColor[2] == 0 and opts.bgColor[3] == 0 then
+                            bar.bg:SetColorTexture(0, 0, 0, 1)
+                        else
+                            bar.bg:SetColorTexture(unpack(opts.bgColor or {0,0,0,0.5}))
+                        end
                     end
                     -- Info bar: create three FontStrings for left, center, right
                     if opts._infoBar then
