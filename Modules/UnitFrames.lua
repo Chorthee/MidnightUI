@@ -460,10 +460,14 @@ end
                     local safeCurhp = 0
                     if isSafeNumber(curhp) then
                         safeCurhp = tonumber(curhp)
+                    else
+                        safeCurhp = 0
                     end
                     local safeMaxhp = 0
                     if isSafeNumber(maxhp) then
                         safeMaxhp = tonumber(maxhp)
+                    else
+                        safeMaxhp = 0
                     end
                     local hpPct = 0
                     if safeMaxhp > 0 then
