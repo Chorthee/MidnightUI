@@ -687,16 +687,6 @@ end
                     powerStr = powerStr:gsub("%[maxpp%]", safeStr(safeMaxpp))
                     powerStr = powerStr:gsub("%[perpp%]", safeStr(ppPct))
                     frame.powerBar.text:SetText(powerStr)
-                    powerStr = powerStr:gsub("%[name%]", safeName)
-                    powerStr = powerStr:gsub("%[level%]", safeLevel)
-                    powerStr = powerStr:gsub("%[class%]", safeClass)
-                    powerStr = powerStr:gsub("%[curhp%]", safeCurhpStr)
-                    powerStr = powerStr:gsub("%[maxhp%]", safeMaxhpStr)
-                    powerStr = powerStr:gsub("%[perhp%]", safeHpPctStr)
-                    powerStr = powerStr:gsub("%[curpp%]", safeCurppStr)
-                    powerStr = powerStr:gsub("%[maxpp%]", safeMaxppStr)
-                    powerStr = powerStr:gsub("%[perpp%]", safePpPctStr)
-                    frame.powerBar.text:SetText(powerStr)
 
                     -- Info Bar (remove tag parsing for health percent)
                     if frame.infoBar then
