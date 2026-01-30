@@ -443,11 +443,13 @@ end
                     end
                     local function isSafeNumber(val)
                         if val == nil then return false end
-                        -- Blizzard 'secret value' check: not a plain number
-                        local sval = tostring(val)
+                        -- Safely try tostring
+                        local ok, sval = pcall(tostring, val)
+                        if not ok or not sval then return false end
                         if sval:find('secret') or sval:find('no value') then return false end
-                        local n = tonumber(val)
-                        if not n then return false end
+                        -- Safely try tonumber
+                        local ok2, n = pcall(tonumber, val)
+                        if not ok2 or not n then return false end
                         return true
                     end
                     local safeCurhp = 0
