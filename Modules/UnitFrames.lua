@@ -460,12 +460,18 @@ end
                     local safeCurhp = 0
                     if isSafeNumber(curhp) then
                         safeCurhp = tonumber(curhp)
+                        if type(safeCurhp) ~= "number" or safeCurhp ~= safeCurhp then
+                            safeCurhp = 0
+                        end
                     else
                         safeCurhp = 0
                     end
                     local safeMaxhp = 0
                     if isSafeNumber(maxhp) then
                         safeMaxhp = tonumber(maxhp)
+                        if type(safeMaxhp) ~= "number" or safeMaxhp ~= safeMaxhp then
+                            safeMaxhp = 0
+                        end
                     else
                         safeMaxhp = 0
                     end
