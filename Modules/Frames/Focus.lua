@@ -1,3 +1,5 @@
+UnitFrames = UnitFrames or _G.UnitFrames
+
 -- Create the Focus Frame in-game, mirroring PlayerFrame logic
 function UnitFrames:CreateFocusFrame()
 	if _G.MidnightUI_FocusFrame then _G.MidnightUI_FocusFrame:Hide(); _G.MidnightUI_FocusFrame:SetParent(nil) end
@@ -31,9 +33,9 @@ function UnitFrames:CreateFocusFrame()
 	end
 
 	frame:Show()
+
 	_G.MidnightUI_FocusFrame = frame
 end
-(UnitFrames = UnitFrames or _G.UnitFrames)
 
 function UnitFrames:GetFocusOptions_Real()
 	local db = self.db and self.db.profile and self.db.profile.focus or {}
