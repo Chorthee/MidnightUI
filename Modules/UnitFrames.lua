@@ -124,6 +124,12 @@ end
                     bgColor = {0, 0, 0, 0.5},
                     font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    textPresets = {
+                        { name = "Current / Max (Percent)", value = "[curhp] / [maxhp] ([perhp]%)" },
+                        { name = "Current Only", value = "[curhp]" },
+                        { name = "Max Only", value = "[maxhp]" },
+                        { name = "Percent Only", value = "[perhp]%" },
+                    },
                     texture = "Flat"
                 },
                 power = {
@@ -156,6 +162,12 @@ end
                     bgColor = {0, 0, 0, 0.5},
                     font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    textPresets = {
+                        { name = "Current / Max (Percent)", value = "[curhp] / [maxhp] ([perhp]%)" },
+                        { name = "Current Only", value = "[curhp]" },
+                        { name = "Max Only", value = "[maxhp]" },
+                        { name = "Percent Only", value = "[perhp]%" },
+                    },
                     texture = "Flat"
                 },
                 power = {
@@ -188,6 +200,12 @@ end
                     bgColor = {0, 0, 0, 0.5},
                     font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
+                    textPresets = {
+                        { name = "Current / Max (Percent)", value = "[curhp] / [maxhp] ([perhp]%)" },
+                        { name = "Current Only", value = "[curhp]" },
+                        { name = "Max Only", value = "[maxhp]" },
+                        { name = "Percent Only", value = "[perhp]%" },
+                    },
                     texture = "Flat"
                 },
                 power = {
