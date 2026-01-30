@@ -159,13 +159,45 @@ function MidnightUI:GetOptions()
                                     end
                                 end
                             end
-                            -- Add similar logic for other modules here if needed
-                            -- Force UI update
+                            -- Bar module
+                            if _G.Bar and _G.Bar.db and _G.Bar.db.profile then
+                                _G.Bar.db.profile.font = font
+                            end
+                            -- Cooldowns module
+                            if _G.Cooldowns and _G.Cooldowns.db and _G.Cooldowns.db.profile then
+                                _G.Cooldowns.db.profile.font = font
+                            end
+                            -- Maps module
+                            if _G.Maps and _G.Maps.db and _G.Maps.db.profile then
+                                _G.Maps.db.profile.font = font
+                            end
+                            -- ActionBars module
+                            if _G.ActionBars and _G.ActionBars.db and _G.ActionBars.db.profile then
+                                _G.ActionBars.db.profile.font = font
+                            end
+                            -- UIButtons module
+                            if _G.UIButtons and _G.UIButtons.db and _G.UIButtons.db.profile then
+                                _G.UIButtons.db.profile.font = font
+                            end
+                            -- Tweaks module
+                            if _G.Tweaks and _G.Tweaks.db and _G.Tweaks.db.profile then
+                                _G.Tweaks.db.profile.font = font
+                            end
+                            -- Skins module
+                            if _G.Skins and _G.Skins.db and _G.Skins.db.profile then
+                                _G.Skins.db.profile.font = font
+                            end
+                            -- Movable module
+                            if _G.Movable and _G.Movable.db and _G.Movable.db.profile then
+                                _G.Movable.db.profile.font = font
+                            end
+                            -- Force UI update for UnitFrames
                             if _G.UnitFrames and _G.UnitFrames.UpdateUnitFrame then
                                 _G.UnitFrames:UpdateUnitFrame("PlayerFrame", "player")
                                 _G.UnitFrames:UpdateUnitFrame("TargetFrame", "target")
                                 _G.UnitFrames:UpdateUnitFrame("TargetTargetFrame", "targettarget")
                             end
+                            -- Add update calls for other modules as needed
                         end,
                     },
                     bar = { name = "Data Brokers", type = "toggle", order = 3, width = "full",
