@@ -459,24 +459,33 @@ end
                     end
                     local safeCurhp = 0
                     if isSafeNumber(curhp) then
-                        safeCurhp = tonumber(curhp)
-                        if type(safeCurhp) ~= "number" or safeCurhp ~= safeCurhp then
-                            safeCurhp = 0
+                        local ok, n = pcall(function()
+                            local v = tonumber(curhp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            -- try a comparison to force error if secret value
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeCurhp = n
                         else
-                            local ok = pcall(function() return safeCurhp > -math.huge end)
-                            if not ok then safeCurhp = 0 end
+                            safeCurhp = 0
                         end
                     else
                         safeCurhp = 0
                     end
                     local safeMaxhp = 0
                     if isSafeNumber(maxhp) then
-                        safeMaxhp = tonumber(maxhp)
-                        if type(safeMaxhp) ~= "number" or safeMaxhp ~= safeMaxhp then
-                            safeMaxhp = 0
+                        local ok, n = pcall(function()
+                            local v = tonumber(maxhp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeMaxhp = n
                         else
-                            local ok = pcall(function() return safeMaxhp > -math.huge end)
-                            if not ok then safeMaxhp = 0 end
+                            safeMaxhp = 0
                         end
                     else
                         safeMaxhp = 0
