@@ -508,8 +508,38 @@ end
                     healthStr = healthStr:gsub("%[maxhp%]", tostring(safeMaxhp))
                     healthStr = healthStr:gsub("%[perhp%]", tostring(hpPct))
                     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
-                    local safeCurpp = tonumber(curpp) or 0
-                    local safeMaxpp = tonumber(maxpp) or 0
+                    local safeCurpp = 0
+                    if isSafeNumber(curpp) then
+                        local ok, n = pcall(function()
+                            local v = tonumber(curpp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeCurpp = n
+                        else
+                            safeCurpp = 0
+                        end
+                    else
+                        safeCurpp = 0
+                    end
+                    local safeMaxpp = 0
+                    if isSafeNumber(maxpp) then
+                        local ok, n = pcall(function()
+                            local v = tonumber(maxpp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeMaxpp = n
+                        else
+                            safeMaxpp = 0
+                        end
+                    else
+                        safeMaxpp = 0
+                    end
                     local ppPct = 0
                     if safeMaxpp > 0 then
                         ppPct = math.floor((safeCurpp / safeMaxpp) * 100)
