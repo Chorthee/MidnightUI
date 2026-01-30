@@ -10,7 +10,7 @@ local LDB = LibStub("LibDataBroker-1.1")
 local LSM = LibStub("LibSharedMedia-3.0")
 local Masque = LibStub("Masque", true) 
 
--- ============================================================================
+    brokers = self:GetPluginOptions()
 -- 1. LOCAL VARIABLES & DATA CACHES
 -- ============================================================================
 local bars = {}         
