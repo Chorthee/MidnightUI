@@ -104,10 +104,6 @@ function UnitFrames:GetPlayerOptions_Real()
                                 db.health.color = {0.2, 0.8, 0.2, alpha}
                             end
                             update()
-                            if _G.MidnightUI_OptionsFrame and _G.MidnightUI_OptionsFrame.colorPicker then
-                                _G.MidnightUI_OptionsFrame.colorPicker:SetColorRGB(db.health.color[1], db.health.color[2], db.health.color[3])
-                                _G.MidnightUI_OptionsFrame.colorPicker:SetAlpha(alpha)
-                            end
                         end,
                         bigStep = 5,
                     },
@@ -337,10 +333,6 @@ function UnitFrames:GetPlayerOptions_Real()
                                 db.power.color = {0.2, 0.4, 0.8, alpha}
                             end
                             update()
-                            if _G.MidnightUI_OptionsFrame and _G.MidnightUI_OptionsFrame.colorPicker then
-                                _G.MidnightUI_OptionsFrame.colorPicker:SetColorRGB(db.power.color[1], db.power.color[2], db.power.color[3])
-                                _G.MidnightUI_OptionsFrame.colorPicker:SetAlpha(alpha)
-                            end
                         end,
                         bigStep = 5,
                     },

@@ -532,35 +532,38 @@ end
                         if not ok2 or not n then return false end
                         return true
                     end
-                    local safeCurhp, safeMaxhp
-                    if unit == "player" then
-                        safeCurhp = tonumber(curhp) or 0
-                        safeMaxhp = tonumber(maxhp) or 0
+                    local safeCurhp = 0
+                    if isSafeNumber(curhp) then
+                        local ok, n = pcall(function()
+                            local v = tonumber(curhp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            -- try a comparison to force error if secret value
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeCurhp = n
+                        else
+                            safeCurhp = 0
+                        end
                     else
                         safeCurhp = 0
-                        if isSafeNumber(curhp) then
-                            local ok, n = pcall(function()
-                                local v = tonumber(curhp)
-                                if type(v) ~= "number" or v ~= v then return nil end
-                                if not (v > -math.huge) then return nil end
-                                return v
-                            end)
-                            if ok and n then
-                                safeCurhp = n
-                            end
+                    end
+                    local safeMaxhp = 0
+                    if isSafeNumber(maxhp) then
+                        local ok, n = pcall(function()
+                            local v = tonumber(maxhp)
+                            if type(v) ~= "number" or v ~= v then return nil end
+                            if not (v > -math.huge) then return nil end
+                            return v
+                        end)
+                        if ok and n then
+                            safeMaxhp = n
+                        else
+                            safeMaxhp = 0
                         end
+                    else
                         safeMaxhp = 0
-                        if isSafeNumber(maxhp) then
-                            local ok, n = pcall(function()
-                                local v = tonumber(maxhp)
-                                if type(v) ~= "number" or v ~= v then return nil end
-                                if not (v > -math.huge) then return nil end
-                                return v
-                            end)
-                            if ok and n then
-                                safeMaxhp = n
-                            end
-                        end
                     end
                     local hpPct = 0
                     if safeMaxhp > 0 then
