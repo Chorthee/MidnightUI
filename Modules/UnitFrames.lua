@@ -660,12 +660,12 @@ end
                     local safeName = tostring(name or "")
                     local safeLevel = tostring(level or "")
                     local safeClass = tostring((className ~= '' and className) or classToken or "")
-                    local safeCurppStr = tostring(safeCurpp or 0)
-                    local safeMaxppStr = tostring(safeMaxpp or 0)
-                    local safePpPctStr = tostring(ppPct or 0)
-                    local safeCurhpStr = tostring(safeCurhp or 0)
-                    local safeMaxhpStr = tostring(safeMaxhp or 0)
-                    local safeHpPctStr = tostring(hpPct or 0)
+                    local safeCurppStr = (safeCurpp ~= nil and tostring(safeCurpp)) or "0"
+                    local safeMaxppStr = (safeMaxpp ~= nil and tostring(safeMaxpp)) or "0"
+                    local safePpPctStr = (ppPct ~= nil and tostring(ppPct)) or "0"
+                    local safeCurhpStr = (safeCurhp ~= nil and tostring(safeCurhp)) or "0"
+                    local safeMaxhpStr = (safeMaxhp ~= nil and tostring(safeMaxhp)) or "0"
+                    local safeHpPctStr = (hpPct ~= nil and tostring(hpPct)) or "0"
                     local powerStr = tostring(powerFormat)
                     powerStr = powerStr:gsub("%[name%]", safeName)
                     powerStr = powerStr:gsub("%[level%]", safeLevel)
