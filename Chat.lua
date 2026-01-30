@@ -61,6 +61,16 @@ local function CreateCopyFrame()
     copyEditBox:SetScript("OnEditFocusLost", function() copyFrame:Hide() end)
     copyEditBox:EnableMouse(true)
     copyEditBox:HighlightText(0,0)
+    -- Remove background and border for a clean look
+    if copyEditBox.Left then copyEditBox.Left:SetAlpha(0) end
+    if copyEditBox.Right then copyEditBox.Right:SetAlpha(0) end
+    if copyEditBox.Middle then copyEditBox.Middle:SetAlpha(0) end
+    if copyEditBox.Top then copyEditBox.Top:SetAlpha(0) end
+    if copyEditBox.Bottom then copyEditBox.Bottom:SetAlpha(0) end
+    if copyEditBox.TopLeft then copyEditBox.TopLeft:SetAlpha(0) end
+    if copyEditBox.TopRight then copyEditBox.TopRight:SetAlpha(0) end
+    if copyEditBox.BottomLeft then copyEditBox.BottomLeft:SetAlpha(0) end
+    if copyEditBox.BottomRight then copyEditBox.BottomRight:SetAlpha(0) end
     copyFrame.EditBox = copyEditBox
 
     -- Close button (top right)
