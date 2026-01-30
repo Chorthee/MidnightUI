@@ -133,9 +133,11 @@ function UIButtons:CreateButtons()
         }
     }
 
+    local LSM = LibStub("LibSharedMedia-3.0")
+    local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+    local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.TTF"
     for key, data in pairs(buttonData) do
         local config = self.db.profile.UIButtons[key]
-        
         if config and config.enabled then
             local template = nil
             if key == "logout" or key == "exit" then
@@ -146,7 +148,6 @@ function UIButtons:CreateButtons()
             btn:SetFrameStrata("TOOLTIP")
             btn:SetFrameLevel(201)
             btn:EnableMouse(true)
-
             -- Set up secure attributes for logout/exit buttons ONLY
             if key == "logout" then
                 btn:SetAttribute("type", "macro")
@@ -183,47 +184,51 @@ function UIButtons:CreateButtons()
             bg:SetAllPoints()
             bg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
             btn.bg = bg
-            
             local text = btn:CreateFontString(nil, "OVERLAY")
-            text:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+            text:SetFont(fontPath, 16, "OUTLINE")
             text:SetPoint("CENTER")
             text:SetText(data.text)
             text:SetTextColor(1, 1, 1, 1)
             btn.text = text
-            
             local border = btn:CreateTexture(nil, "OVERLAY")
             border:SetAllPoints()
             border:SetTexture("Interface\\Buttons\\WHITE8X8")
             border:SetVertexColor(0, 0, 0, 1)
             border:SetDrawLayer("OVERLAY", 7)
-            
             btn:SetScript("OnEnter", function(self)
                 self.bg:SetColorTexture(0.2, 0.2, 0.2, 1)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetText(data.tooltip)
                 GameTooltip:Show()
             end)
-            
             btn:SetScript("OnLeave", function(self)
                 self.bg:SetColorTexture(0.1, 0.1, 0.1, 0.8)
                 GameTooltip:Hide()
             end)
-            
             -- Click handler (only for non-secure buttons)
             if key ~= "logout" and key ~= "exit" and key ~= "addons" then
                 btn:SetScript("OnClick", data.onClick)
             end
-            
             btn.key = key
             btn.getData = data.getColor
             btn:Show()
             btn:SetAlpha(1)
-            
-            uiButtons[key] = btn  -- Changed variable name
+            uiButtons[key] = btn
         end
     end
-    
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+
+    -- Store font update function for later use
+    self.UpdateButtonFonts = function(this)
+        local LSM = LibStub("LibSharedMedia-3.0")
+        local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+        local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.TTF"
+        for _, btn in pairs(uiButtons) do
+            if btn.text then
+                btn.text:SetFont(fontPath, 16, "OUTLINE")
+            end
+        end
+    end
 end
 
 function UIButtons:OnMoveModeChanged(event, enabled)
@@ -265,15 +270,17 @@ function UIButtons:UpdateLayout()
     -- Position buttons from left to right
     for i, data in ipairs(sortedButtons) do
         data.btn:ClearAllPoints()
-        
         if i == 1 then
             data.btn:SetPoint("LEFT", container, "LEFT", 3, 0)
         else
             local prevBtn = sortedButtons[i-1].btn
             data.btn:SetPoint("LEFT", prevBtn, "RIGHT", spacing, 0)
         end
-        
         data.btn:Show()
+    end
+    -- Update fonts in case global font changed
+    if self.UpdateButtonFonts then
+        self:UpdateButtonFonts()
     end
 end
 

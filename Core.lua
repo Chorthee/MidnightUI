@@ -159,9 +159,9 @@ function MidnightUI:GetOptions()
                                     end
                                 end
                             end
-                            -- Bar module
-                            if _G.Bar and _G.Bar.db and _G.Bar.db.profile then
-                                _G.Bar.db.profile.font = font
+                            -- Bar module: update all fonts
+                            if _G.Bar and _G.Bar.UpdateAllFonts then
+                                _G.Bar:UpdateAllFonts()
                             end
                             -- Cooldowns module
                             if _G.Cooldowns and _G.Cooldowns.db and _G.Cooldowns.db.profile then

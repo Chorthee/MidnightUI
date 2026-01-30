@@ -1,3 +1,9 @@
+-- Update all bar widgets' fonts when the global font changes
+function Bar:UpdateAllFonts()
+    for barID, bar in pairs(bars) do
+        self:UpdateBarLayout(barID)
+    end
+end
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local Bar = MidnightUI:NewModule("Bar", "AceEvent-3.0")
 local LDB = LibStub("LibDataBroker-1.1")
@@ -144,7 +150,6 @@ local SKINS = {
 local defaults = {
     profile = {
         locked = false,
-        font = "Friz Quadrata TT",
         fontSize = 12,
         fontColor = {r = 1, g = 1, b = 1},
         useClassColor = false,
@@ -274,7 +279,8 @@ end
 
 local function ApplyTooltipStyle(tip)
     local db = Bar.db.profile
-    local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+    local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+    local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.ttf"
     local name = tip:GetName()
     
     if _G[name.."TextLeft1"] then
@@ -396,7 +402,8 @@ function Bar:CreateVolumeFrame()
     -- Add OnShow script to update Title Font/Color dynamically based on current settings
     volFrame:SetScript("OnShow", function()
         local db = Bar.db.profile
-        local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+        local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+        local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.ttf"
         local r, g, b = GetColor()
         
         vTitle:SetFont(fontPath, db.fontSize + 2, "OUTLINE")
@@ -500,7 +507,8 @@ function Bar:CreateFriendsFrame()
     -- Add OnShow script to update fonts/colors dynamically
     friendsFrame:SetScript("OnShow", function()
         local db = Bar.db.profile
-        local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+        local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+        local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.ttf"
         local r, g, b = GetColor()
         
         -- Update title
@@ -672,7 +680,8 @@ function Bar:CreateGuildFrame()
     -- Add OnShow script to update fonts/colors dynamically
     guildFrame:SetScript("OnShow", function()
         local db = Bar.db.profile
-        local fontPath = LSM:Fetch("font", db.font) or "Fonts\\FRIZQT__.ttf"
+        local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+        local fontPath = LSM:Fetch("font", globalFont) or "Fonts\\FRIZQT__.ttf"
         local r, g, b = GetColor()
         
         -- Update title
