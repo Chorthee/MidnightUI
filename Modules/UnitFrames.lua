@@ -212,7 +212,10 @@ end
                     textRight = nil,
                     texture = "Flat"
                 }
-            -- Migrate legacy info bar text to new left/center/right fields for backward compatibility
+            }
+        }
+    }
+-- Migrate legacy info bar text to new left/center/right fields for backward compatibility
             local function MigrateInfoBarText(opts)
                 if opts and opts.info then
                     if opts.info.text and not (opts.info.textLeft or opts.info.textCenter or opts.info.textRight) then
