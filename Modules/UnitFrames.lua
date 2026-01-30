@@ -549,6 +549,9 @@ end
                         else
                             safeMaxhp = tonumber(maxhp) or 0
                         end
+                        -- Ensure safeCurhp and safeMaxhp are always numbers
+                        if safeCurhp == nil then safeCurhp = 0 end
+                        if safeMaxhp == nil then safeMaxhp = 0 end
                     else
                         safeCurhp = 0
                         if isSafeNumber(curhp) then
