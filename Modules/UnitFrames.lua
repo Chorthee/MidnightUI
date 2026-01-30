@@ -710,15 +710,21 @@ end
                             -- Only replace tags that are not health percent
                             local function parseTagsNoPercent(fmt)
                                 if not fmt or fmt == "" then return "" end
+                                local function safeGsub(str, pattern, repl)
+                                    local ok, result = pcall(function()
+                                        return str:gsub(pattern, tostring(repl))
+                                    end)
+                                    if ok then return result else return str end
+                                end
                                 local s = tostring(fmt)
-                                s = s:gsub("%[name%]", name)
-                                s = s:gsub("%[level%]", level)
-                                s = s:gsub("%[class%]", className ~= '' and className or classToken)
-                                s = s:gsub("%[curhp%]", tostring(safeCurhp))
-                                s = s:gsub("%[maxhp%]", tostring(safeMaxhp))
-                                s = s:gsub("%[curpp%]", tostring(safeCurpp))
-                                s = s:gsub("%[maxpp%]", tostring(safeMaxpp))
-                                s = s:gsub("%[perpp%]", tostring(ppPct))
+                                s = safeGsub(s, "%[name%]", name)
+                                s = safeGsub(s, "%[level%]", level)
+                                s = safeGsub(s, "%[class%]", (className ~= '' and className) or classToken)
+                                s = safeGsub(s, "%[curhp%]", safeCurhp)
+                                s = safeGsub(s, "%[maxhp%]", safeMaxhp)
+                                s = safeGsub(s, "%[curpp%]", safeCurpp)
+                                s = safeGsub(s, "%[maxpp%]", safeMaxpp)
+                                s = safeGsub(s, "%[perpp%]", ppPct)
                                 return s
                             end
                             -- Insert health percent robustly
