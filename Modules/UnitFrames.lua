@@ -640,14 +640,21 @@ end
                     frame.healthBar.text:SetText(healthStr)
 
                     -- Set class color for healthBar if enabled
-                        print("[MidnightUI] UpdateUnitFrame: h.classColor=", tostring(h.classColor), "db.health.classColor=", tostring((self.db and self.db.profile and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'] and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health.classColor)))
-                        if h.classColor and classColor then
-                            print("[MidnightUI] Setting healthBar to classColor")
-                            frame.healthBar:SetStatusBarColor(classColor.r, classColor.g, classColor.b, 1)
-                        elseif h.color then
-                            print("[MidnightUI] Setting healthBar to custom color")
-                            frame.healthBar:SetStatusBarColor(unpack(h.color))
+                    print("[MidnightUI] UpdateUnitFrame: h.classColor=", tostring(h.classColor), "db.health.classColor=", tostring((self.db and self.db.profile and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'] and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health and self.db.profile[key == 'PlayerFrame' and 'player' or key == 'TargetFrame' and 'target' or 'targettarget'].health.classColor)))
+                    local classColorValue = classColor
+                    if h.classColor then
+                        local _, classToken = UnitClass(unit)
+                        if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                            classColorValue = RAID_CLASS_COLORS[classToken]
                         end
+                    end
+                    if h.classColor and classColorValue then
+                        print("[MidnightUI] Setting healthBar to classColor")
+                        frame.healthBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                    elseif h.color then
+                        print("[MidnightUI] Setting healthBar to custom color")
+                        frame.healthBar:SetStatusBarColor(unpack(h.color))
+                    end
 
                     -- Power Bar
                     local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
