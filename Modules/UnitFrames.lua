@@ -613,9 +613,11 @@ end
                     else
                         safeMaxhp = 0
                     end
-                    local hpPct = 0
-                    if safeMaxhp > 0 then
-                        hpPct = math.floor((safeCurhp / safeMaxhp) * 100)
+                    local hpPct = GetHealthPct(unit)
+                    if hpPct then
+                        hpPct = math.floor(hpPct)
+                    else
+                        hpPct = 0
                     end
                     local healthFormat = h.text or "[curhp] / [maxhp] ([perhp]%)"
                     local healthStr = tostring(healthFormat)
