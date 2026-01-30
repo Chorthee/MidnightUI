@@ -210,7 +210,11 @@ function UnitFrames:GetPlayerOptions_Real()
                         desc = "Use your class color for the power bar.",
                         order = 3.9,
                         get = function() return db.power and db.power.classColor end,
-                        set = function(_, v) db.power.classColor = v; update() end,
+                        set = function(_, v)
+                            db.power.classColor = v
+                            if _G.MidnightUI_PlayerFrame then _G.MidnightUI_PlayerFrame:Hide(); _G.MidnightUI_PlayerFrame:SetParent(nil) end
+                            if self and self.CreatePlayerFrame then self:CreatePlayerFrame() end
+                        end,
                     },
                     color = {
                         type = "color",
