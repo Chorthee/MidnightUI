@@ -668,9 +668,6 @@ end
                             return tostring(val)
                         end
                     end
-                    local safeCurppStr = safeStr(safeCurpp)
-                    local safeMaxppStr = safeStr(safeMaxpp)
-                    local safePpPctStr = safeStr(ppPct)
                     -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
                     -- Only assign once, right before use, and never shadow with nil
                     local powerStr = tostring(powerFormat)
