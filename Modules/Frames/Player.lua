@@ -83,7 +83,19 @@ function UnitFrames:GetPlayerOptions_Real()
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.health and db.health.color or {0.2,0.8,0.2,1}) end, set = function(_, r,g,b,a) db.health.color = {r,g,b,a}; update() end },
                     fontClassColor = { type = "toggle", name = "Class Colored Font", desc = "Use your class color for the health bar text.", order = 9.5, get = function() return db.health and db.health.fontClassColor end, set = function(_, v) db.health.fontClassColor = v; update() end },
                     bgColor = { type = "color", name = "Background Color", hasAlpha = true, order = 5, get = function() return unpack(db.health and db.health.bgColor or {0,0,0,0.5}) end, set = function(_, r,g,b,a) db.health.bgColor = {r,g,b,a}; update() end },
-                    font = { type = "input", name = "Font", order = 6, get = function() return db.health and db.health.font or "Friz Quadrata TT" end, set = function(_, v) db.health.font = v; update() end },
+                    font = {
+                        type = "select",
+                        name = "Font",
+                        order = 6,
+                        values = function()
+                            local fonts = self.LSM and self.LSM:List("font") or (LibStub and LibStub("LibSharedMedia-3.0"):List("font")) or {}
+                            local out = {}
+                            for _, font in ipairs(fonts) do out[font] = font end
+                            return out
+                        end,
+                        get = function() return db.health and db.health.font or "Friz Quadrata TT" end,
+                        set = function(_, v) db.health.font = v; update() end,
+                    },
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.health and db.health.fontSize or 14 end, set = function(_, v) db.health.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.health and db.health.fontOutline or "OUTLINE" end, set = function(_, v) db.health.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.health and db.health.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.health.fontColor = {r,g,b,a}; update() end },
@@ -114,7 +126,19 @@ function UnitFrames:GetPlayerOptions_Real()
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.power and db.power.color or {0.2,0.4,0.8,1}) end, set = function(_, r,g,b,a) db.power.color = {r,g,b,a}; update() end },
                     fontClassColor = { type = "toggle", name = "Class Colored Font", desc = "Use your class color for the power bar text.", order = 9.5, get = function() return db.power and db.power.fontClassColor end, set = function(_, v) db.power.fontClassColor = v; update() end },
                     bgColor = { type = "color", name = "Background Color", hasAlpha = true, order = 5, get = function() return unpack(db.power and db.power.bgColor or {0,0,0,0.5}) end, set = function(_, r,g,b,a) db.power.bgColor = {r,g,b,a}; update() end },
-                    font = { type = "input", name = "Font", order = 6, get = function() return db.power and db.power.font or "Friz Quadrata TT" end, set = function(_, v) db.power.font = v; update() end },
+                    font = {
+                        type = "select",
+                        name = "Font",
+                        order = 6,
+                        values = function()
+                            local fonts = self.LSM and self.LSM:List("font") or (LibStub and LibStub("LibSharedMedia-3.0"):List("font")) or {}
+                            local out = {}
+                            for _, font in ipairs(fonts) do out[font] = font end
+                            return out
+                        end,
+                        get = function() return db.power and db.power.font or "Friz Quadrata TT" end,
+                        set = function(_, v) db.power.font = v; update() end,
+                    },
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.power and db.power.fontSize or 12 end, set = function(_, v) db.power.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.power and db.power.fontOutline or "OUTLINE" end, set = function(_, v) db.power.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.power and db.power.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.power.fontColor = {r,g,b,a}; update() end },
@@ -146,7 +170,19 @@ function UnitFrames:GetPlayerOptions_Real()
                     color = { type = "color", name = "Bar Color", hasAlpha = true, order = 4, get = function() return unpack(db.info and db.info.color or {0.8,0.8,0.2,1}) end, set = function(_, r,g,b,a) db.info.color = {r,g,b,a}; update() end },
                     fontClassColor = { type = "toggle", name = "Class Colored Font", desc = "Use your class color for the info bar text.", order = 9.5, get = function() return db.info and db.info.fontClassColor end, set = function(_, v) db.info.fontClassColor = v; update() end },
                     bgColor = { type = "color", name = "Background Color", hasAlpha = true, order = 5, get = function() return unpack(db.info and db.info.bgColor or {0,0,0,0.5}) end, set = function(_, r,g,b,a) db.info.bgColor = {r,g,b,a}; update() end },
-                    font = { type = "input", name = "Font", order = 6, get = function() return db.info and db.info.font or "Friz Quadrata TT" end, set = function(_, v) db.info.font = v; update() end },
+                    font = {
+                        type = "select",
+                        name = "Font",
+                        order = 6,
+                        values = function()
+                            local fonts = self.LSM and self.LSM:List("font") or (LibStub and LibStub("LibSharedMedia-3.0"):List("font")) or {}
+                            local out = {}
+                            for _, font in ipairs(fonts) do out[font] = font end
+                            return out
+                        end,
+                        get = function() return db.info and db.info.font or "Friz Quadrata TT" end,
+                        set = function(_, v) db.info.font = v; update() end,
+                    },
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.info and db.info.fontSize or 10 end, set = function(_, v) db.info.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.info and db.info.fontOutline or "OUTLINE" end, set = function(_, v) db.info.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.info and db.info.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.info.fontColor = {r,g,b,a}; update() end },
