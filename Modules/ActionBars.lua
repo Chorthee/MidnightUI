@@ -83,8 +83,18 @@ end
 
 function AB:OnInitialize()
     self:RegisterMessage("MIDNIGHTUI_DB_READY", "OnDBReady")
-    -- Register for CURSOR_UPDATE to show empty buttons when dragging spells/macros/items
-    self:RegisterEvent("CURSOR_UPDATE")
+    -- Use OnUpdate polling to detect cursor changes for showing empty buttons
+    if not self.cursorUpdateFrame then
+        self.cursorUpdateFrame = CreateFrame("Frame")
+        self.cursorUpdateFrame.lastCursorType = nil
+        self.cursorUpdateFrame:SetScript("OnUpdate", function()
+            local type = GetCursorInfo and GetCursorInfo()
+            if type ~= self.cursorUpdateFrame.lastCursorType then
+                self.cursorUpdateFrame.lastCursorType = type
+                AB:CURSOR_UPDATE()
+            end
+        end)
+    end
     -- Removed invalid UIParent:HookScript("OnCursorChanged"). Now handled by per-button drag event hooks.
 end
 
