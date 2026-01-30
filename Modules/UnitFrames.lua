@@ -674,6 +674,7 @@ end
                     local safeHpPctStr = safeStr(hpPct)
                     local safeCurppStr = safeStr(safeCurpp)
                     local safeMaxppStr = safeStr(safeMaxpp)
+                    local safePpPctStr = safeStr(ppPct)
                     local powerStr = tostring(powerFormat)
                     powerStr = powerStr:gsub("%[name%]", safeName)
                     powerStr = powerStr:gsub("%[level%]", safeLevel)
