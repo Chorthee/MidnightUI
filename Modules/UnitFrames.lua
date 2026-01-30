@@ -436,18 +436,17 @@ end
                     else
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
-                    local safeCurhp = 0
-                    if type(curhp) == "number" then
-                        safeCurhp = curhp
-                    elseif type(curhp) == "string" then
-                        safeCurhp = tonumber(curhp) or 0
+                    local function safeNumber(val)
+                        if type(val) == "number" and tostring(val) ~= "<no value>" and tostring(val) ~= "(a secret value)" then
+                            return val
+                        elseif type(val) == "string" then
+                            local n = tonumber(val)
+                            if n then return n end
+                        end
+                        return 0
                     end
-                    local safeMaxhp = 0
-                    if type(maxhp) == "number" then
-                        safeMaxhp = maxhp
-                    elseif type(maxhp) == "string" then
-                        safeMaxhp = tonumber(maxhp) or 0
-                    end
+                    local safeCurhp = safeNumber(curhp)
+                    local safeMaxhp = safeNumber(maxhp)
                     local hpPct = 0
                     if safeMaxhp > 0 then
                         hpPct = math.floor((safeCurhp / safeMaxhp) * 100)
