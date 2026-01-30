@@ -639,35 +639,31 @@ end
                     end
                     frame.healthBar.text:SetText(healthStr)
 
-                    -- Set health bar color: class color if enabled, else dynamic gradient (green to red)
-                    local classColorValue = classColor
+                    -- Set health bar color: class color if enabled, else hostility color, else custom/static color (no gradient, no arithmetic)
+                    local colorSet = false
                     if h.classColor then
                         local _, classToken = UnitClass(unit)
                         if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                            classColorValue = RAID_CLASS_COLORS[classToken]
-                        end
-                        if classColorValue then
+                            local classColorValue = RAID_CLASS_COLORS[classToken]
                             frame.healthBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                            colorSet = true
                         end
-                    else
-                        -- Dynamic gradient: green (full) to red (low)
-                        local pct = 0
-                        if safeCurhp and safeMaxhp and safeMaxhp > 0 then
-                            pct = safeCurhp / safeMaxhp
+                    elseif h.hostilityColor then
+                        local reaction = UnitReaction(unit, "player")
+                        if reaction then
+                            if reaction >= 5 then
+                                frame.healthBar:SetStatusBarColor(0.2, 0.8, 0.2, 1) -- Friendly (green)
+                            elseif reaction == 4 then
+                                frame.healthBar:SetStatusBarColor(1, 1, 0.2, 1) -- Neutral (yellow)
+                            else
+                                frame.healthBar:SetStatusBarColor(0.8, 0.2, 0.2, 1) -- Hostile (red)
+                            end
+                            colorSet = true
                         end
-                        -- Clamp pct between 0 and 1
-                        if pct < 0 then pct = 0 elseif pct > 1 then pct = 1 end
-                        -- Gradient: green to yellow to red
-                        local r, g, b = 0, 0, 0
-                        if pct > 0.5 then
-                            r = (1.0 - pct) * 2
-                            g = 1.0
-                        else
-                            r = 1.0
-                            g = pct * 2
-                        end
-                        b = 0
-                        frame.healthBar:SetStatusBarColor(r, g, b, h.color and h.color[4] or 1)
+                    end
+                    if not colorSet then
+                        local c = h.color or {0.2, 0.2, 0.2, 1}
+                        frame.healthBar:SetStatusBarColor(c[1], c[2], c[3], c[4] or 1)
                     end
 
                     -- Power Bar
