@@ -494,10 +494,26 @@ function UnitFrames:GetPlayerOptions_Real()
                             else return "advanced" end
                         end,
                         set = function(_, v)
-                            if v == "none" then db.info.text = ""
-                            elseif v == "name" then db.info.text = "[name]"
-                            elseif v == "namelevel" then db.info.text = "[name] [level]"
-                            elseif v == "all" then db.info.text = "[name] [level] [class]"
+                            if v == "none" then
+                                db.info.text = ""
+                                db.info.textLeft = ""
+                                db.info.textCenter = ""
+                                db.info.textRight = ""
+                            elseif v == "name" then
+                                db.info.text = "[name]"
+                                db.info.textLeft = "[name]"
+                                db.info.textCenter = ""
+                                db.info.textRight = ""
+                            elseif v == "namelevel" then
+                                db.info.text = "[name] [level]"
+                                db.info.textLeft = "[name]"
+                                db.info.textCenter = "[level]"
+                                db.info.textRight = ""
+                            elseif v == "all" then
+                                db.info.text = "[name] [level] [class]"
+                                db.info.textLeft = "[name]"
+                                db.info.textCenter = "[level]"
+                                db.info.textRight = "[class]"
                             elseif v == "advanced" then
                                 local t = db.info and db.info.text or "[name] [level] [class]"
                                 if t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]" then
