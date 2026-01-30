@@ -436,8 +436,18 @@ end
                     else
                         frame.healthBar:SetStatusBarColor(unpack(h.color or {0.2,0.8,0.2,1}))
                     end
-                    local safeCurhp = (curhp and tonumber(curhp)) or 0
-                    local safeMaxhp = (maxhp and tonumber(maxhp)) or 0
+                    local safeCurhp = 0
+                    if type(curhp) == "number" then
+                        safeCurhp = curhp
+                    elseif type(curhp) == "string" then
+                        safeCurhp = tonumber(curhp) or 0
+                    end
+                    local safeMaxhp = 0
+                    if type(maxhp) == "number" then
+                        safeMaxhp = maxhp
+                    elseif type(maxhp) == "string" then
+                        safeMaxhp = tonumber(maxhp) or 0
+                    end
                     local hpPct = 0
                     if safeMaxhp > 0 then
                         hpPct = math.floor((safeCurhp / safeMaxhp) * 100)
