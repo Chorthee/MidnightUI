@@ -238,6 +238,16 @@ local function FormatSeconds(seconds)
     end
 end
 
+-- Helper to format numbers with commas (e.g., 1,234,567)
+local function FormatWithCommas(amount)
+    local formatted = tostring(amount)
+    while true do
+        formatted, k = formatted:gsub("^(%d+)(%d%d%d)", '%1,%2')
+        if k == 0 then break end
+    end
+    return formatted
+end
+
 local function FormatMoney(amount)
     if not amount then 
         return "0c" 
