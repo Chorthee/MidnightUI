@@ -28,56 +28,6 @@ function UnitFrames:GetPlayerOptions_Real()
             -- ...existing code for other bars and options...
         },
     }
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:SetPoint("CENTER")
-                                end
-                                f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
-                                f:SetBackdropColor(0,0,0,0.9)
-                                f:SetFrameStrata("DIALOG")
-                                f:SetMovable(true)
-                                f:EnableMouse(true)
-                                f:RegisterForDrag("LeftButton")
-                                f:SetScript("OnDragStart", f.StartMoving)
-                                f:SetScript("OnDragStop", f.StopMovingOrSizing)
-                                local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-                                title:SetPoint("TOP", 0, -10)
-                                title:SetText("Available Tags")
-                                local tags = f:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-                                tags:SetPoint("TOPLEFT", 16, -40)
-                                tags:SetJustifyH("LEFT")
-                                tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
-                                local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
-                                close:SetPoint("TOPRIGHT", 0, 0)
-                            else
-                                local f = _G.MidnightUI_TagHelp
-                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
-                                if optsFrame and optsFrame:IsVisible() then
-                                    f:ClearAllPoints()
-                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
-                                else
-                                    f:ClearAllPoints()
-                                    f:SetPoint("CENTER")
-                                end
-                            end
-                            _G.MidnightUI_TagHelp:Show()
-                        end,
-                    },
-                },
-            },
-            -- Power Bar
-            power = {
-                type = "group",
-                name = "Power Bar",
-                order = 2,
-                inline = true,
-                args = {
-                    -- Show Available Tags button removed
-                    enabled = { type = "toggle", name = "Show", order = 1, get = function() return db.power and db.power.enabled end, set = function(_, v) db.power.enabled = v; update() end },
-                    attachTo = {
-                        type = "select",
-                        name = "Attach To",
                         desc = "Attach the Power Bar to another bar. If hidden, attached bars will follow the selected bar.",
                         order = 1.5,
                         values = { health = "Health Bar", power = "Power Bar", info = "Info Bar", none = "None" },
