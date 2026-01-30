@@ -175,23 +175,23 @@ local defaults = {
                 x = 0, y = 0
             },
         },
-        brokers = {} 
-    }
-}
-
--- ============================================================================
--- 3. HELPER FUNCTIONS
--- ============================================================================
-
-local function FormatWithCommas(amount)
-    local formatted = amount
-    while true do 
-        formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
-        if (k == 0) then 
-            break 
-        end 
-    end
-    return formatted
+        bars = {
+            ["MainBar"] = { 
+                enabled = true, 
+                fullWidth = true, 
+                width = 600, 
+                height = 24, 
+                scale = 1.0,
+                alpha = 0.6, 
+                color = {r = 0.1, g = 0.1, b = 0.1}, 
+                texture = "Blizzard", 
+                skin = "Midnight",    
+                padding = 10, 
+                point = "TOP", 
+                x = 0, y = 0,
+                font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT",
+            },
+        },
 end
 
 local function ShortenValue(text)
@@ -1772,20 +1772,27 @@ function Bar:GetOptions()
         type = "group", 
         name = "Data Brokers", 
         childGroups = "tab", 
-        args = {
-            settings = { 
-                name = "Settings", 
-                type = "group", 
-                order = 1, 
-                args = {
-                    barSkin = { 
-                        name = "Global Bar Skin", 
-                        type = "select", 
-                        order = 0.5, 
-                        values = GetSkinList, 
-                        get = function() return self.db.profile.barSkin end, 
-                        set = function(_, v) self.db.profile.barSkin = v; for id in pairs(bars) do self:ApplyBarSettings(id) end end 
-                    },
+                font = {
+                    name = "Font",
+                    type = "select",
+                    order = 0.5,
+                    dialogControl = "LSM30_Font",
+                    values = LSM:HashTable("font"),
+                    get = function()
+                        local val = self.db.profile.bars[id].font
+                        if not val then
+                            local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
+                            self.db.profile.bars[id].font = globalFont
+                            return globalFont
+                        end
+                        return val
+                    end,
+                    set = function(_, v)
+                        self.db.profile.bars[id].font = v
+                        self:UpdateBarLayout(id)
+                    end,
+                    desc = "Select a font for this bar.",
+                },
                     font = { 
                         name = "Global Font", 
                         type = "select", 

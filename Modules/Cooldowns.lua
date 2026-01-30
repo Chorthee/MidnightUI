@@ -28,7 +28,7 @@ local defaults = {
         backgroundColor = {0.1, 0.1, 0.1, 0.5},
         
         -- Font (for cooldown text)
-        font = "Friz Quadrata TT",
+        font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT",
         fontSize = 14,
         fontOutline = "OUTLINE",
         

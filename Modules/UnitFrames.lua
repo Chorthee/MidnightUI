@@ -104,7 +104,7 @@ end
                     width = 220, height = 24,
                     color = {0.2, 0.8, 0.2, 1},
                     bgColor = {0, 0, 0, 0.5},
-                    font = "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 14, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curhp] / [maxhp] ([perhp]%)", textPos = "CENTER",
                     texture = "Flat"
                 },
@@ -113,7 +113,7 @@ end
                     width = 220, height = 12,
                     color = {0.2, 0.4, 0.8, 1},
                     bgColor = {0, 0, 0, 0.5},
-                    font = "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 12, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[curpp] / [maxpp]", textPos = "CENTER",
                     texture = "Flat"
                 },
@@ -121,7 +121,7 @@ end
                     enabled = true, width = 220, height = 10,
                     color = {0.8, 0.8, 0.2, 1},
                     bgColor = {0, 0, 0, 0.5},
-                    font = "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
+                    font = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT", fontSize = 10, fontOutline = "OUTLINE", fontColor = {1,1,1,1},
                     text = "[name] [level] [class]", textPos = "CENTER",
                     texture = "Flat"
                 }
