@@ -448,7 +448,6 @@ end
     CreateCheck("Loop Music", "Sound_ZoneMusicNoDelay", volFrame, -210)
     CreateCheck("Sound in Background", "Sound_EnableSoundWhenGameIsInBG", volFrame, -240) 
     CreateCheck("Play Error Speech", "Sound_EnableErrorSpeech", volFrame, -270) 
-end
 
 -- FRIENDS LIST
 function Bar:CreateFriendsFrame()
