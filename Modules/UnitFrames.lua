@@ -714,10 +714,6 @@ end
                         if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                             local classColorValue = RAID_CLASS_COLORS[classToken]
                             powerColor = { tonumber(classColorValue.r) or 1, tonumber(classColorValue.g) or 1, tonumber(classColorValue.b) or 1, 0.6 }
-                            -- Set background to class color at 0.2 alpha
-                            if frame.powerBar.bg then
-                                frame.powerBar.bg:SetColorTexture(powerColor[1], powerColor[2], powerColor[3], 0.2)
-                            end
                         end
                     end
                     if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
@@ -725,6 +721,10 @@ end
                     end
                     local safePowerColor = SanitizeColorTable(powerColor, {0.2,0.4,0.8,1})
                     frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
+                    -- Always update the background color for the power bar if class color is enabled
+                    if useClassColor and frame.powerBar.bg then
+                        frame.powerBar.bg:SetColorTexture(safePowerColor[1], safePowerColor[2], safePowerColor[3], 0.2)
+                    end
                     -- Set static power bar text: current power percent
                     frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
 
