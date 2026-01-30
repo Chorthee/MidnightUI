@@ -3,7 +3,8 @@ local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI and MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
 if not UnitFrames then return end
 _G.UnitFrames = UnitFrames
--- ...existing code...
+local LSM = LibStub("LibSharedMedia-3.0")
+
 function UnitFrames:CreateFocusFrame()
     if not self.db.profile.showFocus then return end
     local db = self.db.profile
@@ -149,6 +150,7 @@ end
         if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
         if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
         if self.db.profile.showTargetTarget then print("[MidnightUI] Creating TargetTargetFrame"); self:CreateTargetTargetFrame() end
+        if self.db.profile.showFocus then print("[MidnightUI] Creating FocusFrame"); self:CreateFocusFrame() end
         SetBlizzardFramesHidden(self)
     end
 
@@ -156,12 +158,14 @@ end
     function UnitFrames:PLAYER_TARGET_CHANGED()
         if self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
         if self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+        if self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
     end
 
     function UnitFrames:UNIT_HEALTH(event, unit)
         if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
         if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
         if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+        if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
         SetBlizzardFramesHidden(self)
     end
 
@@ -169,6 +173,7 @@ end
         if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
         if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
         if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+        if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
         SetBlizzardFramesHidden(self)
     end
 
@@ -176,12 +181,16 @@ end
         if unit == "player" and self.db.profile.showPlayer then self:UpdateUnitFrame("PlayerFrame", "player") end
         if unit == "target" and self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
         if unit == "targettarget" and self.db.profile.showTargetTarget then self:UpdateUnitFrame("TargetTargetFrame", "targettarget") end
+        if unit == "focus" and self.db.profile.showFocus then self:UpdateUnitFrame("FocusFrame", "focus") end
         SetBlizzardFramesHidden(self)
     end
 
     function UnitFrames:UNIT_TARGET(event, unit)
         if unit == "target" and self.db.profile.showTargetTarget then
             self:UpdateUnitFrame("TargetTargetFrame", "targettarget")
+        end
+        if unit == "focus" and self.db.profile.showFocus then
+            self:UpdateUnitFrame("FocusFrame", "focus")
         end
     end
 
