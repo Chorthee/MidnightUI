@@ -7,7 +7,10 @@ UnitFrames = UnitFrames or _G.UnitFrames
 
 function UnitFrames:GetPlayerOptions_Real()
     local db = self.db and self.db.profile and self.db.profile.player or {}
-    local function update() self:UpdateUnitFrame("PlayerFrame", "player") end
+    local function update()
+        if _G.MidnightUI_PlayerFrame then _G.MidnightUI_PlayerFrame:Hide(); _G.MidnightUI_PlayerFrame:SetParent(nil) end
+        if self and self.CreatePlayerFrame then self:CreatePlayerFrame() end
+    end
     return {
         type = "group",
         name = "Player Frame",
