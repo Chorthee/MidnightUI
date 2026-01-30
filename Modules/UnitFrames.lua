@@ -615,9 +615,14 @@ end
                     end
                     local hpPct = GetHealthPct(unit)
                     if hpPct then
-                        hpPct = math.floor(hpPct)
+                        local ok, floored = pcall(math.floor, hpPct)
+                        if ok and floored then
+                            hpPct = floored
+                        else
+                            hpPct = ""
+                        end
                     else
-                        hpPct = 0
+                        hpPct = ""
                     end
                     local healthFormat = h.text or "[curhp] / [maxhp] ([perhp]%)"
                     local healthStr = tostring(healthFormat)
