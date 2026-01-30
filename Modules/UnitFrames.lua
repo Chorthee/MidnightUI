@@ -1,6 +1,4 @@
--- Modular UnitFrames: Load separate option files from Frames subfolder
--- The Player, Target, and TargetTarget option files are loaded via the TOC and available globally.
-
+local LSM = LibStub("LibSharedMedia-3.0")
 
 local MidnightUI = LibStub("AceAddon-3.0"):GetAddon("MidnightUI")
 local UnitFrames = MidnightUI:NewModule("UnitFrames", "AceEvent-3.0", "AceHook-3.0")
@@ -212,9 +210,7 @@ end
                     textRight = nil,
                     texture = "Flat"
                 }
-            }
-        }
-    }
+    UnitFrames.defaults = defaults
     UnitFrames.defaults = defaults
 -- Migrate legacy info bar text to new left/center/right fields for backward compatibility
             local function MigrateInfoBarText(opts)
