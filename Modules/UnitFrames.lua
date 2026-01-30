@@ -285,11 +285,11 @@ end
                     frame:SetFrameStrata("HIGH")
                     frame:Show()
                     MidnightUI:SkinFrame(frame)
-                    -- DEBUG: Red border for frame boundary visualization. Remove for release!
-                    frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
-                    frame.debugBorder:SetAllPoints()
-                    frame.debugBorder:SetColorTexture(1,0,0,0.5)
-                    frame.debugBorder:SetBlendMode("ADD")
+                    -- DEBUG: Red border for frame boundary visualization. Disabled for release.
+                    -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
+                    -- frame.debugBorder:SetAllPoints()
+                    -- frame.debugBorder:SetColorTexture(1,0,0,0.5)
+                    -- frame.debugBorder:SetBlendMode("ADD")
                     if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(px)..","..(py).." size "..width.."x"..totalHeight) end
 
                     -- Drag to move if unlocked
