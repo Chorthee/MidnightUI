@@ -113,6 +113,7 @@ function UnitFrames:GetPlayerOptions_Real()
                         name = "Text Preset",
                         order = 9.8,
                         values = {
+                            none = "None",
                             cur = "Current Only",
                             curmax = "Current / Max",
                             curmaxpct = "Current / Max (%)",
@@ -120,13 +121,15 @@ function UnitFrames:GetPlayerOptions_Real()
                         },
                         get = function()
                             local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
-                            if t == "[curhp]" then return "cur"
+                            if t == "" then return "none"
+                            elseif t == "[curhp]" then return "cur"
                             elseif t == "[curhp] / [maxhp]" then return "curmax"
                             elseif t == "[curhp] / [maxhp] ([perhp]%)" then return "curmaxpct"
                             else return "advanced" end
                         end,
                         set = function(_, v)
-                            if v == "cur" then db.health.text = "[curhp]"
+                            if v == "none" then db.health.text = ""
+                            elseif v == "cur" then db.health.text = "[curhp]"
                             elseif v == "curmax" then db.health.text = "[curhp] / [maxhp]"
                             elseif v == "curmaxpct" then db.health.text = "[curhp] / [maxhp] ([perhp]%)"
                             elseif v == "advanced" then
@@ -322,18 +325,21 @@ function UnitFrames:GetPlayerOptions_Real()
                         name = "Text Preset",
                         order = 9.8,
                         values = {
+                            none = "None",
                             cur = "Current Only",
                             curmax = "Current / Max",
                             advanced = "Advanced (Custom Format)"
                         },
                         get = function()
                             local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                            if t == "[curpp]" then return "cur"
+                            if t == "" then return "none"
+                            elseif t == "[curpp]" then return "cur"
                             elseif t == "[curpp] / [maxpp]" then return "curmax"
                             else return "advanced" end
                         end,
                         set = function(_, v)
-                            if v == "cur" then db.power.text = "[curpp]"
+                            if v == "none" then db.power.text = ""
+                            elseif v == "cur" then db.power.text = "[curpp]"
                             elseif v == "curmax" then db.power.text = "[curpp] / [maxpp]"
                             elseif v == "advanced" then
                                 local t = db.power and db.power.text or "[curpp] / [maxpp]"
@@ -473,6 +479,7 @@ function UnitFrames:GetPlayerOptions_Real()
                         name = "Text Preset",
                         order = 9.8,
                         values = {
+                            none = "None",
                             name = "Name Only",
                             namelevel = "Name + Level",
                             all = "All Info",
@@ -480,13 +487,15 @@ function UnitFrames:GetPlayerOptions_Real()
                         },
                         get = function()
                             local t = db.info and db.info.text or "[name] [level] [class]"
-                            if t == "[name]" then return "name"
+                            if t == "" then return "none"
+                            elseif t == "[name]" then return "name"
                             elseif t == "[name] [level]" then return "namelevel"
                             elseif t == "[name] [level] [class]" then return "all"
                             else return "advanced" end
                         end,
                         set = function(_, v)
-                            if v == "name" then db.info.text = "[name]"
+                            if v == "none" then db.info.text = ""
+                            elseif v == "name" then db.info.text = "[name]"
                             elseif v == "namelevel" then db.info.text = "[name] [level]"
                             elseif v == "all" then db.info.text = "[name] [level] [class]"
                             elseif v == "advanced" then

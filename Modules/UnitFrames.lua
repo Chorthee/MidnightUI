@@ -217,13 +217,19 @@ end
 UnitFrames.defaults = defaults
 
 -- Migrate legacy info bar text to new left/center/right fields for backward compatibility
+
 local function MigrateInfoBarText(opts)
     if opts and opts.info then
+        -- Migrate legacy text field
         if opts.info.text and not (opts.info.textLeft or opts.info.textCenter or opts.info.textRight) then
             opts.info.textCenter = opts.info.text
             opts.info.text = nil
         end
         if opts.info.textPos then opts.info.textPos = nil end
+        -- Ensure left/center/right fields are always strings
+        if opts.info.textLeft == nil then opts.info.textLeft = "" end
+        if opts.info.textCenter == nil then opts.info.textCenter = "" end
+        if opts.info.textRight == nil then opts.info.textRight = "" end
     end
 end
 
