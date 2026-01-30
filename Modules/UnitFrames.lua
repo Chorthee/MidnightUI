@@ -523,6 +523,8 @@ end
                     local frameDB = db[frameKey]
                     if not frameDB then return end
                     local h, p, i = frameDB.health, frameDB.power, frameDB.info
+                    local frame = frames[key]
+                    if not frame then return end
 
                     -- Calculate health percent robustly
                     local hpPct = GetHealthPct(unit)
