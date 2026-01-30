@@ -1667,11 +1667,11 @@ function Bar:GetPluginOptions()
                     func = function() self:MoveBroker(name, 1) end 
                 },
 
-                -- Row 2: Bar and Align
+                -- Row 2: Bar and Align (now order 4 and 4.1)
                 bar = { 
                     name = "Bar", 
                     type = "select", 
-                    order = 2, 
+                    order = 4, 
                     width = "half",
                     values = barList, 
                     get = function() return self.db.profile.brokers[name].bar end, 
@@ -1680,39 +1680,39 @@ function Bar:GetPluginOptions()
                 align = { 
                     name = "Align", 
                     type = "select", 
-                    order = 2.1, 
+                    order = 4.1, 
                     width = "half",
                     values = {LEFT="Left", CENTER="Center", RIGHT="Right"}, 
                     get = function() return self.db.profile.brokers[name].align end, 
                     set = function(_, v) self.db.profile.brokers[name].align = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
                 },
 
-                -- Row 3: Checkboxes and toggles
+                -- Row 3: Checkboxes and toggles (start at order 5)
                 showIcon = { 
                     name = "Show Icon", 
                     type = "toggle", 
-                    order = 4, 
+                    order = 5, 
                     get = function() return self.db.profile.brokers[name].showIcon end, 
                     set = function(_, v) self.db.profile.brokers[name].showIcon = v; self:UpdateBarLayout(self.db.profile.brokers[name].bar) end 
                 },
                 showText = { 
                     name = "Show Value", 
                     type = "toggle", 
-                    order = 5, 
+                    order = 6, 
                     get = function() return self.db.profile.brokers[name].showText end, 
                     set = function(_, v) self.db.profile.brokers[name].showText = v; self:UpdateBarLayout(self.db.profile.brokers[name].bar) end 
                 },
                 showLabel = { 
                     name = "Show Label", 
                     type = "toggle", 
-                    order = 6, 
+                    order = 7, 
                     get = function() return self.db.profile.brokers[name].showLabel end, 
                     set = function(_, v) self.db.profile.brokers[name].showLabel = v; self:UpdateBarLayout(self.db.profile.brokers[name].bar) end 
                 },
                 useShortLabel = { 
                     name = "Use Short Label", 
                     type = "toggle", 
-                    order = 7, 
+                    order = 8, 
                     disabled = function() return not self.db.profile.brokers[name].showLabel end, 
                     get = function() return self.db.profile.brokers[name].useShortLabel end, 
                     set = function(_, v) self.db.profile.brokers[name].useShortLabel = v; self:UpdateBarLayout(self.db.profile.brokers[name].bar) end 
