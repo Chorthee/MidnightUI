@@ -177,6 +177,7 @@ local defaults = {
             },
         },
     }
+}
 
 local function ShortenValue(text)
     if not text or text == "" then 
