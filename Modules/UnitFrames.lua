@@ -445,7 +445,7 @@ end
                         if val == nil then return false end
                         -- Safely try tostring
                         local ok, sval = pcall(tostring, val)
-                        if not ok or not sval then return false end
+                        if not ok or not sval or type(sval) ~= "string" then return false end
                         if sval:find('secret') or sval:find('no value') then return false end
                         -- Safely try tonumber
                         local ok2, n = pcall(tonumber, val)
