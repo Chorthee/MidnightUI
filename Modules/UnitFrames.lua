@@ -446,7 +446,12 @@ end
                         -- Safely try tostring
                         local ok, sval = pcall(tostring, val)
                         if not ok or not sval or type(sval) ~= "string" then return false end
-                        if sval:find('secret') or sval:find('no value') then return false end
+                        local safeFind = function(str, pattern)
+                            local okf, res = pcall(function() return str:find(pattern) end)
+                            if okf and res then return true end
+                            return false
+                        end
+                        if safeFind(sval, 'secret') or safeFind(sval, 'no value') then return false end
                         -- Safely try tonumber
                         local ok2, n = pcall(tonumber, val)
                         if not ok2 or not n then return false end
