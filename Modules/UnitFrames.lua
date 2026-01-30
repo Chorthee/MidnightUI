@@ -665,7 +665,9 @@ end
                         elseif val == nil or val == false then
                             return ""
                         else
-                            return tostring(val or "")
+                            local str = tostring(val or "")
+                            if str == nil then return "" end
+                            return str
                         end
                     end
                     -- Defensive: re-assign all safe*Str variables right before use to avoid nil propagation
