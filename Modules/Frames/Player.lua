@@ -121,6 +121,12 @@ function UnitFrames:GetPlayerOptions_Real()
                             if v == "cur" then db.health.text = "[curhp]"
                             elseif v == "curmax" then db.health.text = "[curhp] / [maxhp]"
                             elseif v == "curmaxpct" then db.health.text = "[curhp] / [maxhp] ([perhp]%)"
+                            elseif v == "advanced" then
+                                -- If currently a preset, set to a custom placeholder
+                                local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
+                                if t == "[curhp]" or t == "[curhp] / [maxhp]" or t == "[curhp] / [maxhp] ([perhp]%)" then
+                                    db.health.text = "[curhp] / [maxhp] - custom"
+                                end
                             end
                             update()
                         end,
@@ -131,7 +137,10 @@ function UnitFrames:GetPlayerOptions_Real()
                         order = 10,
                         hidden = function()
                             local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
-                            return t == "[curhp]" or t == "[curhp] / [maxhp]" or t == "[curhp] / [maxhp] ([perhp]%)"
+                            local preset = t == "[curhp]" or t == "[curhp] / [maxhp]" or t == "[curhp] / [maxhp] ([perhp]%)"
+                            -- Show input if not a preset, or if preset but Advanced is selected
+                            local presetSel = (db.health and db.health.textPreset) or nil
+                            return preset and (not (presetSel == "advanced"))
                         end,
                         get = function() return db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)" end,
                         set = function(_, v) db.health.text = v; update() end
@@ -197,6 +206,11 @@ function UnitFrames:GetPlayerOptions_Real()
                         set = function(_, v)
                             if v == "cur" then db.power.text = "[curpp]"
                             elseif v == "curmax" then db.power.text = "[curpp] / [maxpp]"
+                            elseif v == "advanced" then
+                                local t = db.power and db.power.text or "[curpp] / [maxpp]"
+                                if t == "[curpp]" or t == "[curpp] / [maxpp]" then
+                                    db.power.text = "[curpp] / [maxpp] - custom"
+                                end
                             end
                             update()
                         end,
@@ -207,7 +221,9 @@ function UnitFrames:GetPlayerOptions_Real()
                         order = 10,
                         hidden = function()
                             local t = db.power and db.power.text or "[curpp] / [maxpp]"
-                            return t == "[curpp]" or t == "[curpp] / [maxpp]"
+                            local preset = t == "[curpp]" or t == "[curpp] / [maxpp]"
+                            local presetSel = (db.power and db.power.textPreset) or nil
+                            return preset and (not (presetSel == "advanced"))
                         end,
                         get = function() return db.power and db.power.text or "[curpp] / [maxpp]" end,
                         set = function(_, v) db.power.text = v; update() end
@@ -277,6 +293,11 @@ function UnitFrames:GetPlayerOptions_Real()
                             if v == "name" then db.info.text = "[name]"
                             elseif v == "namelevel" then db.info.text = "[name] [level]"
                             elseif v == "all" then db.info.text = "[name] [level] [class]"
+                            elseif v == "advanced" then
+                                local t = db.info and db.info.text or "[name] [level] [class]"
+                                if t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]" then
+                                    db.info.text = "[name] [level] [class] - custom"
+                                end
                             end
                             update()
                         end,
@@ -287,7 +308,9 @@ function UnitFrames:GetPlayerOptions_Real()
                         order = 10,
                         hidden = function()
                             local t = db.info and db.info.text or "[name] [level] [class]"
-                            return t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]"
+                            local preset = t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]"
+                            local presetSel = (db.info and db.info.textPreset) or nil
+                            return preset and (not (presetSel == "advanced"))
                         end,
                         get = function() return db.info and db.info.text or "[name] [level] [class]" end,
                         set = function(_, v) db.info.text = v; update() end
