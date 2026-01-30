@@ -668,9 +668,6 @@ end
                             return tostring(val)
                         end
                     end
-                    local safeName = safeStr(name)
-                    local safeLevel = safeStr(level)
-                    local safeClass = safeStr((className ~= '' and className) or classToken)
                     local safeCurppStr = safeStr(safeCurpp)
                     local safeMaxppStr = safeStr(safeMaxpp)
                     local safePpPctStr = safeStr(ppPct)
