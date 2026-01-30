@@ -1,7 +1,7 @@
 -- MidnightUI UnitFrames: Player Frame Module
 
 
-UnitFrames = UnitFrames or _G.UnitFrames
+if _G.UnitFrames then UnitFrames = _G.UnitFrames end
 
 
 

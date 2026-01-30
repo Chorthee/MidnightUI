@@ -1,7 +1,7 @@
 -- MidnightUI UnitFrames: Target Frame Module
 
 
-UnitFrames = UnitFrames or _G.UnitFrames
+if _G.UnitFrames then UnitFrames = _G.UnitFrames end
 
 function UnitFrames:GetTargetOptions_Real()
     local db = self.db and self.db.profile and self.db.profile.target or {}
