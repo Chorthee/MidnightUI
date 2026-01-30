@@ -596,13 +596,24 @@ end
                             elseif key == "FocusFrame" then unit = "focus" end
                             if unit and UnitExists(unit) then
                                 if not self.dropDown then
-                                    -- Create a dropdown frame if not present
                                     self.dropDown = CreateFrame("Frame", "MidnightUI_"..key.."DropDown", UIParent, "UIDropDownMenuTemplate")
+                                    self.dropDown.displayMode = "MENU"
+                                    self.dropDown.initialize = function(dropdown, level, menuList)
+                                        if not level then return end
+                                        local info = UIDropDownMenu_CreateInfo()
+                                        info.text = "Set Focus"
+                                        info.func = function() FocusUnit(unit) end
+                                        UIDropDownMenu_AddButton(info, level)
+                                        info = UIDropDownMenu_CreateInfo()
+                                        info.text = "Clear Focus"
+                                        info.func = function() ClearFocus() end
+                                        UIDropDownMenu_AddButton(info, level)
+                                        -- Add more options as needed
+                                    end
                                 end
-                                UnitPopup_ShowMenu(self.dropDown, unit, nil, self)
+                                ToggleDropDownMenu(1, nil, self.dropDown, "cursor", 0, 0)
                             end
                         else
-                            -- Left or other button: custom logic or default targeting
                             print("[MidnightUI] "..key.." "..tostring(button).." clicked")
                         end
                     end)
