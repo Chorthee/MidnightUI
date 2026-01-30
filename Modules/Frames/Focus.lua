@@ -2,41 +2,11 @@
 if not UnitFrames then return end
 
 
--- Create the Focus Frame in-game, mirroring PlayerFrame logic
+-- Delegate Focus frame creation to UnitFrames:CreateFocusFrame in UnitFrames.lua
 function UnitFrames:CreateFocusFrame()
-	if _G.MidnightUI_FocusFrame then _G.MidnightUI_FocusFrame:Hide(); _G.MidnightUI_FocusFrame:SetParent(nil) end
-	local db = self.db and self.db.profile and self.db.profile.focus or {}
-	local frame = CreateFrame("Frame", "MidnightUI_FocusFrame", UIParent, "BackdropTemplate")
-	frame:SetSize((db.health and db.health.width) or 220, ((db.health and db.health.height) or 24) + ((db.power and db.power.height) or 12) + ((db.info and db.info.height) or 10) + (db.spacing or 2) * 2)
-	frame:SetPoint("CENTER", UIParent, "CENTER", (db.position and db.position.x) or 0, (db.position and db.position.y) or 0)
-	frame:SetBackdrop({ bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 12, insets = { left = 2, right = 2, top = 2, bottom = 2 } })
-	frame:SetBackdropColor(0,0,0,0)
-	frame:SetBackdropBorderColor(0,0,0,0.7)
-	frame:EnableMouse(true)
-	frame:SetMovable(true)
-	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", function(self) self:StartMoving() end)
-	frame:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-
-	-- Create bars
-	local y = 0
-	if db.health and db.health.enabled then
-		frame.healthBar = self:CreateBar(frame, db.health, y)
-		y = y - (db.health.height or 24) - (db.spacing or 2)
-	end
-	if db.power and db.power.enabled then
-		frame.powerBar = self:CreateBar(frame, db.power, y)
-		y = y - (db.power.height or 12) - (db.spacing or 2)
-	end
-	if db.info and db.info.enabled then
-		local infoOpts = db.info
-		infoOpts._infoBar = true
-		frame.infoBar = self:CreateBar(frame, infoOpts, y)
-	end
-
-	frame:Show()
-
-	_G.MidnightUI_FocusFrame = frame
+    if UnitFrames and UnitFrames.CreateFocusFrame then
+        return UnitFrames.CreateFocusFrame(UnitFrames)
+    end
 end
 
 function UnitFrames:GetFocusOptions_Real()

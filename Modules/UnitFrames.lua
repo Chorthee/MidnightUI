@@ -6,15 +6,8 @@ _G.UnitFrames = UnitFrames
 local LSM = LibStub("LibSharedMedia-3.0")
 
 function UnitFrames:CreateFocusFrame()
-    if not self.db.profile.showFocus then
-        print("[MidnightUI] CreateFocusFrame: showFocus is false or nil, skipping.")
-        return
-    end
-    local db = self.db.profile
-    local anchorTo = UIParent
-    local pos = db.focus and db.focus.position or { point = "CENTER", x = 0, y = -100 }
-    print("[MidnightUI] Creating FocusFrame at " .. tostring(pos.x) .. "," .. tostring(pos.y) .. " point " .. tostring(pos.point))
-    CreateUnitFrame(self, "FocusFrame", "focus", anchorTo, pos.point, pos.point, pos.x, pos.y)
+    if not self.db.profile.showFocus then return end
+    CreateUnitFrame(self, "FocusFrame", "focus")
 end
 -- Utility: Sanitize a color table to ensure all values are plain numbers (not secret values)
 local function SanitizeColorTable(color, fallback)
