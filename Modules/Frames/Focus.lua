@@ -1,4 +1,6 @@
 
+if not UnitFrames then return end
+
 
 -- Create the Focus Frame in-game, mirroring PlayerFrame logic
 function UnitFrames:CreateFocusFrame()
