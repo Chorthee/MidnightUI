@@ -546,8 +546,8 @@ end
                             maxhp = 0
                         end
                         safeCurhp = tonumber(curhp) or 0
-                        if safeCurhp == nil then safeCurhp = 0 end
                         safeMaxhp = tonumber(maxhp) or 0
+                        if safeCurhp == nil then safeCurhp = 0 end
                         if safeMaxhp == nil then safeMaxhp = 0 end
                     else
                         safeCurhp = 0
