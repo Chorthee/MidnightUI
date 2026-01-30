@@ -477,7 +477,11 @@ end
                         local level = UnitLevel(unit) or ""
                         local _, class = UnitClass(unit)
                         class = class or ""
-                        local infoStr = string.format("%s %s %s", name, level, class)
+                        local textFormat = i.text or "[name] [level] [class]"
+                        local infoStr = textFormat
+                        infoStr = infoStr:gsub("%[name%]", name)
+                        infoStr = infoStr:gsub("%[level%]", tostring(level))
+                        infoStr = infoStr:gsub("%[class%]", class)
                         frame.infoBar.text:SetText(infoStr)
                     end
                 end

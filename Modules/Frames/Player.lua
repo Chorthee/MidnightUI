@@ -100,7 +100,42 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.health and db.health.fontSize or 14 end, set = function(_, v) db.health.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.health and db.health.fontOutline or "OUTLINE" end, set = function(_, v) db.health.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.health and db.health.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.health.fontColor = {r,g,b,a}; update() end },
-                    text = { type = "input", name = "Text Format", order = 10, get = function() return db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)" end, set = function(_, v) db.health.text = v; update() end },
+                    textPreset = {
+                        type = "select",
+                        name = "Text Preset",
+                        order = 9.8,
+                        values = {
+                            cur = "Current Only",
+                            curmax = "Current / Max",
+                            curmaxpct = "Current / Max (%)",
+                            advanced = "Advanced (Custom Format)"
+                        },
+                        get = function()
+                            local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
+                            if t == "[curhp]" then return "cur"
+                            elseif t == "[curhp] / [maxhp]" then return "curmax"
+                            elseif t == "[curhp] / [maxhp] ([perhp]%)" then return "curmaxpct"
+                            else return "advanced" end
+                        end,
+                        set = function(_, v)
+                            if v == "cur" then db.health.text = "[curhp]"
+                            elseif v == "curmax" then db.health.text = "[curhp] / [maxhp]"
+                            elseif v == "curmaxpct" then db.health.text = "[curhp] / [maxhp] ([perhp]%)"
+                            end
+                            update()
+                        end,
+                    },
+                    text = {
+                        type = "input",
+                        name = "Text Format",
+                        order = 10,
+                        hidden = function()
+                            local t = db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)"
+                            return t == "[curhp]" or t == "[curhp] / [maxhp]" or t == "[curhp] / [maxhp] ([perhp]%)"
+                        end,
+                        get = function() return db.health and db.health.text or "[curhp] / [maxhp] ([perhp]%)" end,
+                        set = function(_, v) db.health.text = v; update() end
+                    },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.health and db.health.textPos or "CENTER" end, set = function(_, v) db.health.textPos = v; update() end },
                     texture = { type = "input", name = "Texture", order = 12, get = function() return db.health and db.health.texture or "Flat" end, set = function(_, v) db.health.texture = v; update() end },
                 },
@@ -144,7 +179,39 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.power and db.power.fontSize or 12 end, set = function(_, v) db.power.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.power and db.power.fontOutline or "OUTLINE" end, set = function(_, v) db.power.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.power and db.power.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.power.fontColor = {r,g,b,a}; update() end },
-                    text = { type = "input", name = "Text Format", order = 10, get = function() return db.power and db.power.text or "[curpp] / [maxpp]" end, set = function(_, v) db.power.text = v; update() end },
+                    textPreset = {
+                        type = "select",
+                        name = "Text Preset",
+                        order = 9.8,
+                        values = {
+                            cur = "Current Only",
+                            curmax = "Current / Max",
+                            advanced = "Advanced (Custom Format)"
+                        },
+                        get = function()
+                            local t = db.power and db.power.text or "[curpp] / [maxpp]"
+                            if t == "[curpp]" then return "cur"
+                            elseif t == "[curpp] / [maxpp]" then return "curmax"
+                            else return "advanced" end
+                        end,
+                        set = function(_, v)
+                            if v == "cur" then db.power.text = "[curpp]"
+                            elseif v == "curmax" then db.power.text = "[curpp] / [maxpp]"
+                            end
+                            update()
+                        end,
+                    },
+                    text = {
+                        type = "input",
+                        name = "Text Format",
+                        order = 10,
+                        hidden = function()
+                            local t = db.power and db.power.text or "[curpp] / [maxpp]"
+                            return t == "[curpp]" or t == "[curpp] / [maxpp]"
+                        end,
+                        get = function() return db.power and db.power.text or "[curpp] / [maxpp]" end,
+                        set = function(_, v) db.power.text = v; update() end
+                    },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.power and db.power.textPos or "CENTER" end, set = function(_, v) db.power.textPos = v; update() end },
                     texture = { type = "input", name = "Texture", order = 12, get = function() return db.power and db.power.texture or "Flat" end, set = function(_, v) db.power.texture = v; update() end },
                 },
@@ -189,7 +256,42 @@ function UnitFrames:GetPlayerOptions_Real()
                     fontSize = { type = "range", name = "Font Size", min = 6, max = 32, step = 1, order = 7, get = function() return db.info and db.info.fontSize or 10 end, set = function(_, v) db.info.fontSize = v; update() end },
                     fontOutline = { type = "select", name = "Font Outline", order = 8, values = { NONE = "None", OUTLINE = "Outline", THICKOUTLINE = "Thick Outline" }, get = function() return db.info and db.info.fontOutline or "OUTLINE" end, set = function(_, v) db.info.fontOutline = v; update() end },
                     fontColor = { type = "color", name = "Font Color", hasAlpha = true, order = 9, get = function() return unpack(db.info and db.info.fontColor or {1,1,1,1}) end, set = function(_, r,g,b,a) db.info.fontColor = {r,g,b,a}; update() end },
-                    text = { type = "input", name = "Text Format", order = 10, get = function() return db.info and db.info.text or "[name] [level] [class]" end, set = function(_, v) db.info.text = v; update() end },
+                    textPreset = {
+                        type = "select",
+                        name = "Text Preset",
+                        order = 9.8,
+                        values = {
+                            name = "Name Only",
+                            namelevel = "Name + Level",
+                            all = "All Info",
+                            advanced = "Advanced (Custom Format)"
+                        },
+                        get = function()
+                            local t = db.info and db.info.text or "[name] [level] [class]"
+                            if t == "[name]" then return "name"
+                            elseif t == "[name] [level]" then return "namelevel"
+                            elseif t == "[name] [level] [class]" then return "all"
+                            else return "advanced" end
+                        end,
+                        set = function(_, v)
+                            if v == "name" then db.info.text = "[name]"
+                            elseif v == "namelevel" then db.info.text = "[name] [level]"
+                            elseif v == "all" then db.info.text = "[name] [level] [class]"
+                            end
+                            update()
+                        end,
+                    },
+                    text = {
+                        type = "input",
+                        name = "Text Format",
+                        order = 10,
+                        hidden = function()
+                            local t = db.info and db.info.text or "[name] [level] [class]"
+                            return t == "[name]" or t == "[name] [level]" or t == "[name] [level] [class]"
+                        end,
+                        get = function() return db.info and db.info.text or "[name] [level] [class]" end,
+                        set = function(_, v) db.info.text = v; update() end
+                    },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.info and db.info.textPos or "CENTER" end, set = function(_, v) db.info.textPos = v; update() end },
                     texture = { type = "input", name = "Texture", order = 12, get = function() return db.info and db.info.texture or "Flat" end, set = function(_, v) db.info.texture = v; update() end },
                 },
