@@ -1,3 +1,10 @@
+function UnitFrames:CreateFocusFrame()
+    if not self.db.profile.showFocus then return end
+    local db = self.db.profile
+    local anchorTo = UIParent
+    local pos = db.focus and db.focus.position or { point = "CENTER", x = 0, y = -100 }
+    CreateUnitFrame(self, "FocusFrame", "focus", anchorTo, pos.point, pos.point, pos.x, pos.y)
+end
 -- Utility: Sanitize a color table to ensure all values are plain numbers (not secret values)
 local function SanitizeColorTable(color, fallback)
     fallback = fallback or {1, 1, 1, 1}
@@ -434,7 +441,7 @@ end
                     end
                     local db = self.db.profile
                     local spacing = db.spacing
-                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget")
+                    local frameKey = (key == "PlayerFrame" and "player") or (key == "TargetFrame" and "target") or (key == "TargetTargetFrame" and "targettarget") or (key == "FocusFrame" and "focus")
                     local frameDB = db[frameKey]
                     local h, p, i = frameDB.health, frameDB.power, frameDB.info
                     local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
