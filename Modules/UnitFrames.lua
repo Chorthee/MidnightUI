@@ -915,4 +915,15 @@ end
                         return self:GetTargetTargetOptions_Real()
                     end
                     return nil
+                    -- Add debugging text to FocusFrame
+                    if key == "FocusFrame" then
+                        if not frame.debugText then
+                            frame.debugText = frame:CreateFontString(nil, "OVERLAY")
+                            frame.debugText:SetFont(LSM:Fetch("font", "Friz Quadrata TT"), 16, "OUTLINE")
+                            frame.debugText:SetTextColor(1, 0, 1, 1)
+                            frame.debugText:SetPoint("CENTER", frame, "CENTER", 0, 0)
+                        end
+                        frame.debugText:SetText("FocusFrame Debug: " .. tostring(width) .. "x" .. tostring(totalHeight))
+                        frame.debugText:Show()
+                    end
                 end
