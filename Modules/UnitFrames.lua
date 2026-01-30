@@ -6,10 +6,14 @@ _G.UnitFrames = UnitFrames
 local LSM = LibStub("LibSharedMedia-3.0")
 
 function UnitFrames:CreateFocusFrame()
-    if not self.db.profile.showFocus then return end
+    if not self.db.profile.showFocus then
+        print("[MidnightUI] CreateFocusFrame: showFocus is false or nil, skipping.")
+        return
+    end
     local db = self.db.profile
     local anchorTo = UIParent
     local pos = db.focus and db.focus.position or { point = "CENTER", x = 0, y = -100 }
+    print("[MidnightUI] Creating FocusFrame at " .. tostring(pos.x) .. "," .. tostring(pos.y) .. " point " .. tostring(pos.point))
     CreateUnitFrame(self, "FocusFrame", "focus", anchorTo, pos.point, pos.point, pos.x, pos.y)
 end
 -- Utility: Sanitize a color table to ensure all values are plain numbers (not secret values)
@@ -495,6 +499,8 @@ end
                     local h, p, i = frameDB.health, frameDB.power, frameDB.info
                     local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
                     local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
+
+                    print("[MidnightUI] CreateUnitFrame: "..key.." width="..tostring(width).." height="..tostring(totalHeight))
 
                     local frameType = "Button"
                     local template = "SecureUnitButtonTemplate,BackdropTemplate"
