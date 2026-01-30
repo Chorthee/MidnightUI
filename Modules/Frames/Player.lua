@@ -84,7 +84,14 @@ function UnitFrames:GetPlayerOptions_Real()
                             if not _G.MidnightUI_TagHelp then
                                 local f = CreateFrame("Frame", "MidnightUI_TagHelp", UIParent, "BackdropTemplate")
                                 f:SetSize(340, 220)
-                                f:SetPoint("CENTER")
+                                -- Position to the right of the options window if possible
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:SetPoint("CENTER")
+                                end
                                 f:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background", edgeFile = "Interface/Tooltips/UI-Tooltip-Border", tile = true, tileSize = 16, edgeSize = 16, insets = { left = 4, right = 4, top = 4, bottom = 4 }})
                                 f:SetBackdropColor(0,0,0,0.9)
                                 f:SetFrameStrata("DIALOG")
@@ -102,6 +109,17 @@ function UnitFrames:GetPlayerOptions_Real()
                                 tags:SetText("[name]  - Unit name\n[level]  - Unit level\n[class]  - Unit class\n[curhp]  - Current health\n[maxhp]  - Max health\n[perhp]  - Health percent\n[curpp]  - Current power\n[maxpp]  - Max power\n[perpp]  - Power percent")
                                 local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
                                 close:SetPoint("TOPRIGHT", 0, 0)
+                            else
+                                -- Reposition if already created
+                                local f = _G.MidnightUI_TagHelp
+                                local optsFrame = _G.AceConfigDialogFrame1 or _G.AceConfigDialogFrame or nil
+                                if optsFrame and optsFrame:IsVisible() then
+                                    f:ClearAllPoints()
+                                    f:SetPoint("LEFT", optsFrame, "RIGHT", 20, 0)
+                                else
+                                    f:ClearAllPoints()
+                                    f:SetPoint("CENTER")
+                                end
                             end
                             _G.MidnightUI_TagHelp:Show()
                         end,
@@ -176,7 +194,20 @@ function UnitFrames:GetPlayerOptions_Real()
                         set = function(_, v) db.health.text = v; update() end
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.health and db.health.textPos or "CENTER" end, set = function(_, v) db.health.textPos = v; update() end },
-                    texture = { type = "input", name = "Texture", order = 12, get = function() return db.health and db.health.texture or "Flat" end, set = function(_, v) db.health.texture = v; update() end },
+                    texture = {
+                        type = "select",
+                        name = "Texture",
+                        order = 12,
+                        values = function()
+                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
+                            local textures = LSM and LSM:List("statusbar") or {}
+                            local out = {}
+                            for _, tex in ipairs(textures) do out[tex] = tex end
+                            return out
+                        end,
+                        get = function() return db.health and db.health.texture or "Flat" end,
+                        set = function(_, v) db.health.texture = v; update() end,
+                    },
                 },
             },
             -- Power Bar
@@ -289,7 +320,20 @@ function UnitFrames:GetPlayerOptions_Real()
                         set = function(_, v) db.power.text = v; update() end
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.power and db.power.textPos or "CENTER" end, set = function(_, v) db.power.textPos = v; update() end },
-                    texture = { type = "input", name = "Texture", order = 12, get = function() return db.power and db.power.texture or "Flat" end, set = function(_, v) db.power.texture = v; update() end },
+                    texture = {
+                        type = "select",
+                        name = "Texture",
+                        order = 12,
+                        values = function()
+                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
+                            local textures = LSM and LSM:List("statusbar") or {}
+                            local out = {}
+                            for _, tex in ipairs(textures) do out[tex] = tex end
+                            return out
+                        end,
+                        get = function() return db.power and db.power.texture or "Flat" end,
+                        set = function(_, v) db.power.texture = v; update() end,
+                    },
                 },
             },
             -- Info Bar
@@ -406,7 +450,20 @@ function UnitFrames:GetPlayerOptions_Real()
                         set = function(_, v) db.info.text = v; update() end
                     },
                     textPos = { type = "select", name = "Text Position", order = 11, values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" }, get = function() return db.info and db.info.textPos or "CENTER" end, set = function(_, v) db.info.textPos = v; update() end },
-                    texture = { type = "input", name = "Texture", order = 12, get = function() return db.info and db.info.texture or "Flat" end, set = function(_, v) db.info.texture = v; update() end },
+                    texture = {
+                        type = "select",
+                        name = "Texture",
+                        order = 12,
+                        values = function()
+                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
+                            local textures = LSM and LSM:List("statusbar") or {}
+                            local out = {}
+                            for _, tex in ipairs(textures) do out[tex] = tex end
+                            return out
+                        end,
+                        get = function() return db.info and db.info.texture or "Flat" end,
+                        set = function(_, v) db.info.texture = v; update() end,
+                    },
                 },
             },
         },
