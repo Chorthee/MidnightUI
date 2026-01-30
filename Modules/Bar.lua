@@ -1929,3 +1929,4 @@ function Bar:ScheduleLayout()
             Bar:UpdateBarLayout(id) 
         end 
     end) 
+end
