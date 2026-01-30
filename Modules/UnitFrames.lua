@@ -215,6 +215,7 @@ end
             }
         }
     }
+    UnitFrames.defaults = defaults
 -- Migrate legacy info bar text to new left/center/right fields for backward compatibility
             local function MigrateInfoBarText(opts)
                 if opts and opts.info then
