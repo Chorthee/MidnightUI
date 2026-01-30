@@ -588,11 +588,21 @@ end
 
                     -- Handle both left and right clicks
                     frame:SetScript("OnClick", function(self, button)
-                        if button == "LeftButton" then
-                            print("[MidnightUI] "..key.." left clicked")
-                        elseif button == "RightButton" then
-                            print("[MidnightUI] "..key.." right clicked")
+                        if button == "RightButton" then
+                            local unit = nil
+                            if key == "PlayerFrame" then unit = "player"
+                            elseif key == "TargetFrame" then unit = "target"
+                            elseif key == "TargetTargetFrame" then unit = "targettarget"
+                            elseif key == "FocusFrame" then unit = "focus" end
+                            if unit and UnitExists(unit) then
+                                if not self.dropDown then
+                                    -- Create a dropdown frame if not present
+                                    self.dropDown = CreateFrame("Frame", "MidnightUI_"..key.."DropDown", UIParent, "UIDropDownMenuTemplate")
+                                end
+                                UnitPopup_ShowMenu(self.dropDown, unit, nil, self)
+                            end
                         else
+                            -- Left or other button: custom logic or default targeting
                             print("[MidnightUI] "..key.." "..tostring(button).." clicked")
                         end
                     end)
