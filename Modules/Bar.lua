@@ -1757,47 +1757,27 @@ function Bar:GetOptions()
         type = "group", 
         name = "Data Brokers", 
         childGroups = "tab", 
-                font = {
-                    name = "Font",
-                    type = "select",
-                    order = 0.5,
-                    dialogControl = "LSM30_Font",
-                    values = LSM:HashTable("font"),
-                    get = function()
-                        local val = self.db.profile.bars[id].font
-                        if not val then
-                            local globalFont = (MidnightUI and MidnightUI.db and MidnightUI.db.profile and MidnightUI.db.profile.theme and MidnightUI.db.profile.theme.font) or "Friz Quadrata TT"
-                            self.db.profile.bars[id].font = globalFont
-                            return globalFont
-                        end
-                        return val
-                    end,
-                    set = function(_, v)
-                        self.db.profile.bars[id].font = v
-                        self:UpdateBarLayout(id)
-                    end,
-                    desc = "Select a font for this bar.",
-                },
-                    font = { 
-                        name = "Global Font", 
-                        type = "select", 
-                        order = 1, 
-                        dialogControl = "LSM30_Font", 
-                        values = LSM:HashTable("font"), 
-                        get = function() return self.db.profile.font end, 
-                        set = function(_, v) self.db.profile.font = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
-                    },
-                    fontSize = { 
-                        name = "Font Size", 
-                        type = "range", 
-                        min = 6, 
-                        max = 32, 
-                        step = 1, 
-                        order = 2, 
-                        get = function() return self.db.profile.fontSize end, 
-                        set = function(_, v) self.db.profile.fontSize = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
-                    },
-                    spacing = { 
+        args = {
+            font = { 
+                name = "Global Font", 
+                type = "select", 
+                order = 1, 
+                dialogControl = "LSM30_Font", 
+                values = LSM:HashTable("font"), 
+                get = function() return self.db.profile.font end, 
+                set = function(_, v) self.db.profile.font = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
+            },
+            fontSize = { 
+                name = "Font Size", 
+                type = "range", 
+                min = 6, 
+                max = 32, 
+                step = 1, 
+                order = 2, 
+                get = function() return self.db.profile.fontSize end, 
+                set = function(_, v) self.db.profile.fontSize = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
+            },
+            spacing = { 
                         name = "Spacing", 
                         type = "range", 
                         min = 0, 
@@ -1806,39 +1786,38 @@ function Bar:GetOptions()
                         order = 3, 
                         get = function() return self.db.profile.spacing end, 
                         set = function(_, v) self.db.profile.spacing = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
-                    },
-                    useClassColor = { 
-                        name = "Use Class Color", 
-                        type = "toggle", 
-                        order = 4, 
-                        get = function() return self.db.profile.useClassColor end, 
-                        set = function(_, v) self.db.profile.useClassColor = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
-                    },
-                    color = { 
-                        name = "Custom Font Color", 
-                        type = "color", 
-                        order = 5, 
-                        disabled = function() return self.db.profile.useClassColor end, 
-                        get = function() local c = self.db.profile.fontColor; return c.r, c.g, c.b end, 
-                        set = function(_, r, g, b) self.db.profile.fontColor = {r=r, g=g, b=b}; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
-                    },
-                    useStandardTime = { 
-                        name = "Use 24-Hour Time", 
-                        type = "toggle", 
-                        order = 6, 
-                        get = function() return self.db.profile.useStandardTime end, 
-                        set = function(_, v) self.db.profile.useStandardTime = v; self:UpdateAllModules() end 
-                    },
-                    lock = { 
-                        name = "Lock", 
-                        type = "toggle", 
-                        order = 7, 
-                        get = function() return self.db.profile.locked end, 
-                        set = function(_, v) self.db.profile.locked = v; for id in pairs(bars) do self:ApplyBarSettings(id) end end 
-                    }
-                }
+            },
+            useClassColor = { 
+                name = "Use Class Color", 
+                type = "toggle", 
+                order = 4, 
+                get = function() return self.db.profile.useClassColor end, 
+                set = function(_, v) self.db.profile.useClassColor = v; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
+            },
+            color = { 
+                name = "Custom Font Color", 
+                type = "color", 
+                order = 5, 
+                disabled = function() return self.db.profile.useClassColor end, 
+                get = function() local c = self.db.profile.fontColor; return c.r, c.g, c.b end, 
+                set = function(_, r, g, b) self.db.profile.fontColor = {r=r, g=g, b=b}; for id in pairs(bars) do self:UpdateBarLayout(id) end end 
+            },
+            useStandardTime = { 
+                name = "Use 24-Hour Time", 
+                type = "toggle", 
+                order = 6, 
+                get = function() return self.db.profile.useStandardTime end, 
+                set = function(_, v) self.db.profile.useStandardTime = v; self:UpdateAllModules() end 
+            },
+            lock = { 
+                name = "Lock", 
+                type = "toggle", 
+                order = 7, 
+                get = function() return self.db.profile.locked end, 
+                set = function(_, v) self.db.profile.locked = v; for id in pairs(bars) do self:ApplyBarSettings(id) end end 
             }
-        },
+        }
+    },
         bars = { 
             name = "Bars", 
             type = "group", 
