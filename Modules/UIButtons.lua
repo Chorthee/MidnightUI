@@ -110,10 +110,8 @@ function UIButtons:CreateButtons()
             text = "O",
             tooltip = "Open MidnightUI Options",
             onClick = function()
-                if MidnightUI and MidnightUI.OpenConfig then
-                    MidnightUI:OpenConfig()
-                elseif InterfaceOptionsFrame_OpenToCategory then
-                    InterfaceOptionsFrame_OpenToCategory("MidnightUI")
+                if _G.MidnightUI and type(_G.MidnightUI.OpenConfig) == "function" then
+                    _G.MidnightUI:OpenConfig()
                 end
             end
         },
