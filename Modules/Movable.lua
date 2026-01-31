@@ -213,6 +213,14 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
+    -- Clear and repopulate registeredFrames to avoid stale/duplicate references
+    self.registeredFrames = {}
+    -- Re-register all known frames (action bars, unit frames, etc.)
+    if MidnightUI and MidnightUI.GetAllMovableFrames then
+        for _, frame in ipairs(MidnightUI:GetAllMovableFrames()) do
+            self:MakeFrameDraggable(frame)
+        end
+    end
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Move Mode toggled: " .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
     end
