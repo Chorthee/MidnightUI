@@ -366,7 +366,13 @@ function UnitFrames:GetPlayerOptions_Real()
                         desc = "Use your class color for the info bar.",
                         order = 3.9,
                         get = function() return db.info and db.info.classColor end,
-                        set = function(_, v) db.info.classColor = v; update() end,
+                        set = function(_, v)
+                            db.info.classColor = v
+                            update()
+                            if UnitFrames and UnitFrames.UpdateUnitFrame then
+                                UnitFrames:UpdateUnitFrame("PlayerFrame", "player")
+                            end
+                        end,
                     },
                     color = {
                         type = "color",
