@@ -582,15 +582,15 @@ end
                             frameDB.posX = xOfs or 0
                             frameDB.posY = yOfs or 0
                         end)
-                        -- Add nudge controls
-                        Movable:CreateNudgeControls(frame, frameDB, function()
-                            local point, _, relativePoint, x, y = frame:GetPoint()
-                            frameDB.anchorPoint = point or "CENTER"
-                            frameDB.relativePoint = relativePoint or "CENTER"
-                            frameDB.posX = x or 0
-                            frameDB.posY = y or 0
-                            frame:SetPoint(point, UIParent, relativePoint, frameDB.posX, frameDB.posY)
-                        end, nil, key .. " Nudge")
+                        -- Add compact <^Rv> nudge arrows
+                        Movable:CreateContainerArrows(frame, frameDB, function()
+                            -- Reset callback: center the frame
+                            frameDB.anchorPoint = "CENTER"
+                            frameDB.relativePoint = "CENTER"
+                            frameDB.posX = 0
+                            frameDB.posY = 0
+                            frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+                        end)
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
                     -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
