@@ -93,6 +93,18 @@ end
 
 local frames = {}
 
+-- Move HookBlizzardPlayerFrame definition above its first use
+local function HookBlizzardPlayerFrame(self)
+    if PlayerFrame and not PlayerFrame._MidnightUIHooked then
+        hooksecurefunc(PlayerFrame, "Show", function()
+            if self.db and self.db.profile and self.db.profile.showPlayer then PlayerFrame:Hide() end
+        end)
+        PlayerFrame._MidnightUIHooked = true
+    end
+end
+
+-- ...existing code...
+
 function UnitFrames:GetOptions()
     return {
         name = "Unit Frames",
@@ -398,14 +410,7 @@ end
                     end
                 end
 
-                local function HookBlizzardPlayerFrame(self)
-                    if PlayerFrame and not PlayerFrame._MidnightUIHooked then
-                        hooksecurefunc(PlayerFrame, "Show", function()
-                            if self.db and self.db.profile and self.db.profile.showPlayer then PlayerFrame:Hide() end
-                        end)
-                        PlayerFrame._MidnightUIHooked = true
-                    end
-                end
+
 
                 local function CreateBar(parent, opts, yOffset)
                     local bar = CreateFrame("StatusBar", nil, parent, "BackdropTemplate")
