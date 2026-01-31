@@ -221,33 +221,15 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
-        if DEFAULT_CHAT_FRAME then
-            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] OnMoveModeChanged: registeredFrames count = " .. tostring(#self.registeredFrames))
-            for i, frame in ipairs(self.registeredFrames) do
-                local name = frame.GetName and frame:GetName() or tostring(frame)
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name) .. " (" .. tostring(frame) .. ")")
-            end
-        end
-    if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Move Mode toggled: " .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
-    end
+    -- Debug output removed; highlight logic confirmed working
     if enabled then
         self:ShowGrid()
         -- Show green highlight overlay and fade frames in Move Mode
         for i, frame in ipairs(self.registeredFrames) do
-            if DEFAULT_CHAT_FRAME then
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-            end
             if frame.movableHighlightFrame then
                 frame.movableHighlightFrame:Show()
-                if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlightFrame for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-                end
             elseif frame.movableHighlight then
                 frame.movableHighlight:Show()
-                if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight (no frame) for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-                end
             end
             -- Fade unit frames and bars to 30% opacity in Move Mode
             if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
@@ -258,14 +240,8 @@ function Movable:OnMoveModeChanged(event, enabled)
         self:HideGrid()
         -- Hide green highlight overlay and restore frame opacity
         for i, frame in ipairs(self.registeredFrames) do
-            if DEFAULT_CHAT_FRAME then
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-            end
             if frame.movableHighlightFrame then
                 frame.movableHighlightFrame:Hide()
-                if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlightFrame for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-                end
             elseif frame.movableHighlight then
                 frame.movableHighlight:Hide()
                 if DEFAULT_CHAT_FRAME then
