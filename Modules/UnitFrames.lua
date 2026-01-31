@@ -567,14 +567,14 @@ end
                         frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
                         frame.movableHighlight:SetAllPoints()
                         frame.movableHighlight:SetDrawLayer("OVERLAY", 7)
-                        frame.movableHighlight:SetColorTexture(1, 0, 1, 1) -- fully opaque magenta
-                        -- Add a fully opaque yellow border
+                        frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2) -- semi-transparent green
+                        -- Add a semi-transparent red border
                         frame.movableHighlightBorder = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
                         frame.movableHighlightBorder:SetDrawLayer("OVERLAY", 7)
-                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -6, 6)
-                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 6, -6)
-                        frame.movableHighlightBorder:SetColorTexture(1, 1, 0, 1) -- fully opaque yellow
-                        frame.movableHighlightFrame:Show() -- Always show for test
+                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -2, 2)
+                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 2, -2)
+                        frame.movableHighlightBorder:SetColorTexture(1, 0, 0, 0.7)
+                        frame.movableHighlightFrame:Hide() -- Hide by default
 
                         -- Always call MakeFrameDraggable to ensure registration (after highlight creation)
                         Movable:MakeFrameDraggable(frame, function(_, x, y)
