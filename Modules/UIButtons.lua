@@ -100,16 +100,22 @@ function UIButtons:CreateButtons()
             onClick = function() ReloadUI() end
         },
         exit = {
-            name = "Exit",
+            name = "Edit Mode",
             text = "E",
-            tooltip = "Exit Game",
-            onClick = function() Quit() end
+            tooltip = "Edit Mode",
+            onClick = function() end
         },
         logout = {
-            name = "Logout",
-            text = "L",
-            tooltip = "Logout to Character Select",
-            onClick = function() Logout() end
+            name = "Options",
+            text = "O",
+            tooltip = "Open MidnightUI Options",
+            onClick = function()
+                if MidnightUI and MidnightUI.OpenConfig then
+                    MidnightUI:OpenConfig()
+                elseif InterfaceOptionsFrame_OpenToCategory then
+                    InterfaceOptionsFrame_OpenToCategory("MidnightUI")
+                end
+            end
         },
         addons = {
             name = "Addons",
