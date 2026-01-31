@@ -951,9 +951,9 @@ end
                         else
                             color = (i.fontColor or {1,1,1,1})
                         end
-                        -- Set info bar background to class color if classColor is enabled
-                        if i.classColor then
-                            local _, classToken = UnitClass(unit)
+                        -- Set info bar background to class color if classColor is enabled (only for PlayerFrame)
+                        if key == "PlayerFrame" and i.classColor then
+                            local _, classToken = UnitClass("player")
                             if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                                 local classColorValue = RAID_CLASS_COLORS[classToken]
                                 local alpha = (i.color and i.color[4]) or 0.6
