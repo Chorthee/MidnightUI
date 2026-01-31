@@ -940,14 +940,16 @@ end
                         else
                             color = (i.fontColor or {1,1,1,1})
                         end
-                        -- Set info bar background to class color if classColor is enabled (only for PlayerFrame)
+                        -- Set info bar bar color to class color if classColor is enabled (only for PlayerFrame)
                         if key == "PlayerFrame" and i.classColor then
                             local _, classToken = UnitClass("player")
                             if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                                 local classColorValue = RAID_CLASS_COLORS[classToken]
                                 local alpha = (i.color and i.color[4]) or 0.6
+                                -- Set the main bar color
+                                infoBar:SetStatusBarColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                                -- Set the background to a dimmed version
                                 if infoBar.bg then
-                                    -- Remove any texture so SetColorTexture works
                                     if infoBar.bg.SetTexture then infoBar.bg:SetTexture(nil) end
                                     if infoBar.bg.SetColorTexture then
                                         infoBar.bg:SetColorTexture(classColorValue.r, classColorValue.g, classColorValue.b, alpha)
@@ -956,9 +958,10 @@ end
                             end
                         else
                             -- fallback to configured color
-                            local safeBG = SanitizeColorTable(i.color, {0.8, 0.8, 0.2, 1})
+                            local safeColor = SanitizeColorTable(i.color, {0.8, 0.8, 0.2, 1})
+                            infoBar:SetStatusBarColor(safeColor[1], safeColor[2], safeColor[3], safeColor[4] or 1)
                             if infoBar.bg and infoBar.bg.SetColorTexture then
-                                infoBar.bg:SetColorTexture(safeBG[1], safeBG[2], safeBG[3], safeBG[4])
+                                infoBar.bg:SetColorTexture(safeColor[1], safeColor[2], safeColor[3], safeColor[4] or 1)
                             end
                         end
                         local infoText = name .. " " .. tostring(level)
