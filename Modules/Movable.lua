@@ -654,20 +654,7 @@ end
 -- 3. MOVE MODE INTEGRATION
 -- ============================================================================
 
-function Movable:OnMoveModeChanged(event, enabled)
-    -- Show/hide green highlights on all registered frames
-    for _, frame in ipairs(self.registeredFrames) do
-        if frame and frame.movableHighlight then
-            if enabled then
-                frame.movableHighlight:Show()
-            else
-                frame.movableHighlight:Hide()
-            end
-        end
-    end
-    
-    -- When Move Mode is disabled, hide all nudge frames
-    if not enabled then
+-- Duplicate OnMoveModeChanged removed; only the main definition is used
         for _, data in ipairs(self.registeredNudgeFrames) do
             if data.nudge then
                 self:HideNudgeControls(data.nudge)
