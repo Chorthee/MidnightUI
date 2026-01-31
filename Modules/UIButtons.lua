@@ -9,20 +9,13 @@ function UIButtons:OnInitialize()
 end
 
 function UIButtons:OnDBReady()
-        -- Migration: Remove old 'logout' button and ensure 'options' button exists
-        local btns = self.db.profile.UIButtons
-        if btns.logout then btns.logout = nil end
-        if not btns.options then
-            btns.options = { enabled = true, order = 3 }
-        end
     if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules then
         return
     end
-    
     if not MidnightUI.db.profile.modules.UIButtons then
         return 
     end
-    
+
     self.db = MidnightUI.db:RegisterNamespace("UIButtons", {
         profile = {
             enabled = true,
@@ -40,10 +33,17 @@ function UIButtons:OnDBReady()
             }
         }
     })
-    
+
+    -- Migration: Remove old 'logout' button and ensure 'options' button exists
+    local btns = self.db.profile.UIButtons
+    if btns.logout then btns.logout = nil end
+    if not btns.options then
+        btns.options = { enabled = true, order = 3 }
+    end
+
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-    
+
     -- Manually call setup since PLAYER_ENTERING_WORLD already fired
     C_Timer.After(0.1, function()
         self:PLAYER_ENTERING_WORLD()
