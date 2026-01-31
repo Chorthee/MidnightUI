@@ -155,7 +155,7 @@ function UIButtons:CreateButtons()
                 btn:RegisterForClicks("AnyUp", "AnyDown")
             elseif key == "exit" then
                 btn:SetAttribute("type", "macro")
-                btn:SetAttribute("macrotext", "/quit")
+                btn:SetAttribute("macrotext", "/editmode")
                 btn:RegisterForClicks("AnyUp", "AnyDown")
             elseif key == "addons" then
                 btn:RegisterForClicks("AnyUp")
