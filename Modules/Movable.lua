@@ -213,10 +213,16 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Move Mode toggled: " .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
+    end
     if enabled then
         self:ShowGrid()
         -- Show green highlight overlay on all registered frames
-        for _, frame in ipairs(self.registeredFrames) do
+        for i, frame in ipairs(self.registeredFrames) do
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
+            end
             if frame.movableHighlight then
                 frame.movableHighlight:Show()
             end
@@ -224,7 +230,10 @@ function Movable:OnMoveModeChanged(event, enabled)
     else
         self:HideGrid()
         -- Hide green highlight overlay on all registered frames
-        for _, frame in ipairs(self.registeredFrames) do
+        for i, frame in ipairs(self.registeredFrames) do
+            if DEFAULT_CHAT_FRAME then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
+            end
             if frame.movableHighlight then
                 frame.movableHighlight:Hide()
             end
