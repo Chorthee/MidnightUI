@@ -545,7 +545,7 @@ end
                     local py = frameDB.posY or (frameDB.position and frameDB.position.y) or 0
                     local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
                     frame:SetPoint(myPoint, relTo, relPoint, px, py)
-                    frame:SetFrameStrata("HIGH")
+                    frame:SetFrameStrata("MEDIUM")
                     frame:Show()
                     MidnightUI:SkinFrame(frame)
 
@@ -559,10 +559,22 @@ end
                             frame.movableHighlightFrame = nil
                         end
                         -- Create a dedicated child frame above all content
-                        frame.movableHighlightFrame = CreateFrame("Frame", nil, frame)
-                        frame.movableHighlightFrame:SetAllPoints()
+                        frame.movableHighlightFrame = CreateFrame("Frame", nil, UIParent)
                         frame.movableHighlightFrame:SetFrameStrata("FULLSCREEN_DIALOG")
-                        frame.movableHighlightFrame:SetFrameLevel(frame:GetFrameLevel() + 10000)
+                        frame.movableHighlightFrame:SetFrameLevel(10000)
+                        frame.movableHighlightFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+                        frame.movableHighlightFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+                        -- Keep highlight frame in sync with player frame position/size
+                        frame:HookScript("OnShow", function()
+                            frame.movableHighlightFrame:Show()
+                        end)
+                        frame:HookScript("OnHide", function()
+                            frame.movableHighlightFrame:Hide()
+                        end)
+                        frame:HookScript("OnSizeChanged", function()
+                            frame.movableHighlightFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
+                            frame.movableHighlightFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+                        end)
                         -- Green highlight (hidden by default)
                         frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
                         frame.movableHighlight:SetAllPoints()
