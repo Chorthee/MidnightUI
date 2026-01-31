@@ -227,24 +227,7 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
-        print("[MidnightUI][DEBUG] Entered OnMoveModeChanged, enabled=" .. tostring(enabled))
-    print("[MidnightUI][DEBUG] About to iterate registeredFrames, count=" .. tostring(self.registeredFrames and #self.registeredFrames or 0))
-    for i, frame in ipairs(self.registeredFrames or {}) do
-        local name = frame.GetName and frame:GetName() or tostring(frame)
-        print("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name) .. " (" .. tostring(frame) .. ") type=" .. type(frame))
-        if frame.movableHighlight then
-            print("[MidnightUI][DEBUG]  - has movableHighlight")
-        end
-        if frame.movableHighlightFrame then
-            print("[MidnightUI][DEBUG]  - has movableHighlightFrame")
-        end
-        if frame.movableHighlightBorder then
-            print("[MidnightUI][DEBUG]  - has movableHighlightBorder")
-        end
-        if frame.SetAlpha then
-            print("[MidnightUI][DEBUG]  - has SetAlpha")
-        end
-    end
+        for i, frame in ipairs(self.registeredFrames or {}) do end
     -- Debug output removed; highlight logic confirmed working
     if enabled then
         self:ShowGrid()

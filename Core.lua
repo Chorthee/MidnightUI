@@ -310,16 +310,8 @@ function MidnightUI:ToggleMoveMode()
     if self.GetModule then
         Movable = self:GetModule("Movable", true)
     end
-    if Movable then
-        print("[MidnightUI][DEBUG] Movable module found in ToggleMoveMode")
-        if Movable.OnMoveModeChanged then
-            print("[MidnightUI][DEBUG] Calling Movable:OnMoveModeChanged from ToggleMoveMode")
-            Movable:OnMoveModeChanged("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
-        else
-            print("[MidnightUI][DEBUG] Movable.OnMoveModeChanged not found")
-        end
-    else
-        print("[MidnightUI][DEBUG] Movable module NOT found in ToggleMoveMode")
+    if Movable and Movable.OnMoveModeChanged then
+        Movable:OnMoveModeChanged("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
     end
     
 end
