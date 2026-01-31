@@ -846,12 +846,10 @@ end
                         -- Set health bar text font and color
                         local font, fontSize, fontOutline = LSM:Fetch("font", h.font), h.fontSize, h.fontOutline
                         frame.healthBar.text:SetFont(font, fontSize, fontOutline)
-                        local useClassFontColor = h.fontClassColor or h.classColor
-                        local classColorValue = nil
-                        if useClassFontColor then
+                        if h.fontClassColor then
                             local _, classToken = UnitClass(unit)
                             if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                                classColorValue = RAID_CLASS_COLORS[classToken]
+                                local classColorValue = RAID_CLASS_COLORS[classToken]
                                 frame.healthBar.text:SetTextColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
                             else
                                 frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
