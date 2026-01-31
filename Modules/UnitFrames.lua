@@ -552,23 +552,6 @@ end
                     -- Enable drag-and-drop movement for unit frames
                     local Movable = MidnightUI:GetModule("Movable", true)
                     if Movable and (key == "PlayerFrame" or key == "TargetFrame" or key == "TargetTargetFrame" or key == "FocusFrame") then
-                        -- Always call MakeFrameDraggable to ensure registration
-                        Movable:MakeFrameDraggable(frame, function(_, x, y)
-                            local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
-                            frameDB.anchorPoint = point or "CENTER"
-                            frameDB.relativePoint = relativePoint or "CENTER"
-                            frameDB.posX = xOfs or 0
-                            frameDB.posY = yOfs or 0
-                        end)
-                        -- Add nudge controls
-                        Movable:CreateNudgeControls(frame, frameDB, function()
-                            local point, _, relativePoint, x, y = frame:GetPoint()
-                            frameDB.anchorPoint = point or "CENTER"
-                            frameDB.relativePoint = relativePoint or "CENTER"
-                            frameDB.posX = x or 0
-                            frameDB.posY = y or 0
-                            frame:SetPoint(point, UIParent, relativePoint, frameDB.posX, frameDB.posY)
-                        end, nil, key .. " Nudge")
                         -- Remove any old highlight
                         if frame.movableHighlightFrame then
                             frame.movableHighlightFrame:Hide()
@@ -590,6 +573,24 @@ end
                         frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 2, -2)
                         frame.movableHighlightBorder:SetColorTexture(1, 0, 0, 0.7)
                         frame.movableHighlightFrame:Hide() -- Hide by default
+
+                        -- Always call MakeFrameDraggable to ensure registration (after highlight creation)
+                        Movable:MakeFrameDraggable(frame, function(_, x, y)
+                            local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+                            frameDB.anchorPoint = point or "CENTER"
+                            frameDB.relativePoint = relativePoint or "CENTER"
+                            frameDB.posX = xOfs or 0
+                            frameDB.posY = yOfs or 0
+                        end)
+                        -- Add nudge controls
+                        Movable:CreateNudgeControls(frame, frameDB, function()
+                            local point, _, relativePoint, x, y = frame:GetPoint()
+                            frameDB.anchorPoint = point or "CENTER"
+                            frameDB.relativePoint = relativePoint or "CENTER"
+                            frameDB.posX = x or 0
+                            frameDB.posY = y or 0
+                            frame:SetPoint(point, UIParent, relativePoint, frameDB.posX, frameDB.posY)
+                        end, nil, key .. " Nudge")
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
                     -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
