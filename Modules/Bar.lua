@@ -1366,7 +1366,12 @@ function Bar:CreateBarFrame(id)
     Movable:MakeFrameDraggable(
         f,
         function(point, x, y)
-            -- Position is saved by ApplyBarSettings
+            local db = Bar.db.profile.bars[id]
+            if db then
+                db.point = point or "CENTER"
+                db.x = x or 0
+                db.y = y or 0
+            end
         end,
         function() return not Bar.db.profile.locked end
     )
