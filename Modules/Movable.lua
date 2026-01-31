@@ -230,8 +230,10 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlight then frame.movableHighlight:Show() end
             if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
             if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
-            -- Fade unit frames and bars to 30% opacity in Move Mode
-            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
+            -- Hide the player frame entirely in Move Mode for highlight test
+            if frame:GetName() and frame:GetName():find("MidnightUI_PlayerFrame") then
+                frame:Hide()
+            elseif frame:GetName() and (frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
                 frame:SetAlpha(0.3)
             end
         end
@@ -243,8 +245,10 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlight then frame.movableHighlight:Hide() end
             if frame.movableHighlightBorder then frame.movableHighlightBorder:Hide() end
             if frame.movableHighlightFrame then frame.movableHighlightFrame:Hide() end
-            -- Restore full opacity
-            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
+            -- Restore full opacity or show player frame again
+            if frame:GetName() and frame:GetName():find("MidnightUI_PlayerFrame") then
+                frame:Show()
+            elseif frame:GetName() and (frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
                 frame:SetAlpha(1)
             end
         end
