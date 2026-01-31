@@ -382,9 +382,21 @@ do
 end
 
                 local function SetBlizzardFramesHidden(self)
-                    if self.db.profile.showPlayer and PlayerFrame then PlayerFrame:Hide(); PlayerFrame:UnregisterAllEvents(); PlayerFrame:Hide() end
-                    if self.db.profile.showTarget and TargetFrame then TargetFrame:Hide(); TargetFrame:UnregisterAllEvents(); TargetFrame:Hide() end
-                    if self.db.profile.showTargetTarget and TargetFrameToT then TargetFrameToT:Hide(); TargetFrameToT:UnregisterAllEvents(); TargetFrameToT:Hide() end
+                    if self.db.profile.showPlayer and PlayerFrame then
+                        UnregisterStateDriver(PlayerFrame, "visibility")
+                        RegisterStateDriver(PlayerFrame, "visibility", "hide")
+                        PlayerFrame:UnregisterAllEvents()
+                    end
+                    if self.db.profile.showTarget and TargetFrame then
+                        UnregisterStateDriver(TargetFrame, "visibility")
+                        RegisterStateDriver(TargetFrame, "visibility", "hide")
+                        TargetFrame:UnregisterAllEvents()
+                    end
+                    if self.db.profile.showTargetTarget and TargetFrameToT then
+                        UnregisterStateDriver(TargetFrameToT, "visibility")
+                        RegisterStateDriver(TargetFrameToT, "visibility", "hide")
+                        TargetFrameToT:UnregisterAllEvents()
+                    end
                 end
 
                 local function HookBlizzardPlayerFrame(self)
