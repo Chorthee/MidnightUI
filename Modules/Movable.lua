@@ -215,8 +215,20 @@ end
 function Movable:OnMoveModeChanged(event, enabled)
     if enabled then
         self:ShowGrid()
+        -- Show green highlight overlay on all registered frames
+        for _, frame in ipairs(self.registeredFrames) do
+            if frame.movableHighlight then
+                frame.movableHighlight:Show()
+            end
+        end
     else
         self:HideGrid()
+        -- Hide green highlight overlay on all registered frames
+        for _, frame in ipairs(self.registeredFrames) do
+            if frame.movableHighlight then
+                frame.movableHighlight:Hide()
+            end
+        end
     end
 end
 
