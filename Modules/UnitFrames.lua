@@ -649,7 +649,8 @@ end
 
                 function UnitFrames:CreatePlayerFrame()
                     if not self.db.profile.showPlayer then return end
-                    CreateUnitFrame(self, "PlayerFrame", "player")
+                    -- Anchor PlayerFrame to CENTER
+                    CreateUnitFrame(self, "PlayerFrame", "player", UIParent, "CENTER", "CENTER", self.db.profile.player.posX or 0, self.db.profile.player.posY or 0)
                     local frame = _G["MidnightUI_PlayerFrame"]
                     if frame then
                         local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
@@ -661,9 +662,11 @@ end
                 function UnitFrames:CreateTargetFrame()
                     if not self.db.profile.showTarget then return end
                     local db = self.db.profile
+                    -- Anchor TargetFrame to CENTER
                     local anchorTo = UIParent
-                    local pos = db.targetPosition or { point = "TOPLEFT", x = 320, y = 0 }
-                    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
+                    local posX = (db.target and db.target.posX) or 0
+                    local posY = (db.target and db.target.posY) or 0
+                    CreateUnitFrame(self, "TargetFrame", "target", anchorTo, "CENTER", "CENTER", posX, posY)
                     -- Only show TargetFrame if a target exists
                     local customTargetFrame = _G["MidnightUI_TargetFrame"]
                     if customTargetFrame then
@@ -679,9 +682,11 @@ end
                 function UnitFrames:CreateTargetTargetFrame()
                     if not self.db.profile.showTargetTarget then return end
                     local db = self.db.profile
+                    -- Anchor TargetTargetFrame to CENTER
                     local anchorTo = UIParent
-                    local pos = db.totPosition or { point = "TOP", x = 0, y = -20 }
-                    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
+                    local posX = (db.targettarget and db.targettarget.posX) or 0
+                    local posY = (db.targettarget and db.targettarget.posY) or 0
+                    CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, "CENTER", "CENTER", posX, posY)
                     -- Only show TargetTargetFrame if target has a target
                     local customToTFrame = _G["MidnightUI_TargetTargetFrame"]
                     if customToTFrame then
