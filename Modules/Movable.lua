@@ -316,29 +316,6 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
         frame.movableHighlight:SetParent(frame)
         frame.movableHighlight:Hide()
     end
-
-    -- Create or update Move Mode label
-    if not frame.movableHighlightLabel then
-        frame.movableHighlightLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-        frame.movableHighlightLabel:SetPoint("CENTER", frame, "CENTER", 0, 0)
-        frame.movableHighlightLabel:SetTextColor(1, 1, 1, 1)
-        frame.movableHighlightLabel:SetShadowColor(0, 0, 0, 1)
-        frame.movableHighlightLabel:SetShadowOffset(2, -2)
-        frame.movableHighlightLabel:Hide()
-    end
-    -- Set label text based on frame name
-    local name = frame:GetName() or ""
-    if name:find("MidnightUI_PlayerFrame") then
-        frame.movableHighlightLabel:SetText("Player Frame")
-    elseif name:find("MidnightUI_TargetFrame") and not name:find("TargetTarget") then
-        frame.movableHighlightLabel:SetText("Target Frame")
-    elseif name:find("MidnightUI_TargetTargetFrame") then
-        frame.movableHighlightLabel:SetText("Target Target")
-    elseif name:find("MidnightUI_FocusFrame") then
-        frame.movableHighlightLabel:SetText("Focus")
-    else
-        frame.movableHighlightLabel:SetText("")
-    end
     
     -- Remove any old registration for this frame
     for i = #self.registeredFrames, 1, -1 do
@@ -766,31 +743,101 @@ function Movable:CreateContainerArrows(container, db, resetCallback)
     resetBtn:SetBackdropColor(0.3, 0.1, 0.1, 0.8)
     resetBtn:SetBackdropBorderColor(1, 0, 0, 1)
     
-    if enabled then
-        self:ShowGrid()
-        -- Show green highlight overlay, label, and fade frames in Move Mode
-        for i, frame in ipairs(self.registeredFrames) do
-            if frame.movableHighlight then frame.movableHighlight:Show() end
-            if frame.movableHighlightLabel then frame.movableHighlightLabel:Show() end
-            if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
-            if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
-            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
-                if frame.SetAlpha then frame:SetAlpha(0.3) end
-            end
+    -- Reset text
+    local resetText = resetBtn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    resetText:SetPoint("CENTER")
+    resetText:SetText("R")
+    resetText:SetTextColor(1, 0, 0, 1)
+    
+    resetBtn:SetScript("OnEnter", function(self)
+        self:SetBackdropColor(0.5, 0.2, 0.2, 1)
+        GameTooltip:SetOwner(self, "ANCHOR_TOP")
+        GameTooltip:SetText("Reset Position", 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    
+    resetBtn:SetScript("OnLeave", function(self)
+        self:SetBackdropColor(0.3, 0.1, 0.1, 0.8)
+        GameTooltip:Hide()
+    end)
+    
+    resetBtn:SetScript("OnClick", function()
+        if resetCallback then
+            resetCallback()
         end
-    else
-        self:HideGrid()
-        -- Hide green highlight overlay, label, and restore frame opacity
-        for i, frame in ipairs(self.registeredFrames) do
-            if frame.movableHighlight then frame.movableHighlight:Hide() end
-            if frame.movableHighlightLabel then frame.movableHighlightLabel:Hide() end
-            if frame.movableHighlightBorder then frame.movableHighlightBorder:Hide() end
-            if frame.movableHighlightFrame then frame.movableHighlightFrame:Hide() end
-            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
-                if frame.SetAlpha then frame:SetAlpha(1) end
+    end)
+    
+    resetBtn:Hide()
+    container.arrows.RESET = resetBtn
+    
+    -- Setup mouseover for container arrows
+    if not container.movableArrowsHooked then
+        container:HookScript("OnEnter", function()
+            if MidnightUI.moveMode and container.arrows then
+                -- Cancel any pending hide timer
+                if container.arrowHideTimer then
+                    container.arrowHideTimer:Cancel()
+                    container.arrowHideTimer = nil
+                end
+                Movable:UpdateContainerArrows(container)
             end
+        end)
+        
+        container:HookScript("OnLeave", function()
+            -- Delay hiding to allow mouse to move to arrows
+            container.arrowHideTimer = C_Timer.NewTimer(0.3, function()
+                if not MouseIsOver(container) then
+                    -- Check if mouse is over any arrow button
+                    local overArrow = false
+                    for _, arrow in pairs(container.arrows or {}) do
+                        if MouseIsOver(arrow) then
+                            overArrow = true
+                            break
+                        end
+                    end
+                    
+                    if not overArrow then
+                        Movable:HideContainerArrows(container)
+                    end
+                end
+                container.arrowHideTimer = nil
+            end)
+        end)
+        
+        -- Add hover detection for arrow buttons themselves
+        for _, arrow in pairs(container.arrows or {}) do
+            arrow:HookScript("OnEnter", function()
+                if container.arrowHideTimer then
+                    container.arrowHideTimer:Cancel()
+                    container.arrowHideTimer = nil
+                end
+            end)
+            
+            arrow:HookScript("OnLeave", function()
+                container.arrowHideTimer = C_Timer.NewTimer(0.3, function()
+                    if not MouseIsOver(container) then
+                        local overArrow = false
+                        for _, btn in pairs(container.arrows or {}) do
+                            if MouseIsOver(btn) then
+                                overArrow = true
+                                break
+                            end
+                        end
+                        
+                        if not overArrow then
+                            Movable:HideContainerArrows(container)
+                        end
+                    end
+                    container.arrowHideTimer = nil
+                end)
+            end)
         end
+        
+        container.movableArrowsHooked = true
     end
+    
+    return container.arrows
+end
 
 --[[
     Updates container arrow positions based on container location
