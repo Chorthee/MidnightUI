@@ -201,14 +201,8 @@ function Movable:OnInitialize()
             Movable:OnMoveModeChanged("MIDNIGHTUI_MOVEMODE_CHANGED", enabled)
         end)
     end
-    if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnInitialize called and message registered (196)")
-    end
 end
 function Movable:OnEnable()
-    if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnEnable called (199)")
-    end
     -- Listen for move mode changes (grid only)
     Movable:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", function(event, enabled)
         if enabled then
@@ -324,9 +318,7 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
         end
     end
     table.insert(self.registeredFrames, frame)
-    if DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] MakeFrameDraggable registered frame: " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-    end
+    -- ...existing code...
 end
 
 -- ============================================================================
