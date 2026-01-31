@@ -972,20 +972,22 @@ end
                         end
                         local infoText = name .. " " .. tostring(level)
                         if infoBar.textLeft and infoBar.textCenter and infoBar.textRight then
+                            -- Set text position based on i.textPos
+                            local pos = (i.textPos or "CENTER"):upper()
                             if infoBar.textLeft.SetFont and infoBar.textLeft.SetTextColor and infoBar.textLeft.SetText then
                                 infoBar.textLeft:SetFont(font, fontSize, fontOutline)
                                 infoBar.textLeft:SetTextColor(unpack(color))
-                                infoBar.textLeft:SetText("")
+                                infoBar.textLeft:SetText(pos == "LEFT" and infoText or "")
                             end
                             if infoBar.textCenter.SetFont and infoBar.textCenter.SetTextColor and infoBar.textCenter.SetText then
                                 infoBar.textCenter:SetFont(font, fontSize, fontOutline)
                                 infoBar.textCenter:SetTextColor(unpack(color))
-                                infoBar.textCenter:SetText(infoText)
+                                infoBar.textCenter:SetText(pos == "CENTER" and infoText or "")
                             end
                             if infoBar.textRight.SetFont and infoBar.textRight.SetTextColor and infoBar.textRight.SetText then
                                 infoBar.textRight:SetFont(font, fontSize, fontOutline)
                                 infoBar.textRight:SetTextColor(unpack(color))
-                                infoBar.textRight:SetText("")
+                                infoBar.textRight:SetText(pos == "RIGHT" and infoText or "")
                             end
                         elseif infoBar.text and infoBar.text.SetFont and infoBar.text.SetTextColor and infoBar.text.SetText then
                             infoBar.text:SetFont(font, fontSize, fontOutline)
