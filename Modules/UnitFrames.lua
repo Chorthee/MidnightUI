@@ -387,11 +387,7 @@ end
                         RegisterStateDriver(PlayerFrame, "visibility", "hide")
                         PlayerFrame:UnregisterAllEvents()
                     end
-                    if self.db.profile.showTarget and TargetFrame then
-                        UnregisterStateDriver(TargetFrame, "visibility")
-                        RegisterStateDriver(TargetFrame, "visibility", "hide")
-                        TargetFrame:UnregisterAllEvents()
-                    end
+                    -- Do not forcibly hide TargetFrame here; let the secure driver in CreateTargetFrame control its visibility
                     if self.db.profile.showTargetTarget and TargetFrameToT then
                         UnregisterStateDriver(TargetFrameToT, "visibility")
                         RegisterStateDriver(TargetFrameToT, "visibility", "hide")
