@@ -631,6 +631,11 @@ end
                     local anchorTo = UIParent
                     local pos = db.targetPosition or { point = "TOPLEFT", x = 320, y = 0 }
                     CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
+                    -- Only show TargetFrame if a target exists
+                    if TargetFrame then
+                        UnregisterStateDriver(TargetFrame, "visibility")
+                        RegisterStateDriver(TargetFrame, "visibility", "[@target,exists] show; hide")
+                    end
                 end
 
                 function UnitFrames:CreateTargetTargetFrame()
