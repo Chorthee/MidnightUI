@@ -231,11 +231,8 @@ function Movable:OnMoveModeChanged(event, enabled)
             if DEFAULT_CHAT_FRAME then
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
             end
-            if frame.movableHighlight then
-                frame.movableHighlight:Show()
-                if frame.movableHighlightBorder then
-                    frame.movableHighlightBorder:Show()
-                end
+            if frame.movableHighlightFrame then
+                frame.movableHighlightFrame:Show()
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for " .. tostring(frame:GetName() or frame))
                 end
@@ -252,11 +249,8 @@ function Movable:OnMoveModeChanged(event, enabled)
             if DEFAULT_CHAT_FRAME then
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
             end
-            if frame.movableHighlight then
-                frame.movableHighlight:Hide()
-                if frame.movableHighlightBorder then
-                    frame.movableHighlightBorder:Hide()
-                end
+            if frame.movableHighlightFrame then
+                frame.movableHighlightFrame:Hide()
                 if DEFAULT_CHAT_FRAME then
                     DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for " .. tostring(frame:GetName() or frame))
                 end
