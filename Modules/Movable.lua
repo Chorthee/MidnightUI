@@ -221,25 +221,44 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
-        if DEFAULT_CHAT_FRAME then
-            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] MoveModeChanged: enabled=" .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
-            for i, frame in ipairs(self.registeredFrames) do
-                local name = frame.GetName and frame:GetName() or tostring(frame)
-                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name))
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] MoveModeChanged: enabled=" .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
+        for i, frame in ipairs(self.registeredFrames) do
+            local name = frame.GetName and frame:GetName() or tostring(frame)
+            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name) .. " (" .. tostring(frame) .. ") type=" .. type(frame))
+            if frame.movableHighlight then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG]  - has movableHighlight")
+            end
+            if frame.movableHighlightFrame then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG]  - has movableHighlightFrame")
+            end
+            if frame.movableHighlightBorder then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG]  - has movableHighlightBorder")
+            end
+            if frame.SetAlpha then
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG]  - has SetAlpha")
             end
         end
+    end
     -- Debug output removed; highlight logic confirmed working
     if enabled then
         self:ShowGrid()
         -- Show green highlight overlay and fade frames in Move Mode
         for i, frame in ipairs(self.registeredFrames) do
-            -- Show both highlight fill and border if present
-            if frame.movableHighlight then frame.movableHighlight:Show() end
-            if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
-            if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
-            -- Only fade unit frames and bars to 30% opacity in Move Mode
-            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
-                frame:SetAlpha(0.3)
+            -- Force highlight and fade for player frame for direct test
+            if frame:GetName() and frame:GetName():find("MidnightUI_PlayerFrame") then
+                if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
+                if frame.movableHighlight then frame.movableHighlight:Show() end
+                if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
+                if frame.SetAlpha then frame:SetAlpha(0.3) end
+            else
+                -- Normal logic for other frames
+                if frame.movableHighlight then frame.movableHighlight:Show() end
+                if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
+                if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
+                if frame:GetName() and (frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
+                    if frame.SetAlpha then frame:SetAlpha(0.3) end
+                end
             end
         end
     else
@@ -252,7 +271,7 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlightFrame then frame.movableHighlightFrame:Hide() end
             -- Restore full opacity
             if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
-                frame:SetAlpha(1)
+                if frame.SetAlpha then frame:SetAlpha(1) end
             end
         end
     end
