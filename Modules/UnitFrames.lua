@@ -629,6 +629,7 @@ end
                     CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
                     -- Only show TargetFrame if a target exists
                     if TargetFrame then
+                        TargetFrame:Hide() -- Hide by default
                         UnregisterStateDriver(TargetFrame, "visibility")
                         RegisterStateDriver(TargetFrame, "visibility", "[@target,exists] show; hide")
                     end
