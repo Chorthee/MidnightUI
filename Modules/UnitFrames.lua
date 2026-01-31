@@ -837,11 +837,28 @@ end
                         healthStr = string.format("%d", safeCurhp or 0)
                     end
 
+
                     -- Update health bar fill to reflect current health
                     if frame.healthBar then
                         frame.healthBar:SetMinMaxValues(0, safeMaxhp or 0)
                         frame.healthBar:SetValue(safeCurhp or 0)
                         frame.healthBar.text:SetText(healthStr or "")
+                        -- Set health bar text font and color
+                        local font, fontSize, fontOutline = LSM:Fetch("font", h.font), h.fontSize, h.fontOutline
+                        frame.healthBar.text:SetFont(font, fontSize, fontOutline)
+                        local useClassFontColor = h.fontClassColor or h.classColor
+                        local classColorValue = nil
+                        if useClassFontColor then
+                            local _, classToken = UnitClass(unit)
+                            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                                classColorValue = RAID_CLASS_COLORS[classToken]
+                                frame.healthBar.text:SetTextColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                            else
+                                frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
+                            end
+                        else
+                            frame.healthBar.text:SetTextColor(unpack(h.fontColor or {1,1,1,1}))
+                        end
                     end
 
                     -- Set health bar color: class color if enabled, else hostility color, else custom/static color (no gradient, no arithmetic)
