@@ -561,8 +561,8 @@ end
                         -- Create a dedicated child frame above all content
                         frame.movableHighlightFrame = CreateFrame("Frame", nil, frame)
                         frame.movableHighlightFrame:SetAllPoints()
-                        frame.movableHighlightFrame:SetFrameStrata(frame:GetFrameStrata())
-                        frame.movableHighlightFrame:SetFrameLevel(frame:GetFrameLevel() + 50)
+                        frame.movableHighlightFrame:SetFrameStrata("TOOLTIP")
+                        frame.movableHighlightFrame:SetFrameLevel(frame:GetFrameLevel() + 1000)
                         -- Green highlight (hidden by default)
                         frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
                         frame.movableHighlight:SetAllPoints()
