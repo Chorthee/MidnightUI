@@ -306,7 +306,10 @@ function MidnightUI:ToggleMoveMode()
     -- Use AceEvent's SendMessage (already loaded)
     self:SendMessage("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
     -- Directly call Movable:OnMoveModeChanged for reliability
-    local Movable = self:GetModule and self:GetModule("Movable", true)
+    local Movable
+    if self.GetModule then
+        Movable = self:GetModule("Movable", true)
+    end
     if Movable and Movable.OnMoveModeChanged then
         Movable:OnMoveModeChanged("MIDNIGHTUI_MOVEMODE_CHANGED", self.moveMode)
     end
