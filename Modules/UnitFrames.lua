@@ -512,12 +512,25 @@ end
                     local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
                     local relPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
                     frame:SetPoint(myPoint, relTo, relPoint, px, py)
-                    frame:SetMovable(true)
-                    frame:EnableMouse(true)
-                    frame:SetClampedToScreen(true)
                     frame:SetFrameStrata("HIGH")
                     frame:Show()
                     MidnightUI:SkinFrame(frame)
+
+                    -- Enable drag-and-drop movement for unit frames
+                    local Movable = MidnightUI:GetModule("Movable", true)
+                    if Movable and (key == "PlayerFrame" or key == "TargetFrame" or key == "TargetTargetFrame" or key == "FocusFrame") then
+                        Movable:MakeFrameDraggable(frame, function(_, x, y)
+                            frameDB.posX = x or 0
+                            frameDB.posY = y or 0
+                        end)
+                        -- Add nudge controls
+                        Movable:CreateNudgeControls(frame, frameDB, function()
+                            local point, _, _, x, y = frame:GetPoint()
+                            frameDB.posX = x or 0
+                            frameDB.posY = y or 0
+                            frame:SetPoint(point, UIParent, point, frameDB.posX, frameDB.posY)
+                        end, nil, key .. " Nudge")
+                    end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
                     -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
                     -- frame.debugBorder:SetAllPoints()
