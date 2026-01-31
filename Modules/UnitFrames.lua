@@ -135,16 +135,14 @@ function UnitFrames:GetPlayerOptions()
 end
 
     function UnitFrames:PLAYER_ENTERING_WORLD()
-        print("[MidnightUI] UnitFrames: PLAYER_ENTERING_WORLD fired")
         if not self.db or not self.db.profile then
-            print("[MidnightUI] UnitFrames: DB not ready, skipping PLAYER_ENTERING_WORLD")
             return
         end
         HookBlizzardPlayerFrame(self)
-        if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
-        if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
-        if self.db.profile.showTargetTarget then print("[MidnightUI] Creating TargetTargetFrame"); self:CreateTargetTargetFrame() end
-        if self.db.profile.showFocus then print("[MidnightUI] Creating FocusFrame"); self:CreateFocusFrame() end
+        if self.db.profile.showPlayer then self:CreatePlayerFrame() end
+        if self.db.profile.showTarget then self:CreateTargetFrame() end
+        if self.db.profile.showTargetTarget then self:CreateTargetTargetFrame() end
+        if self.db.profile.showFocus then self:CreateFocusFrame() end
         SetBlizzardFramesHidden(self)
     end
 
@@ -503,7 +501,7 @@ end
                     local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
                     local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
 
-                    print("[MidnightUI] CreateUnitFrame: "..key.." width="..tostring(width).." height="..tostring(totalHeight))
+
 
                     local frameType = "Button"
                     local template = "SecureUnitButtonTemplate,BackdropTemplate"
@@ -541,7 +539,7 @@ end
                     -- frame.debugBorder:SetAllPoints()
                     -- frame.debugBorder:SetColorTexture(1,0,0,0.5)
                     -- frame.debugBorder:SetBlendMode("ADD")
-                    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(px)..","..(py).." size "..width.."x"..totalHeight) end
+
 
                     -- Remove legacy drag logic; handled by Movable:MakeFrameDraggable
 
@@ -864,19 +862,7 @@ end
                     end
                 end
 
-                function UnitFrames:PLAYER_ENTERING_WORLD()
-                    print("[MidnightUI] UnitFrames: PLAYER_ENTERING_WORLD fired")
-                    if not self.db or not self.db.profile then
-                        print("[MidnightUI] UnitFrames: DB not ready, skipping PLAYER_ENTERING_WORLD")
-                        return
-                    end
-                    HookBlizzardPlayerFrame(self)
-                    if self.db.profile.showPlayer then print("[MidnightUI] Creating PlayerFrame"); self:CreatePlayerFrame() end
-                    if self.db.profile.showTarget then print("[MidnightUI] Creating TargetFrame"); self:CreateTargetFrame() end
-                    if self.db.profile.showTargetTarget then print("[MidnightUI] Creating TargetTargetFrame"); self:CreateTargetTargetFrame() end
-                    if self.db.profile.showFocus then print("[MidnightUI] Creating FocusFrame"); self:CreateFocusFrame() end
-                    SetBlizzardFramesHidden(self)
-                end
+
 
                 function UnitFrames:PLAYER_TARGET_CHANGED()
                     if self.db.profile.showTarget then self:UpdateUnitFrame("TargetFrame", "target") end
@@ -923,10 +909,8 @@ end
                 end
 
                 function UnitFrames:OnDBReady()
-                    print("[MidnightUI] UnitFrames:OnDBReady called")
-                    if not MidnightUI.db.profile.modules.unitframes then print("[MidnightUI] UnitFrames module disabled in profile"); return end
+                    if not MidnightUI.db.profile.modules.unitframes then return end
                     self.db = MidnightUI.db:RegisterNamespace("UnitFrames", defaults)
-                    print("[MidnightUI] UnitFrames: Registered namespace and events")
                     self:RegisterEvent("UNIT_HEALTH")
                     self:RegisterEvent("UNIT_POWER_UPDATE")
                     self:RegisterEvent("UNIT_DISPLAYPOWER")
