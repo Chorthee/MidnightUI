@@ -234,7 +234,12 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlightFrame then
                 frame.movableHighlightFrame:Show()
                 if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for " .. tostring(frame:GetName() or frame))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlightFrame for " .. tostring(frame:GetName() or frame))
+                end
+            elseif frame.movableHighlight then
+                frame.movableHighlight:Show()
+                if DEFAULT_CHAT_FRAME then
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight (no frame) for " .. tostring(frame:GetName() or frame))
                 end
             end
             -- Fade unit frames and bars to 30% opacity in Move Mode
@@ -252,7 +257,12 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlightFrame then
                 frame.movableHighlightFrame:Hide()
                 if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for " .. tostring(frame:GetName() or frame))
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlightFrame for " .. tostring(frame:GetName() or frame))
+                end
+            elseif frame.movableHighlight then
+                frame.movableHighlight:Hide()
+                if DEFAULT_CHAT_FRAME then
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight (no frame) for " .. tostring(frame:GetName() or frame))
                 end
             end
             -- Restore full opacity
