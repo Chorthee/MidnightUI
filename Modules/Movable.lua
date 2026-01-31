@@ -654,15 +654,7 @@ end
 -- 3. MOVE MODE INTEGRATION
 -- ============================================================================
 
--- Duplicate OnMoveModeChanged removed; only the main definition is used
-        for _, data in ipairs(self.registeredNudgeFrames) do
-            if data.nudge then
-                self:HideNudgeControls(data.nudge)
-            end
-        end
-    end
-    -- NOTE: When enabled, nudge frames only show on mouseover (except Minimap which shows immediately)
-end
+-- (removed stray code after duplicate OnMoveModeChanged)
 
 -- ============================================================================
 -- 4. CONTAINER WITH ARROWS (UIButtons style)
