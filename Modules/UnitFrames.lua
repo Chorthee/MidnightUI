@@ -564,11 +564,13 @@ end
                         frame.movableHighlightFrame:SetFrameStrata("TOOLTIP")
                         frame.movableHighlightFrame:SetFrameLevel(frame:GetFrameLevel() + 1000)
                         -- Green highlight (hidden by default)
-                        frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
+                        frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "ARTWORK")
                         frame.movableHighlight:SetAllPoints()
+                        frame.movableHighlight:SetDrawLayer("ARTWORK", 7)
                         frame.movableHighlight:SetColorTexture(1, 0, 1, 1) -- fully opaque magenta
                         -- Add a fully opaque yellow border
-                        frame.movableHighlightBorder = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
+                        frame.movableHighlightBorder = frame.movableHighlightFrame:CreateTexture(nil, "ARTWORK")
+                        frame.movableHighlightBorder:SetDrawLayer("ARTWORK", 8)
                         frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -6, 6)
                         frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 6, -6)
                         frame.movableHighlightBorder:SetColorTexture(1, 1, 0, 1) -- fully opaque yellow
