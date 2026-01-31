@@ -240,14 +240,9 @@ function UIButtons:OnMoveModeChanged(event, enabled)
         local color = enabled and {0, 1, 0} or {1, 1, 1}
         moveBtn.text:SetTextColor(unpack(color))
     end
-
-    -- Update container border color for Move Mode highlight
+    
+    -- Update container arrows
     if container then
-        if enabled then
-            container:SetBackdropBorderColor(0, 1, 0, 1) -- Bright green border
-        else
-            container:SetBackdropBorderColor(0, 0, 0, 1) -- Default black border
-        end
         Movable:UpdateContainerArrows(container)
     end
 end
