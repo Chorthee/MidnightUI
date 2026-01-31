@@ -226,7 +226,7 @@ function Movable:OnMoveModeChanged(event, enabled)
     end
     if enabled then
         self:ShowGrid()
-        -- Show green highlight overlay on all registered frames
+        -- Show green highlight overlay and fade frames in Move Mode
         for i, frame in ipairs(self.registeredFrames) do
             if DEFAULT_CHAT_FRAME then
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
@@ -234,16 +234,24 @@ function Movable:OnMoveModeChanged(event, enabled)
             if frame.movableHighlight then
                 frame.movableHighlight:Show()
             end
+            -- Fade unit frames and bars to 30% opacity in Move Mode
+            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
+                frame:SetAlpha(0.3)
+            end
         end
     else
         self:HideGrid()
-        -- Hide green highlight overlay on all registered frames
+        -- Hide green highlight overlay and restore frame opacity
         for i, frame in ipairs(self.registeredFrames) do
             if DEFAULT_CHAT_FRAME then
                 DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame))
             end
             if frame.movableHighlight then
                 frame.movableHighlight:Hide()
+            end
+            -- Restore full opacity
+            if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
+                frame:SetAlpha(1)
             end
         end
     end
@@ -380,9 +388,21 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
     
     -- Create green highlight overlay (hidden by default)
     if not frame.movableHighlight then
-        frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+        frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY")
         frame.movableHighlight:SetAllPoints()
         frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2)
+        -- Set frame level above all children
+        local maxLevel = frame:GetFrameLevel() or 0
+        for i = 1, frame:GetNumRegions() do
+            local region = select(i, frame:GetRegions())
+            if region and region.GetDrawLayer and region:GetDrawLayer() == "OVERLAY" then
+                local lvl = region:GetParent() and region:GetParent():GetFrameLevel() or 0
+                if lvl > maxLevel then maxLevel = lvl end
+            end
+        end
+        frame.movableHighlight:SetDrawLayer("OVERLAY", 7)
+        frame.movableHighlight:SetParent(frame)
+        frame.movableHighlight:SetFrameLevel(maxLevel + 10)
         frame.movableHighlight:Hide()
     end
     
