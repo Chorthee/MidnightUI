@@ -184,8 +184,10 @@ function Movable:HideGrid()
     end
     
     -- Restore Blizzard's Edit Mode grid if it was showing
-    if EditModeManagerFrame and EditModeManagerFrame.Grid and EditModeManagerFrame:ShouldShowGridLayout() then
-        EditModeManagerFrame.Grid:Show()
+    if EditModeManagerFrame and EditModeManagerFrame.Grid then
+        if EditModeManagerFrame.ShouldShowGridLayout and EditModeManagerFrame:ShouldShowGridLayout() then
+            EditModeManagerFrame.Grid:Show()
+        end
     end
 end
 
