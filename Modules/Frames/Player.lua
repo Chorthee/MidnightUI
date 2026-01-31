@@ -297,6 +297,28 @@ function UnitFrames:GetPlayerOptions_Real()
                         get = function() return unpack(db.power and db.power.fontColor or {1,1,1,1}) end,
                         set = function(_, r,g,b,a) db.power.fontColor = {r,g,b,a}; update() end,
                     },
+                    textPos = {
+                        type = "select",
+                        name = "Text Position",
+                        order = 11,
+                        values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" },
+                        get = function() return db.power and db.power.textPos or "CENTER" end,
+                        set = function(_, v) db.power.textPos = v; update() end,
+                    },
+                    texture = {
+                        type = "select",
+                        name = "Texture",
+                        order = 12,
+                        values = function()
+                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
+                            local textures = LSM and LSM:List("statusbar") or {}
+                            local out = {}
+                            for _, tex in ipairs(textures) do out[tex] = tex end
+                            return out
+                        end,
+                        get = function() return db.power and db.power.texture or "Flat" end,
+                        set = function(_, v) db.power.texture = v; update() end,
+                    },
                 },
             },
 
@@ -424,6 +446,28 @@ function UnitFrames:GetPlayerOptions_Real()
                         order = 9,
                         get = function() return unpack(db.info and db.info.fontColor or {1,1,1,1}) end,
                         set = function(_, r,g,b,a) db.info.fontColor = {r,g,b,a}; update() end,
+                    },
+                    textPos = {
+                        type = "select",
+                        name = "Text Position",
+                        order = 11,
+                        values = { LEFT = "Left", CENTER = "Center", RIGHT = "Right" },
+                        get = function() return db.info and db.info.textPos or "CENTER" end,
+                        set = function(_, v) db.info.textPos = v; update() end,
+                    },
+                    texture = {
+                        type = "select",
+                        name = "Texture",
+                        order = 12,
+                        values = function()
+                            local LSM = self.LSM or (LibStub and LibStub("LibSharedMedia-3.0"))
+                            local textures = LSM and LSM:List("statusbar") or {}
+                            local out = {}
+                            for _, tex in ipairs(textures) do out[tex] = tex end
+                            return out
+                        end,
+                        get = function() return db.info and db.info.texture or "Flat" end,
+                        set = function(_, v) db.info.texture = v; update() end,
                     },
                 },
             },
