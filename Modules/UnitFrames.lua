@@ -642,6 +642,13 @@ end
                     local anchorTo = UIParent
                     local pos = db.totPosition or { point = "TOP", x = 0, y = -20 }
                     CreateUnitFrame(self, "TargetTargetFrame", "targettarget", anchorTo, pos.point, pos.point, pos.x, pos.y)
+                    -- Only show TargetTargetFrame if target has a target
+                    local customToTFrame = _G["MidnightUI_TargetTargetFrame"]
+                    if customToTFrame then
+                        customToTFrame:Hide() -- Hide by default
+                        UnregisterStateDriver(customToTFrame, "visibility")
+                        RegisterStateDriver(customToTFrame, "visibility", "[@targettarget,exists] show; hide")
+                    end
                 end
                 
                 function UnitFrames:CreateFocusFrame()
