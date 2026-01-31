@@ -650,6 +650,12 @@ end
                 function UnitFrames:CreatePlayerFrame()
                     if not self.db.profile.showPlayer then return end
                     CreateUnitFrame(self, "PlayerFrame", "player")
+                    local frame = _G["MidnightUI_PlayerFrame"]
+                    if frame then
+                        local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+                        local msg = string.format("[MidnightUI][DEBUG] PlayerFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
+                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
+                    end
                 end
 
                 function UnitFrames:CreateTargetFrame()
@@ -664,6 +670,9 @@ end
                         customTargetFrame:Hide() -- Hide by default
                         UnregisterStateDriver(customTargetFrame, "visibility")
                         RegisterStateDriver(customTargetFrame, "visibility", "[@target,exists] show; hide")
+                        local point, relativeTo, relativePoint, xOfs, yOfs = customTargetFrame:GetPoint()
+                        local msg = string.format("[MidnightUI][DEBUG] TargetFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
+                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
                     end
                 end
 
@@ -679,6 +688,9 @@ end
                         customToTFrame:Hide() -- Hide by default
                         UnregisterStateDriver(customToTFrame, "visibility")
                         RegisterStateDriver(customToTFrame, "visibility", "[@targettarget,exists] show; hide")
+                        local point, relativeTo, relativePoint, xOfs, yOfs = customToTFrame:GetPoint()
+                        local msg = string.format("[MidnightUI][DEBUG] TargetTargetFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
+                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
                     end
                 end
                 
