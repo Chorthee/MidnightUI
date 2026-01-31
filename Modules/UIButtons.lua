@@ -146,7 +146,7 @@ function UIButtons:CreateButtons()
         local config = self.db.profile.UIButtons[key]
         if config and config.enabled then
             local template = nil
-            if key == "logout" or key == "exit" then
+            if key == "exit" then
                 template = "SecureActionButtonTemplate"
             end
             local btn = CreateFrame("Button", "MidnightUIButton_"..key, container, template)
@@ -154,12 +154,8 @@ function UIButtons:CreateButtons()
             btn:SetFrameStrata("TOOLTIP")
             btn:SetFrameLevel(201)
             btn:EnableMouse(true)
-            -- Set up secure attributes for logout/exit buttons ONLY
-            if key == "logout" then
-                btn:SetAttribute("type", "macro")
-                btn:SetAttribute("macrotext", "/logout")
-                btn:RegisterForClicks("AnyUp", "AnyDown")
-            elseif key == "exit" then
+            -- Set up secure attributes for exit button ONLY
+            if key == "exit" then
                 btn:SetAttribute("type", "macro")
                 btn:SetAttribute("macrotext", "/editmode")
                 btn:RegisterForClicks("AnyUp", "AnyDown")
