@@ -897,8 +897,14 @@ end
                         frame.powerBar:SetMinMaxValues(0, maxpp)
                         frame.powerBar:SetValue(curpp)
                         frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
-                        if p.fontClassColor and classColor and classColor.r then
-                            frame.powerBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
+                        if p.fontClassColor then
+                            local _, classToken = UnitClass(unit)
+                            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                                local classColorValue = RAID_CLASS_COLORS[classToken]
+                                frame.powerBar.text:SetTextColor(classColorValue.r, classColorValue.g, classColorValue.b, 1)
+                            else
+                                frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
+                            end
                         else
                             frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
                         end
