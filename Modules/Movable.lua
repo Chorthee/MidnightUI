@@ -391,18 +391,8 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
         frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY")
         frame.movableHighlight:SetAllPoints()
         frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2)
-        -- Set frame level above all children
-        local maxLevel = frame:GetFrameLevel() or 0
-        for i = 1, frame:GetNumRegions() do
-            local region = select(i, frame:GetRegions())
-            if region and region.GetDrawLayer and region:GetDrawLayer() == "OVERLAY" then
-                local lvl = region:GetParent() and region:GetParent():GetFrameLevel() or 0
-                if lvl > maxLevel then maxLevel = lvl end
-            end
-        end
         frame.movableHighlight:SetDrawLayer("OVERLAY", 7)
         frame.movableHighlight:SetParent(frame)
-        frame.movableHighlight:SetFrameLevel(maxLevel + 10)
         frame.movableHighlight:Hide()
     end
     
