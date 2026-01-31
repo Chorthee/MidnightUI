@@ -513,6 +513,13 @@ end
 
 
                 local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
+                                        -- DEBUG: Print when creating highlight and border
+                                        if DEFAULT_CHAT_FRAME then
+                                            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Creating highlight for " .. tostring(key))
+                                        end
+                                            if DEFAULT_CHAT_FRAME then
+                                                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Created highlight and border for " .. tostring(key))
+                                            end
                     if frames[key] then
                         frames[key]:Hide()
                         frames[key]:SetParent(nil)
