@@ -935,8 +935,14 @@ end
                         local infoBar = frame.infoBar
                         local font, fontSize, fontOutline = LSM:Fetch("font", i.font), i.fontSize, i.fontOutline
                         local color
-                        if i.fontClassColor and classColor and classColor.r and classColor.g and classColor.b then
-                            color = {classColor.r, classColor.g, classColor.b, 1}
+                        if i.fontClassColor then
+                            local _, classToken = UnitClass("player")
+                            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                                local classColorValue = RAID_CLASS_COLORS[classToken]
+                                color = {classColorValue.r, classColorValue.g, classColorValue.b, 1}
+                            else
+                                color = (i.fontColor or {1,1,1,1})
+                            end
                         else
                             color = (i.fontColor or {1,1,1,1})
                         end
