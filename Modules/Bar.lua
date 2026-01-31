@@ -1849,7 +1849,7 @@ function Bar:GetOptions()
                         name = "Create New Bar", 
                         type = "input", 
                         order = 1, 
-                        set = function(_, v) if v ~= "" and not self.db.profile.bars[v] then self.db.profile.bars[v] = { enabled = true, fullWidth = false, width = 400, height = 24, scale = 1.0, alpha = 0.5, color = {r=0,g=0,b=0}, texture = "Flat", skin = "Global", padding = 5, point = "CENTER", x = 0, y = 0 }; self:CreateBarFrame(v); self:ApplyBarSettings(v) end end 
+                        set = function(_, v) if v ~= "" and not self.db.profile.bars[v] then self.db.profile.bars[v] = { enabled = true, fullWidth = false, width = 400, height = 24, scale = 1.0, alpha = 0.5, color = {r=0,g=0,b=0}, texture = "Blizzard", skin = "Global", padding = 5, point = "CENTER", x = 0, y = 0 }; self:CreateBarFrame(v); self:ApplyBarSettings(v) end end 
                     } 
                 } 
             },
@@ -1933,13 +1933,18 @@ function Bar:GetOptions()
                     get = function() local c = self.db.profile.bars[id].color; return c.r, c.g, c.b, self.db.profile.bars[id].alpha end, 
                     set = function(_, r, g, b, a) self.db.profile.bars[id].color = {r=r, g=g, b=b}; self.db.profile.bars[id].alpha = a; self:ApplyBarSettings(id) end 
                 },
-                delete = { 
-                    name = "Delete Bar", 
-                    type = "execute", 
-                    order = 99, 
-                    confirm = true, 
-                    disabled = function() return id == "MainBar" end, 
-                    func = function() self.db.profile.bars[id] = nil; if bars[id] then bars[id]:Hide(); bars[id] = nil end; for name, config in pairs(self.db.profile.brokers) do if config.bar == id then config.bar = "None" end end; MidnightUI:OpenConfig() end 
+                delete = {
+                    name = "Delete Bar",
+                    type = "execute",
+                    order = 99,
+                    confirm = function() return string.format("Are you sure you want to delete %s?", id) end,
+                    disabled = function() return id == "MainBar" end,
+                    func = function()
+                        self.db.profile.bars[id] = nil
+                        if bars[id] then bars[id]:Hide(); bars[id] = nil end
+                        for name, config in pairs(self.db.profile.brokers) do if config.bar == id then config.bar = "None" end end
+                        MidnightUI:OpenConfig()
+                    end
                 },
         }}
     end
