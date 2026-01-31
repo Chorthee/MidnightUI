@@ -576,16 +576,24 @@ end
                             frame.movableHighlightFrame:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
                         end)
                         -- Green highlight (hidden by default)
-                        frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
-                        frame.movableHighlight:SetAllPoints()
-                        frame.movableHighlight:SetDrawLayer("OVERLAY", 7)
-                        frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2) -- semi-transparent green
-                        -- Add a semi-transparent green border, normal size (matches action bars)
-                        frame.movableHighlightBorder = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
-                        frame.movableHighlightBorder:SetDrawLayer("OVERLAY", 7)
-                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -2, 2)
-                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 2, -2)
-                        frame.movableHighlightBorder:SetColorTexture(0, 1, 0, 0.2)
+                        frame.movableHighlightFrame:SetBackdrop({
+                            bgFile = "Interface\\Buttons\\WHITE8X8",
+                            edgeFile = "Interface\\Buttons\\WHITE8X8",
+                            tile = false,
+                            edgeSize = 2,
+                            insets = { left = 0, right = 0, top = 0, bottom = 0 }
+                        })
+                        frame.movableHighlightFrame:SetBackdropColor(0, 0.5, 0, 0.2)  -- Semi-transparent green
+                        frame.movableHighlightFrame:SetBackdropBorderColor(0, 1, 0, 1) -- Bright green border
+                        -- Add a centered label with the frame name, styled like action bars
+                        if not frame.movableHighlightLabel then
+                            frame.movableHighlightLabel = frame.movableHighlightFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+                            frame.movableHighlightLabel:SetPoint("CENTER")
+                            frame.movableHighlightLabel:SetText(key)
+                            frame.movableHighlightLabel:SetTextColor(1, 1, 1, 1)
+                            frame.movableHighlightLabel:SetShadowOffset(2, -2)
+                            frame.movableHighlightLabel:SetShadowColor(0, 0, 0, 1)
+                        end
                         frame.movableHighlightFrame:Hide() -- Hide by default
 
                         -- Always call MakeFrameDraggable to ensure registration (after highlight creation)
