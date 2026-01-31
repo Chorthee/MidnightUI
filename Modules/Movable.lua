@@ -433,6 +433,19 @@ end
 
 -- ============================================================================
 -- 2. NUDGE CONTROLS (Arrow Buttons)
+
+--[[
+    Registers a nudge frame to respond to Move Mode changes
+    @param nudgeFrame - The nudge control frame
+    @param parentFrame - The parent frame (for hover detection)
+]]
+function Movable:RegisterNudgeFrame(nudgeFrame, parentFrame)
+    if not nudgeFrame or not parentFrame then return end
+    table.insert(self.registeredNudgeFrames, {
+        nudge = nudgeFrame,
+        parent = parentFrame
+    })
+end
 -- ============================================================================
 
 --[[
