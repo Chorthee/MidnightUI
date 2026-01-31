@@ -314,21 +314,34 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
             isDragging = true
             self:StartMoving()
         end
-    end)
-    
-    frame:SetScript("OnDragStop", function(self)
-        if not isDragging then return end
-        
-        self:StopMovingOrSizing()
-        isDragging = false
-        
-        -- Snap to grid if move mode is active
-        if MidnightUI.moveMode then
-            local point, relativeTo, relativePoint, x, y = self:GetPoint()
-            
-            -- Snap to center of screen if within 40px
-            local screenWidth = UIParent:GetWidth()
+                if DEFAULT_CHAT_FRAME then
+                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Show highlight for frame " .. tostring(i) .. ": " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
+                end
+                if frame.movableHighlightFrame then
+                    frame.movableHighlightFrame:Show()
+                    if DEFAULT_CHAT_FRAME then
+                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Called Show() on highlightFrame for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
+                    end
+                elseif frame.movableHighlight then
+                    frame.movableHighlight:Show()
+                    if DEFAULT_CHAT_FRAME then
+                        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Called Show() on highlight (no frame) for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
+                    end
+                end
             local screenHeight = UIParent:GetHeight()
+
+            -- Fallback: forcibly show highlight for all major unit frames
+            for i, frame in ipairs(self.registeredFrames) do
+                local name = frame.GetName and frame:GetName() or ""
+                if name:find("MidnightUI_PlayerFrame") or name:find("MidnightUI_TargetFrame") or name:find("MidnightUI_TargetTargetFrame") or name:find("MidnightUI_FocusFrame") then
+                    if frame.movableHighlightFrame then
+                        frame.movableHighlightFrame:Show()
+                        if DEFAULT_CHAT_FRAME then
+                            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Fallback Show() on highlightFrame for " .. tostring(name) .. " (" .. tostring(frame) .. ")")
+                        end
+                    end
+                end
+            end
             local centerX = screenWidth / 2
             local centerY = screenHeight / 2
             
