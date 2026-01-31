@@ -852,19 +852,30 @@ end
                     if frame.infoBar then
                         local infoBar = frame.infoBar
                         local font, fontSize, fontOutline = LSM:Fetch("font", i.font), i.fontSize, i.fontOutline
-                        local color = i.fontClassColor and {classColor.r, classColor.g, classColor.b, 1} or (i.fontColor or {1,1,1,1})
+                        local color
+                        if i.fontClassColor and classColor and classColor.r and classColor.g and classColor.b then
+                            color = {classColor.r, classColor.g, classColor.b, 1}
+                        else
+                            color = (i.fontColor or {1,1,1,1})
+                        end
                         local infoText = name .. " " .. tostring(level)
                         if infoBar.textLeft and infoBar.textCenter and infoBar.textRight then
-                            infoBar.textLeft:SetFont(font, fontSize, fontOutline)
-                            infoBar.textLeft:SetTextColor(unpack(color))
-                            infoBar.textCenter:SetFont(font, fontSize, fontOutline)
-                            infoBar.textCenter:SetTextColor(unpack(color))
-                            infoBar.textRight:SetFont(font, fontSize, fontOutline)
-                            infoBar.textRight:SetTextColor(unpack(color))
-                            infoBar.textLeft:SetText("")
-                            infoBar.textCenter:SetText(infoText)
-                            infoBar.textRight:SetText("")
-                        elseif infoBar.text then
+                            if infoBar.textLeft.SetFont and infoBar.textLeft.SetTextColor and infoBar.textLeft.SetText then
+                                infoBar.textLeft:SetFont(font, fontSize, fontOutline)
+                                infoBar.textLeft:SetTextColor(unpack(color))
+                                infoBar.textLeft:SetText("")
+                            end
+                            if infoBar.textCenter.SetFont and infoBar.textCenter.SetTextColor and infoBar.textCenter.SetText then
+                                infoBar.textCenter:SetFont(font, fontSize, fontOutline)
+                                infoBar.textCenter:SetTextColor(unpack(color))
+                                infoBar.textCenter:SetText(infoText)
+                            end
+                            if infoBar.textRight.SetFont and infoBar.textRight.SetTextColor and infoBar.textRight.SetText then
+                                infoBar.textRight:SetFont(font, fontSize, fontOutline)
+                                infoBar.textRight:SetTextColor(unpack(color))
+                                infoBar.textRight:SetText("")
+                            end
+                        elseif infoBar.text and infoBar.text.SetFont and infoBar.text.SetTextColor and infoBar.text.SetText then
                             infoBar.text:SetFont(font, fontSize, fontOutline)
                             infoBar.text:SetTextColor(unpack(color))
                             infoBar.text:SetText(infoText)
