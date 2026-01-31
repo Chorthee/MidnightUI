@@ -448,26 +448,15 @@ end
                     bar.bg:SetAllPoints()
                     -- Use Bar settings for InfoBar background if this is the InfoBar
                     if opts._infoBar then
-                        -- Use per-frame InfoBar alpha if available (Player frame only for now)
+                        -- Use only the options provided via settings (dropdowns), not Bar module
                         local parentFrame = (parent and parent.GetName and parent:GetName()) or ""
                         local infoAlpha = nil
                         if parentFrame == "MidnightUI_PlayerFrame" and UnitFrames and UnitFrames.db and UnitFrames.db.profile and UnitFrames.db.profile.player and UnitFrames.db.profile.player.info then
                             infoAlpha = UnitFrames.db.profile.player.info.alpha or (UnitFrames.db.profile.player.info.color and UnitFrames.db.profile.player.info.color[4]) or 1
                         end
-                        local Bar = MidnightUI:GetModule("Bar", true)
-                        local barTexture, barAlpha
-                        if Bar and Bar.db and Bar.db.profile and Bar.db.profile.bars and Bar.db.profile.bars["MainBar"] then
-                            local barSettings = Bar.db.profile.bars["MainBar"]
-                            barTexture = LSM:Fetch("statusbar", barSettings.texture or "Flat")
-                            barAlpha = infoAlpha or barSettings.alpha or 0.6
-                            local c = barSettings.color or {r=0.1,g=0.1,b=0.1}
-                            bar.bg:SetTexture(barTexture)
-                            bar.bg:SetVertexColor(c.r, c.g, c.b, barAlpha)
-                        else
-                            local alpha = infoAlpha or (opts.bgColor and opts.bgColor[4]) or 0.5
-                            local bg = opts.bgColor or {0,0,0,0.5}
-                            bar.bg:SetColorTexture(bg[1], bg[2], bg[3], alpha)
-                        end
+                        local alpha = infoAlpha or (opts.bgColor and opts.bgColor[4]) or 0.5
+                        local bg = opts.bgColor or {0,0,0,0.5}
+                        bar.bg:SetColorTexture(bg[1], bg[2], bg[3], alpha)
                     else
                         -- Always use solid black for health bar background
                         -- For power bar, use foreground color with 20% alpha for background
@@ -957,8 +946,12 @@ end
                             if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
                                 local classColorValue = RAID_CLASS_COLORS[classToken]
                                 local alpha = (i.color and i.color[4]) or 0.6
-                                if infoBar.bg and infoBar.bg.SetColorTexture then
-                                    infoBar.bg:SetColorTexture(classColorValue.r, classColorValue.g, classColorValue.b, alpha)
+                                if infoBar.bg then
+                                    -- Remove any texture so SetColorTexture works
+                                    if infoBar.bg.SetTexture then infoBar.bg:SetTexture(nil) end
+                                    if infoBar.bg.SetColorTexture then
+                                        infoBar.bg:SetColorTexture(classColorValue.r, classColorValue.g, classColorValue.b, alpha)
+                                    end
                                 end
                             end
                         else
