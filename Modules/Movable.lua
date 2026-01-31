@@ -198,6 +198,7 @@ function Movable:OnInitialize()
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnInitialize called and message registered (196)")
     end
+end
 function Movable:OnEnable()
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnEnable called (199)")
