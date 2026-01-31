@@ -538,17 +538,7 @@ end
                     -- frame.debugBorder:SetBlendMode("ADD")
                     if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI] Created frame: "..key.." at "..(px)..","..(py).." size "..width.."x"..totalHeight) end
 
-                    -- Drag to move if unlocked
-                    frame:RegisterForDrag("LeftButton")
-                    frame:SetScript("OnDragStart", function(self)
-                        if frameDB.movable then self:StartMoving() end
-                    end)
-                    frame:SetScript("OnDragStop", function(self)
-                        self:StopMovingOrSizing()
-                        local point, _, _, xOfs, yOfs = self:GetPoint()
-                        frameDB.posX = xOfs or 0
-                        frameDB.posY = yOfs or 0
-                    end)
+                    -- Remove legacy drag logic; handled by Movable:MakeFrameDraggable
 
                     -- Bar attachment logic
                     local yOffset = 0
