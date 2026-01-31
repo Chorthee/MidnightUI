@@ -94,6 +94,26 @@ end
 local frames = {}
 
 -- Move HookBlizzardPlayerFrame definition above its first use
+
+local function SetBlizzardFramesHidden(self)
+    if self.db.profile.showPlayer and PlayerFrame then
+        UnregisterStateDriver(PlayerFrame, "visibility")
+        RegisterStateDriver(PlayerFrame, "visibility", "hide")
+        PlayerFrame:UnregisterAllEvents()
+    end
+    if self.db.profile.showTarget and TargetFrame then
+        UnregisterStateDriver(TargetFrame, "visibility")
+        RegisterStateDriver(TargetFrame, "visibility", "hide")
+        TargetFrame:UnregisterAllEvents()
+    end
+    -- Do not forcibly hide TargetFrame here; let the secure driver in CreateTargetFrame control its visibility
+    if self.db.profile.showTargetTarget and TargetFrameToT then
+        UnregisterStateDriver(TargetFrameToT, "visibility")
+        RegisterStateDriver(TargetFrameToT, "visibility", "hide")
+        TargetFrameToT:UnregisterAllEvents()
+    end
+end
+
 local function HookBlizzardPlayerFrame(self)
     if PlayerFrame and not PlayerFrame._MidnightUIHooked then
         hooksecurefunc(PlayerFrame, "Show", function()
