@@ -380,6 +380,9 @@ function Movable:MakeFrameDraggable(frame, saveCallback, unlockCheck)
     
     -- Register this frame for Move Mode highlighting
     table.insert(self.registeredFrames, frame)
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] MakeFrameDraggable registered frame: " .. tostring(frame:GetName() or frame))
+    end
 end
 
 -- ============================================================================
