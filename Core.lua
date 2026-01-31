@@ -69,7 +69,7 @@ function MidnightUI:SlashCommand(input)
     elseif input:lower() == "move" then
         self:ToggleMoveMode()
     else
-        self:OpenConfig()
+--        self:OpenConfig()
     end
 end
 
