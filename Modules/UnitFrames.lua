@@ -526,19 +526,17 @@ end
                     local totalHeight = (h.enabled and h.height or 0) + (p.enabled and p.height or 0) + (i.enabled and i.height or 0) + spacing * ((h.enabled and p.enabled and i.enabled) and 2 or (h.enabled and p.enabled) and 1 or 0)
                     local width = math.max(h.enabled and h.width or 0, p.enabled and p.width or 0, i.enabled and i.width or 0)
 
-
-
                     local frameType = "Button"
                     local template = "SecureUnitButtonTemplate,BackdropTemplate"
                     local frame = CreateFrame(frameType, "MidnightUI_"..key, UIParent, template)
                     frame:SetSize(width, totalHeight)
 
-                    -- Use posX/posY if present, else fallback to position table, else 0
+                    -- Use saved anchor/relative points if present, else fallback to CENTER
+                    local myPoint = frameDB.anchorPoint or (anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER")
+                    local relPoint = frameDB.relativePoint or (anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER")
                     local px = frameDB.posX or (frameDB.position and frameDB.position.x) or 0
                     local py = frameDB.posY or (frameDB.position and frameDB.position.y) or 0
-                    local myPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
                     local relTo = (type(anchorTo) == "table" and anchorTo) or UIParent
-                    local relPoint = anchorPoint or (frameDB.position and frameDB.position.point) or "CENTER"
                     frame:SetPoint(myPoint, relTo, relPoint, px, py)
                     frame:SetFrameStrata("HIGH")
                     frame:Show()
@@ -548,15 +546,20 @@ end
                     local Movable = MidnightUI:GetModule("Movable", true)
                     if Movable and (key == "PlayerFrame" or key == "TargetFrame" or key == "TargetTargetFrame" or key == "FocusFrame") then
                         Movable:MakeFrameDraggable(frame, function(_, x, y)
-                            frameDB.posX = x or 0
-                            frameDB.posY = y or 0
+                            local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
+                            frameDB.anchorPoint = point or "CENTER"
+                            frameDB.relativePoint = relativePoint or "CENTER"
+                            frameDB.posX = xOfs or 0
+                            frameDB.posY = yOfs or 0
                         end)
                         -- Add nudge controls
                         Movable:CreateNudgeControls(frame, frameDB, function()
-                            local point, _, _, x, y = frame:GetPoint()
+                            local point, _, relativePoint, x, y = frame:GetPoint()
+                            frameDB.anchorPoint = point or "CENTER"
+                            frameDB.relativePoint = relativePoint or "CENTER"
                             frameDB.posX = x or 0
                             frameDB.posY = y or 0
-                            frame:SetPoint(point, UIParent, point, frameDB.posX, frameDB.posY)
+                            frame:SetPoint(point, UIParent, relativePoint, frameDB.posX, frameDB.posY)
                         end, nil, key .. " Nudge")
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
