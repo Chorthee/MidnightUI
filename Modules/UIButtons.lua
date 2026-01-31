@@ -9,6 +9,12 @@ function UIButtons:OnInitialize()
 end
 
 function UIButtons:OnDBReady()
+        -- Migration: Remove old 'logout' button and ensure 'options' button exists
+        local btns = self.db.profile.UIButtons
+        if btns.logout then btns.logout = nil end
+        if not btns.options then
+            btns.options = { enabled = true, order = 3 }
+        end
     if not MidnightUI.db or not MidnightUI.db.profile or not MidnightUI.db.profile.modules then
         return
     end
