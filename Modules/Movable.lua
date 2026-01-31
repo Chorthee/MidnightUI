@@ -728,24 +728,6 @@ end
 -- 3. MOVE MODE INTEGRATION
 -- ============================================================================
 
-function Movable:OnInitialize()
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
-end
-
---[[
-    Registers a nudge frame to respond to Move Mode changes
-    @param nudgeFrame - The nudge control frame
-    @param parentFrame - The parent frame (for hover detection)
-]]
-function Movable:RegisterNudgeFrame(nudgeFrame, parentFrame)
-    if not nudgeFrame or not parentFrame then return end
-    
-    table.insert(self.registeredNudgeFrames, {
-        nudge = nudgeFrame,
-        parent = parentFrame
-    })
-end
-
 function Movable:OnMoveModeChanged(event, enabled)
     -- Show/hide green highlights on all registered frames
     for _, frame in ipairs(self.registeredFrames) do
