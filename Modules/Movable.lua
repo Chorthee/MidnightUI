@@ -213,6 +213,13 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] OnMoveModeChanged: registeredFrames count = " .. tostring(#self.registeredFrames))
+            for i, frame in ipairs(self.registeredFrames) do
+                local name = frame.GetName and frame:GetName() or tostring(frame)
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name) .. " (" .. tostring(frame) .. ")")
+            end
+        end
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Move Mode toggled: " .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
     end
