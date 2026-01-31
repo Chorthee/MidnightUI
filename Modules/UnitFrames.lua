@@ -571,52 +571,24 @@ end
                     if key == "PlayerFrame" then
                         frame:SetAttribute("unit", "player")
                         frame:SetAttribute("type", "target")
+                        frame:SetAttribute("*type2", "togglemenu")
                         frame:RegisterForClicks("AnyUp")
                     elseif key == "TargetFrame" then
                         frame:SetAttribute("unit", "target")
                         frame:SetAttribute("type", "target")
+                        frame:SetAttribute("*type2", "togglemenu")
                         frame:RegisterForClicks("AnyUp")
                     elseif key == "TargetTargetFrame" then
                         frame:SetAttribute("unit", "targettarget")
                         frame:SetAttribute("type", "target")
+                        frame:SetAttribute("*type2", "togglemenu")
                         frame:RegisterForClicks("AnyUp")
                     elseif key == "FocusFrame" then
                         frame:SetAttribute("unit", "focus")
                         frame:SetAttribute("type", "target")
+                        frame:SetAttribute("*type2", "togglemenu")
                         frame:RegisterForClicks("AnyUp")
                     end
-
-                    -- Handle both left and right clicks
-                    frame:SetScript("OnClick", function(self, button)
-                        if button == "RightButton" then
-                            local unit = nil
-                            if key == "PlayerFrame" then unit = "player"
-                            elseif key == "TargetFrame" then unit = "target"
-                            elseif key == "TargetTargetFrame" then unit = "targettarget"
-                            elseif key == "FocusFrame" then unit = "focus" end
-                            if unit and UnitExists(unit) then
-                                if not self.dropDown then
-                                    self.dropDown = CreateFrame("Frame", "MidnightUI_"..key.."DropDown", UIParent, "UIDropDownMenuTemplate")
-                                    self.dropDown.displayMode = "MENU"
-                                    self.dropDown.initialize = function(dropdown, level, menuList)
-                                        if not level then return end
-                                        local info = UIDropDownMenu_CreateInfo()
-                                        info.text = "Set Focus"
-                                        info.func = function() FocusUnit(unit) end
-                                        UIDropDownMenu_AddButton(info, level)
-                                        info = UIDropDownMenu_CreateInfo()
-                                        info.text = "Clear Focus"
-                                        info.func = function() ClearFocus() end
-                                        UIDropDownMenu_AddButton(info, level)
-                                        -- Add more options as needed
-                                    end
-                                end
-                                ToggleDropDownMenu(1, nil, self.dropDown, "cursor", 0, 0)
-                            end
-                        else
-                            print("[MidnightUI] "..key.." "..tostring(button).." clicked")
-                        end
-                    end)
 
                     frames[key] = frame
                     self:UpdateUnitFrame(key, unit)
