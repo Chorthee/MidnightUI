@@ -226,11 +226,10 @@ function Movable:OnMoveModeChanged(event, enabled)
         self:ShowGrid()
         -- Show green highlight overlay and fade frames in Move Mode
         for i, frame in ipairs(self.registeredFrames) do
-            if frame.movableHighlightFrame then
-                frame.movableHighlightFrame:Show()
-            elseif frame.movableHighlight then
-                frame.movableHighlight:Show()
-            end
+            -- Show both highlight fill and border if present
+            if frame.movableHighlight then frame.movableHighlight:Show() end
+            if frame.movableHighlightBorder then frame.movableHighlightBorder:Show() end
+            if frame.movableHighlightFrame then frame.movableHighlightFrame:Show() end
             -- Fade unit frames and bars to 30% opacity in Move Mode
             if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
                 frame:SetAlpha(0.3)
@@ -240,14 +239,10 @@ function Movable:OnMoveModeChanged(event, enabled)
         self:HideGrid()
         -- Hide green highlight overlay and restore frame opacity
         for i, frame in ipairs(self.registeredFrames) do
-            if frame.movableHighlightFrame then
-                frame.movableHighlightFrame:Hide()
-            elseif frame.movableHighlight then
-                frame.movableHighlight:Hide()
-                if DEFAULT_CHAT_FRAME then
-                    DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Hide highlight (no frame) for " .. tostring(frame:GetName() or frame) .. " (" .. tostring(frame) .. ")")
-                end
-            end
+            -- Hide both highlight fill and border if present
+            if frame.movableHighlight then frame.movableHighlight:Hide() end
+            if frame.movableHighlightBorder then frame.movableHighlightBorder:Hide() end
+            if frame.movableHighlightFrame then frame.movableHighlightFrame:Hide() end
             -- Restore full opacity
             if frame:GetName() and (frame:GetName():find("MidnightUI_PlayerFrame") or frame:GetName():find("MidnightUI_TargetFrame") or frame:GetName():find("MidnightUI_TargetTargetFrame") or frame:GetName():find("MidnightUI_FocusFrame")) then
                 frame:SetAlpha(1)
