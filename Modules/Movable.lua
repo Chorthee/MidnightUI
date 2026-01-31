@@ -204,7 +204,7 @@ function Movable:OnEnable()
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnEnable called (199)")
     end
     -- Listen for move mode changes (grid only)
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", function(event, enabled)
+    Movable:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", function(event, enabled)
         if enabled then
             if not gridFrame then
                 Movable:CreateGrid()
@@ -217,7 +217,7 @@ function Movable:OnEnable()
         end
     end)
     -- Also register OnMoveModeChanged for safety
-    self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
+    Movable:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
