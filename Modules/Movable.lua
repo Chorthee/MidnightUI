@@ -221,6 +221,13 @@ function Movable:OnEnable()
 end
 
 function Movable:OnMoveModeChanged(event, enabled)
+        if DEFAULT_CHAT_FRAME then
+            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] MoveModeChanged: enabled=" .. tostring(enabled) .. ", registeredFrames=" .. tostring(#self.registeredFrames))
+            for i, frame in ipairs(self.registeredFrames) do
+                local name = frame.GetName and frame:GetName() or tostring(frame)
+                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] registeredFrame[" .. i .. "]: " .. tostring(name))
+            end
+        end
     -- Debug output removed; highlight logic confirmed working
     if enabled then
         self:ShowGrid()
