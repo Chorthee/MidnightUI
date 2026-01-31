@@ -545,6 +545,7 @@ end
                     -- Enable drag-and-drop movement for unit frames
                     local Movable = MidnightUI:GetModule("Movable", true)
                     if Movable and (key == "PlayerFrame" or key == "TargetFrame" or key == "TargetTargetFrame" or key == "FocusFrame") then
+                        -- Always call MakeFrameDraggable to ensure registration and highlight overlay
                         Movable:MakeFrameDraggable(frame, function(_, x, y)
                             local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
                             frameDB.anchorPoint = point or "CENTER"
@@ -561,6 +562,13 @@ end
                             frameDB.posY = y or 0
                             frame:SetPoint(point, UIParent, relativePoint, frameDB.posX, frameDB.posY)
                         end, nil, key .. " Nudge")
+                        -- Force highlight overlay creation if missing
+                        if not frame.movableHighlight then
+                            frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
+                            frame.movableHighlight:SetAllPoints()
+                            frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2)
+                            frame.movableHighlight:Hide()
+                        end
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
                     -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
