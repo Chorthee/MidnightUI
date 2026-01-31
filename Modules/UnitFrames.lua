@@ -571,6 +571,12 @@ end
                         frame.movableHighlight = frame:CreateTexture(nil, "OVERLAY", nil, 7)
                         frame.movableHighlight:SetAllPoints()
                         frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2)
+                        -- TEMP DEBUG: Add a red border to the highlight overlay
+                        frame.movableHighlightBorder = frame:CreateTexture(nil, "OVERLAY", nil, 8)
+                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -1, 1)
+                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 1, -1)
+                        frame.movableHighlightBorder:SetColorTexture(1, 0, 0, 0.7)
+                        frame.movableHighlightBorder:Hide()
                         frame.movableHighlight:Hide()
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
