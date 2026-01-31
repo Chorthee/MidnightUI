@@ -580,16 +580,16 @@ end
                         frame.movableHighlightFrame:SetAllPoints()
                         frame.movableHighlightFrame:SetFrameStrata(frame:GetFrameStrata())
                         frame.movableHighlightFrame:SetFrameLevel(frame:GetFrameLevel() + 50)
-                        -- Green highlight
+                        -- Green highlight (hidden by default)
                         frame.movableHighlight = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
                         frame.movableHighlight:SetAllPoints()
-                        frame.movableHighlight:SetColorTexture(0, 1, 0, 1) -- fully opaque green
-                        -- TEMP DEBUG: Add a thick, bright red border
+                        frame.movableHighlight:SetColorTexture(0, 1, 0, 0.2) -- semi-transparent green
+                        -- Add a semi-transparent red border
                         frame.movableHighlightBorder = frame.movableHighlightFrame:CreateTexture(nil, "OVERLAY")
-                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -6, 6)
-                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 6, -6)
-                        frame.movableHighlightBorder:SetColorTexture(1, 0, 0, 1) -- fully opaque red
-                        frame.movableHighlightFrame:Show()
+                        frame.movableHighlightBorder:SetPoint("TOPLEFT", frame.movableHighlight, "TOPLEFT", -2, 2)
+                        frame.movableHighlightBorder:SetPoint("BOTTOMRIGHT", frame.movableHighlight, "BOTTOMRIGHT", 2, -2)
+                        frame.movableHighlightBorder:SetColorTexture(1, 0, 0, 0.7)
+                        frame.movableHighlightFrame:Hide() -- Hide by default
                     end
                     -- DEBUG: Red border for frame boundary visualization. Disabled for release.
                     -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
