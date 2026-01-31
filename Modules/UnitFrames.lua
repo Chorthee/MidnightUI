@@ -710,22 +710,22 @@ end
                     local safeCurhp = 0
                     if UnitHealth then
                         local ok, val = pcall(UnitHealth, unit)
-                        if ok and val then safeCurhp = val end
+                        if ok and val ~= nil then safeCurhp = val else safeCurhp = 0 end
                     end
                     local safeMaxhp = 0
                     if UnitHealthMax then
                         local ok, val = pcall(UnitHealthMax, unit)
-                        if ok and val then safeMaxhp = val end
+                        if ok and val ~= nil then safeMaxhp = val else safeMaxhp = 0 end
                     end
                     local safeCurpp = 0
                     if UnitPower then
                         local ok, val = pcall(UnitPower, unit)
-                        if ok and val then safeCurpp = val end
+                        if ok and val ~= nil then safeCurpp = val else safeCurpp = 0 end
                     end
                     local safeMaxpp = 0
                     if UnitPowerMax then
                         local ok, val = pcall(UnitPowerMax, unit)
-                        if ok and val then safeMaxpp = val end
+                        if ok and val ~= nil then safeMaxpp = val else safeMaxpp = 0 end
                     end
                     if hpPct == nil then hpPct = 0 end
                     if ppPct == nil then ppPct = 0 end
@@ -737,38 +737,40 @@ end
                     local showPct = h.text and h.text:find("perhp")
                     -- Default: show current / max (percent)
                     if showCur and showMax and showPct then
-                        if hpPct then
-                            healthStr = string.format("%d / %d (%d%%)", safeCurhp, safeMaxhp, hpPct)
+                        if hpPct ~= nil then
+                            healthStr = string.format("%d / %d (%d%%)", safeCurhp or 0, safeMaxhp or 0, hpPct or 0)
                         else
-                            healthStr = string.format("%d / %d", safeCurhp, safeMaxhp)
+                            healthStr = string.format("%d / %d", safeCurhp or 0, safeMaxhp or 0)
                         end
                     elseif showCur and showMax then
-                        healthStr = string.format("%d / %d", safeCurhp, safeMaxhp)
+                        healthStr = string.format("%d / %d", safeCurhp or 0, safeMaxhp or 0)
                     elseif showCur and showPct then
-                        if hpPct then
-                            healthStr = string.format("%d (%d%%)", safeCurhp, hpPct)
+                        if hpPct ~= nil then
+                            healthStr = string.format("%d (%d%%)", safeCurhp or 0, hpPct or 0)
                         else
-                            healthStr = string.format("%d", safeCurhp)
+                            healthStr = string.format("%d", safeCurhp or 0)
                         end
                     elseif showCur then
-                        healthStr = string.format("%d", safeCurhp)
+                        healthStr = string.format("%d", safeCurhp or 0)
                     elseif showMax then
-                        healthStr = string.format("%d", safeMaxhp)
+                        healthStr = string.format("%d", safeMaxhp or 0)
                     elseif showPct then
-                        if hpPct then
-                            healthStr = string.format("%d%%", hpPct)
+                        if hpPct ~= nil then
+                            healthStr = string.format("%d%%", hpPct or 0)
                         else
                             healthStr = ""
                         end
                     else
                         -- fallback: just show current
-                        healthStr = string.format("%d", safeCurhp)
+                        healthStr = string.format("%d", safeCurhp or 0)
                     end
 
                     -- Update health bar fill to reflect current health
-                    frame.healthBar:SetMinMaxValues(0, safeMaxhp)
-                    frame.healthBar:SetValue(safeCurhp)
-                    frame.healthBar.text:SetText(healthStr)
+                    if frame.healthBar then
+                        frame.healthBar:SetMinMaxValues(0, safeMaxhp or 0)
+                        frame.healthBar:SetValue(safeCurhp or 0)
+                        frame.healthBar.text:SetText(healthStr or "")
+                    end
 
                     -- Set health bar color: class color if enabled, else hostility color, else custom/static color (no gradient, no arithmetic)
                     local colorSet = false
@@ -802,46 +804,49 @@ end
                     end
 
                     -- Power Bar
-                    local curpp, maxpp = UnitPower(unit), UnitPowerMax(unit)
-                    frame.powerBar:SetMinMaxValues(0, maxpp)
-                    frame.powerBar:SetValue(curpp)
-                    frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
-                    if p.fontClassColor then
-                        frame.powerBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
-                    else
-                        frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
-                    end
-                    -- Use Blizzard default color if not overridden
-                    local powerColor = p.color
-                    local useClassColor = p.classColor
-                    local safePowerColor
-                    if useClassColor then
-                        local _, classToken = UnitClass(unit)
-                        if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                            local classColorValue = RAID_CLASS_COLORS[classToken]
-                            safePowerColor = {
-                                tonumber(classColorValue.r) or 1,
-                                tonumber(classColorValue.g) or 1,
-                                tonumber(classColorValue.b) or 1,
-                                0.6
-                            }
-                            frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
-                            if frame.powerBar.bg then
-                                frame.powerBar.bg:SetColorTexture(safePowerColor[1], safePowerColor[2], safePowerColor[3], 0.2)
+                    local curpp = safeCurpp or 0
+                    local maxpp = safeMaxpp or 0
+                    if frame.powerBar then
+                        frame.powerBar:SetMinMaxValues(0, maxpp)
+                        frame.powerBar:SetValue(curpp)
+                        frame.powerBar.text:SetFont(LSM:Fetch("font", p.font), p.fontSize, p.fontOutline)
+                        if p.fontClassColor and classColor and classColor.r then
+                            frame.powerBar.text:SetTextColor(classColor.r, classColor.g, classColor.b, 1)
+                        else
+                            frame.powerBar.text:SetTextColor(unpack(p.fontColor or {1,1,1,1}))
+                        end
+                        -- Use Blizzard default color if not overridden
+                        local powerColor = p.color
+                        local useClassColor = p.classColor
+                        local safePowerColor
+                        if useClassColor then
+                            local _, classToken = UnitClass(unit)
+                            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                                local classColorValue = RAID_CLASS_COLORS[classToken]
+                                safePowerColor = {
+                                    tonumber(classColorValue.r) or 1,
+                                    tonumber(classColorValue.g) or 1,
+                                    tonumber(classColorValue.b) or 1,
+                                    0.6
+                                }
+                                frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
+                                if frame.powerBar.bg then
+                                    frame.powerBar.bg:SetColorTexture(safePowerColor[1], safePowerColor[2], safePowerColor[3], 0.2)
+                                end
+                            else
+                                safePowerColor = SanitizeColorTable(powerColor, {0.2,0.4,0.8,1})
+                                frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
                             end
                         else
+                            if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
+                                powerColor = GetPowerTypeColor(unit)
+                            end
                             safePowerColor = SanitizeColorTable(powerColor, {0.2,0.4,0.8,1})
                             frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
                         end
-                    else
-                        if not p._userSetColor and (not p.color or (p.color[1] == 0.2 and p.color[2] == 0.4 and p.color[3] == 0.8)) then
-                            powerColor = GetPowerTypeColor(unit)
-                        end
-                        safePowerColor = SanitizeColorTable(powerColor, {0.2,0.4,0.8,1})
-                        frame.powerBar:SetStatusBarColor(safePowerColor[1], safePowerColor[2], safePowerColor[3], safePowerColor[4])
+                        -- Set static power bar text: current power percent
+                        frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
                     end
-                    -- Set static power bar text: current power percent
-                    frame.powerBar.text:SetText(ppPct and (tostring(ppPct) .. "%") or "")
 
                     -- Set static info bar text: character name and level
                     if frame.infoBar then
