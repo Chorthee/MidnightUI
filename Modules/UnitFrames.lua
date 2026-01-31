@@ -559,7 +559,7 @@ end
                             frame.movableHighlightFrame = nil
                         end
                         -- Create a dedicated child frame above all content
-                        frame.movableHighlightFrame = CreateFrame("Frame", nil, UIParent)
+                        frame.movableHighlightFrame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
                         frame.movableHighlightFrame:SetFrameStrata("FULLSCREEN_DIALOG")
                         frame.movableHighlightFrame:SetFrameLevel(10000)
                         frame.movableHighlightFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
