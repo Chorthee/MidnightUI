@@ -28,7 +28,7 @@ function UIButtons:OnDBReady()
             UIButtons = {
                 reload = { enabled = true, order = 1 },
                 exit = { enabled = true, order = 2 },
-                logout = { enabled = true, order = 3 },
+                options = { enabled = true, order = 3 },
                 addons = { enabled = true, order = 4 },
                 move = { enabled = true, order = 5 }
             }
@@ -105,7 +105,7 @@ function UIButtons:CreateButtons()
             tooltip = "Edit Mode",
             onClick = function() end
         },
-        logout = {
+        options = {
             name = "Options",
             text = "O",
             tooltip = "Open MidnightUI Options",
@@ -206,7 +206,7 @@ function UIButtons:CreateButtons()
                 GameTooltip:Hide()
             end)
             -- Click handler (only for non-secure buttons)
-            if key ~= "logout" and key ~= "exit" and key ~= "addons" then
+            if key ~= "exit" and key ~= "addons" then
                 btn:SetScript("OnClick", data.onClick)
             end
             btn.key = key
