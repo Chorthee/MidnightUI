@@ -116,8 +116,8 @@ function UIButtons:CreateButtons()
             text = "O",
             tooltip = "Open MidnightUI Options",
             onClick = function()
-                if _G.MidnightUI and type(_G.MidnightUI.OpenConfig) == "function" then
-                    _G.MidnightUI:OpenConfig()
+                if MidnightUI and type(MidnightUI.OpenConfig) == "function" then
+                    MidnightUI:OpenConfig()
                 end
             end
         },
