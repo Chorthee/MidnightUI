@@ -194,7 +194,6 @@ end
 -- ============================================================================
 
 function Movable:OnInitialize()
-end
     self:RegisterMessage("MIDNIGHTUI_MOVEMODE_CHANGED", "OnMoveModeChanged")
     if DEFAULT_CHAT_FRAME then
         DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Movable:OnInitialize called and message registered (196)")
