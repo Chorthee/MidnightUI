@@ -628,10 +628,11 @@ end
                     local pos = db.targetPosition or { point = "TOPLEFT", x = 320, y = 0 }
                     CreateUnitFrame(self, "TargetFrame", "target", anchorTo, pos.point, pos.point, pos.x, pos.y)
                     -- Only show TargetFrame if a target exists
-                    if TargetFrame then
-                        TargetFrame:Hide() -- Hide by default
-                        UnregisterStateDriver(TargetFrame, "visibility")
-                        RegisterStateDriver(TargetFrame, "visibility", "[@target,exists] show; hide")
+                    local customTargetFrame = _G["MidnightUI_TargetFrame"]
+                    if customTargetFrame then
+                        customTargetFrame:Hide() -- Hide by default
+                        UnregisterStateDriver(customTargetFrame, "visibility")
+                        RegisterStateDriver(customTargetFrame, "visibility", "[@target,exists] show; hide")
                     end
                 end
 
