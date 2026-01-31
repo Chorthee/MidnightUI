@@ -513,13 +513,7 @@ end
 
 
                 local function CreateUnitFrame(self, key, unit, anchor, anchorTo, anchorPoint, x, y)
-                                        -- DEBUG: Print when creating highlight and border
-                                        if DEFAULT_CHAT_FRAME then
-                                            DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Creating highlight for " .. tostring(key))
-                                        end
-                                            if DEFAULT_CHAT_FRAME then
-                                                DEFAULT_CHAT_FRAME:AddMessage("[MidnightUI][DEBUG] Created highlight and border for " .. tostring(key))
-                                            end
+                                        -- ...existing code...
                     if frames[key] then
                         frames[key]:Hide()
                         frames[key]:SetParent(nil)
@@ -614,11 +608,7 @@ end
                             frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
                         end)
                     end
-                    -- DEBUG: Red border for frame boundary visualization. Disabled for release.
-                    -- frame.debugBorder = frame:CreateTexture(nil, "OVERLAY")
-                    -- frame.debugBorder:SetAllPoints()
-                    -- frame.debugBorder:SetColorTexture(1,0,0,0.5)
-                    -- frame.debugBorder:SetBlendMode("ADD")
+                    -- ...existing code...
 
 
                     -- Remove legacy drag logic; handled by Movable:MakeFrameDraggable
@@ -707,11 +697,7 @@ end
                     -- Anchor PlayerFrame to CENTER
                     CreateUnitFrame(self, "PlayerFrame", "player", UIParent, "CENTER", "CENTER", self.db.profile.player.posX or 0, self.db.profile.player.posY or 0)
                     local frame = _G["MidnightUI_PlayerFrame"]
-                    if frame then
-                        local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint()
-                        local msg = string.format("[MidnightUI][DEBUG] PlayerFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
-                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
-                    end
+                    -- ...existing code...
                 end
 
                 function UnitFrames:CreateTargetFrame()
@@ -728,9 +714,6 @@ end
                         customTargetFrame:Hide() -- Hide by default
                         UnregisterStateDriver(customTargetFrame, "visibility")
                         RegisterStateDriver(customTargetFrame, "visibility", "[@target,exists] show; hide")
-                        local point, relativeTo, relativePoint, xOfs, yOfs = customTargetFrame:GetPoint()
-                        local msg = string.format("[MidnightUI][DEBUG] TargetFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
-                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
                     end
                 end
 
@@ -748,9 +731,6 @@ end
                         customToTFrame:Hide() -- Hide by default
                         UnregisterStateDriver(customToTFrame, "visibility")
                         RegisterStateDriver(customToTFrame, "visibility", "[@targettarget,exists] show; hide")
-                        local point, relativeTo, relativePoint, xOfs, yOfs = customToTFrame:GetPoint()
-                        local msg = string.format("[MidnightUI][DEBUG] TargetTargetFrame position: %s, %s, %s, %d, %d", tostring(point), tostring(relativeTo and relativeTo:GetName() or "nil"), tostring(relativePoint), xOfs or 0, yOfs or 0)
-                        if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(msg) end
                     end
                 end
                 
